@@ -155,7 +155,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(map, 600 - player.getX(), 420 - player.getY(), null);
+        g.drawImage(map, 530 - player.getX(), 378 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
 

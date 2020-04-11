@@ -87,16 +87,16 @@ public class Player {
         if (!moving) {
             switch (direction) {
                 case (RIGHT):
-                    g.drawImage(boyImages.get("right"), 600, 420, null);
+                    g.drawImage(boyImages.get("right"), 530, 378, null);
                     break;
                 case (UP):
-                    g.drawImage(boyImages.get("back"), 600, 420, null);
+                    g.drawImage(boyImages.get("back"), 530, 378, null);
                     break;
                 case (LEFT):
-                    g.drawImage(boyImages.get("left"), 600, 420, null);
+                    g.drawImage(boyImages.get("left"), 530, 378, null);
                     break;
                 case (DOWN):
-                    g.drawImage(boyImages.get("front"), 600, 420, null);
+                    g.drawImage(boyImages.get("front"), 530, 378, null);
                     break;
             }
         }
@@ -108,16 +108,16 @@ public class Player {
 
             switch (direction) {
                 case (RIGHT):
-                    g.drawImage(boyImages.get("rightwalk" + frame), 600, 420, null);
+                    g.drawImage(boyImages.get("rightwalk" + frame), 530, 378, null);
                     break;
                 case (UP):
-                    g.drawImage(boyImages.get("backwalk" + frame), 600, 420, null);
+                    g.drawImage(boyImages.get("backwalk" + frame), 530, 378, null);
                     break;
                 case (LEFT):
-                    g.drawImage(boyImages.get("leftwalk" + frame), 600, 420, null);
+                    g.drawImage(boyImages.get("leftwalk" + frame), 530, 378, null);
                     break;
                 case (DOWN):
-                    g.drawImage(boyImages.get("frontwalk" + frame), 600, 420, null);
+                    g.drawImage(boyImages.get("frontwalk" + frame), 530, 378, null);
                     break;
             }
         }
