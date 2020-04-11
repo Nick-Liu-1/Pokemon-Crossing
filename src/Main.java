@@ -13,7 +13,7 @@ public class Main extends JFrame implements ActionListener {
         // Creating frame
         super("Pokemon Crossing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1260,900);
+        setSize(1260,700);
 
 
         game = new GamePanel(this);
