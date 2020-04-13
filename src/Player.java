@@ -76,7 +76,6 @@ public class Player {
 
     public void move(int dir) {
         if (!moving) {
-            //System.out.println(dir);
             direction = dir;
             moving = true;
             move();
