@@ -13,7 +13,7 @@ public class Main extends JFrame implements ActionListener {
         // Creating frame
         super("Pokemon Crossing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1260,700);
+        setSize(1020,695);
 
 
         game = new GamePanel(this);
@@ -65,13 +65,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public static final int tileSize = 60;
     private Player player;
 
+    private int mostRecentKeyPress = 0;
+
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];
 
         // Setting panel
         mainFrame = m;
-        setSize(1000, 800);
+        setSize(1020, 695);
 
         // Adding action listeners
         addKeyListener(this);
@@ -89,20 +91,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void move() {
         count++;
-        if (keys[KeyEvent.VK_D]) {
-            player.move(Player.RIGHT);
+        if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
+            player.move(Player.RIGHT, keys);
         }
 
-        if (keys[KeyEvent.VK_W]) {
-            player.move(Player.UP);
+        if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {
+            player.move(Player.UP, keys);
         }
 
-        if (keys[KeyEvent.VK_A]) {
-            player.move(Player.LEFT);
+        if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {
+            player.move(Player.LEFT, keys);
         }
 
-        if (keys[KeyEvent.VK_S]) {
-            player.move(Player.DOWN);
+        if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {
+            player.move(Player.DOWN, keys);
         }
 
         player.move();
@@ -120,6 +122,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
+        if (!keys[e.getKeyCode()] && (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_W ||
+            e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_S)) {
+            mostRecentKeyPress = e.getKeyCode();
+        }
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
     }
 
@@ -155,17 +161,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(map, 530 - player.getX(), 378 - player.getY(), null);
+        g.drawImage(map, 410 - player.getX(), 258 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
 
         g.setColor(new Color(0, 0, 0));
-        for (int i = 0; i < 1260; i+=tileSize) {
-            g.drawLine(i, 0, i, 900);
+        for (int i = 0; i < 1020; i+=tileSize) {
+            g.drawLine(i, 0, i, 660);
         }
 
-        for (int i = 0; i < 900; i+=tileSize) {
-            g.drawLine(0, i, 1260, i);
+        for (int i = 0; i < 660; i+=tileSize) {
+            g.drawLine(0, i, 1020, i);
         }
 
         player.draw(g);

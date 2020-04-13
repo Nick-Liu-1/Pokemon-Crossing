@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.KeyEvent;
 import java.io.*;
+import java.security.Key;
 import java.util.*;
 
 public class Player {
@@ -20,12 +22,18 @@ public class Player {
     private boolean moving = false;
 
     private final int tileSize = GamePanel.tileSize;
-    private final int speed = 2;
+    private final int wSpeed = 2;
+    private final int rSpeed = 4;
 
     private static Hashtable<String, Image> boyImages = new Hashtable<>();
 
     private int movementTick = 0;
     private int frame = 1;
+    private boolean running = false;
+
+    private boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
+    private int mostRecentKeyPress = 0;
+
 
 
     public Player(int x, int y, int gender) {
@@ -47,6 +55,7 @@ public class Player {
     }
 
     public void move() {
+        int speed = running ? rSpeed : wSpeed;
         if (moving) {
             switch (direction) {
                 case (RIGHT):
@@ -65,60 +74,198 @@ public class Player {
         }
 
         if (x % tileSize == 0 && y % tileSize == 0) {
-            movementTick = 0;
-            frame = 1;
+            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction) {
+                movementTick = 0;
+                frame = 0;
+                moving = false;
+                running = false;
+            }
+            running = keys[KeyEvent.VK_SHIFT];
+        }
 
-            moving = false;
 
+    }
 
+    public void move(int dir, boolean[] keys) {
+        this.keys = keys;
+
+        switch (dir) {
+            case (Player.RIGHT):
+                mostRecentKeyPress = KeyEvent.VK_D;
+                break;
+            case (Player.UP):
+                mostRecentKeyPress = KeyEvent.VK_W;
+                break;
+            case (Player.LEFT):
+                mostRecentKeyPress = KeyEvent.VK_A;
+                break;
+            case (Player.DOWN):
+                mostRecentKeyPress = KeyEvent.VK_S;
+                break;
+        }
+
+        if (!moving) {
+            running = keys[KeyEvent.VK_SHIFT];
+            direction = dir;
+            moving = true;
         }
     }
 
-    public void move(int dir) {
-        if (!moving) {
-            direction = dir;
-            moving = true;
-            move();
+    public boolean dirIsPressed() {
+        switch (direction) {
+            case (Player.RIGHT):
+                return keys[KeyEvent.VK_D];
+            case (Player.UP):
+                return keys[KeyEvent.VK_W];
+            case (Player.LEFT):
+                return keys[KeyEvent.VK_A];
+            case (Player.DOWN):
+                return keys[KeyEvent.VK_S];
         }
+        return false;
+    }
+
+    private int keyPressToDir(int keyPress) {
+        switch (keyPress) {
+            case (KeyEvent.VK_D):
+                return Player.RIGHT;
+            case (KeyEvent.VK_W):
+                return Player.UP;
+            case (KeyEvent.VK_A):
+                return Player.LEFT;
+            case (KeyEvent.VK_S):
+                return Player.DOWN;
+        }
+        return 0;
     }
 
     public void draw(Graphics g) {
         if (!moving) {
             switch (direction) {
                 case (RIGHT):
-                    g.drawImage(boyImages.get("right"), 530, 378, null);
+                    g.drawImage(boyImages.get("right"), 410, 258, null);
                     break;
                 case (UP):
-                    g.drawImage(boyImages.get("back"), 530, 378, null);
+                    g.drawImage(boyImages.get("back"), 410, 258, null);
                     break;
                 case (LEFT):
-                    g.drawImage(boyImages.get("left"), 530, 378, null);
+                    g.drawImage(boyImages.get("left"), 410, 258, null);
                     break;
                 case (DOWN):
-                    g.drawImage(boyImages.get("front"), 530, 378, null);
+                    g.drawImage(boyImages.get("front"), 410, 258, null);
                     break;
             }
         }
         else {
             if (movementTick % 15 == 0) {
-                frame = frame % 2 + 1;
+                frame++;
             }
-            System.out.println(frame + " " + movementTick);
+            if (!running) {
+                switch (direction) {
+                    case (RIGHT):
+                        switch (frame % 4) {
+                            case (0):
+                                g.drawImage(boyImages.get("rightwalk1"), 410, 258, null);
+                                break;
+                            case (1):
+                            case (3):
+                                g.drawImage(boyImages.get("right"), 410, 258, null);
+                                break;
+                            case (2):
+                                g.drawImage(boyImages.get("rightwalk2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (UP):
+                        switch (frame % 2) {
+                            case (0):
+                                g.drawImage(boyImages.get("backwalk1"), 410, 258, null);
+                                break;
+                            case (1):
+                                g.drawImage(boyImages.get("backwalk2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (LEFT):
+                        switch (frame % 4) {
+                            case (0):
+                                g.drawImage(boyImages.get("leftwalk1"), 410, 258, null);
+                                break;
+                            case (1):
+                            case (3):
+                                g.drawImage(boyImages.get("left"), 410, 258, null);
+                                break;
+                            case (2):
+                                g.drawImage(boyImages.get("leftwalk2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (DOWN):
+                        switch (frame % 2) {
+                            case (0):
+                                g.drawImage(boyImages.get("frontwalk1"), 410, 258, null);
+                                break;
+                            case (1):
+                                g.drawImage(boyImages.get("frontwalk2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                }
+            }
+            else {
+                switch (direction) {
+                    case (RIGHT):
+                        switch (frame % 4) {
+                            case (0):
+                                g.drawImage(boyImages.get("rightrun1"), 410, 258, null);
+                                break;
+                            case (1):
+                            case (3):
+                                g.drawImage(boyImages.get("right"), 410, 258, null);
+                                break;
+                            case (2):
+                                g.drawImage(boyImages.get("rightrun2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (UP):
+                        switch (frame % 2) {
+                            case (0):
+                                g.drawImage(boyImages.get("backrun1"), 410, 258, null);
+                                break;
+                            case (1):
+                                g.drawImage(boyImages.get("backrun2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (LEFT):
+                        switch (frame % 4) {
+                            case (0):
+                                g.drawImage(boyImages.get("leftrun1"), 410, 258, null);
+                                break;
+                            case (1):
+                            case (3):
+                                g.drawImage(boyImages.get("left"), 410, 258, null);
+                                break;
+                            case (2):
+                                g.drawImage(boyImages.get("leftrun2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                    case (DOWN):
+                        switch (frame % 2) {
+                            case (0):
+                                g.drawImage(boyImages.get("frontrun1"), 410, 258, null);
+                                break;
+                            case (1):
+                                g.drawImage(boyImages.get("frontrun2"), 410, 258, null);
+                                break;
+                        }
+                        break;
+                }
+            }
 
-            switch (direction) {
-                case (RIGHT):
-                    g.drawImage(boyImages.get("rightwalk" + frame), 530, 378, null);
-                    break;
-                case (UP):
-                    g.drawImage(boyImages.get("backwalk" + frame), 530, 378, null);
-                    break;
-                case (LEFT):
-                    g.drawImage(boyImages.get("leftwalk" + frame), 530, 378, null);
-                    break;
-                case (DOWN):
-                    g.drawImage(boyImages.get("frontwalk" + frame), 530, 378, null);
-                    break;
-            }
+
         }
     }
 
