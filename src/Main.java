@@ -60,7 +60,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Main mainFrame;   // Frame of the program
     private int count = 0;
 
-    private final Image map = new ImageIcon("Assets/Map/AC Map - Copy.png").getImage();
+    private final Image map = new ImageIcon("Assets/Map/AC Map.png").getImage();
 
     public static final int tileSize = 60;
     private Player player;
