@@ -26,6 +26,7 @@ public class Player {
     private final int rSpeed = 4;
 
     private static Hashtable<String, Image> boyImages = new Hashtable<>();
+    private static Hashtable<String, Image> girlImages = new Hashtable<>();
 
     private int movementTick = 0;
     private int frame = 1;
@@ -50,6 +51,16 @@ public class Player {
             if (listOfFiles[i].isFile()) {
                 boyImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
                     new ImageIcon("Assets/Player/Boy/"+listOfFiles[i].getName()).getImage());
+            }
+        }
+
+        folder = new File("Assets/Player/Girl");
+        listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+            if (listOfFiles[i].isFile()) {
+                girlImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
+                    new ImageIcon("Assets/Player/Girl/"+listOfFiles[i].getName()).getImage());
             }
         }
     }
@@ -140,132 +151,257 @@ public class Player {
     }
 
     public void draw(Graphics g) {
-        if (!moving) {
-            switch (direction) {
-                case (RIGHT):
-                    g.drawImage(boyImages.get("right"), 410, 258, null);
-                    break;
-                case (UP):
-                    g.drawImage(boyImages.get("back"), 410, 258, null);
-                    break;
-                case (LEFT):
-                    g.drawImage(boyImages.get("left"), 410, 258, null);
-                    break;
-                case (DOWN):
-                    g.drawImage(boyImages.get("front"), 410, 258, null);
-                    break;
-            }
-        }
-        else {
-            if (movementTick % 15 == 0) {
-                frame++;
-            }
-            if (!running) {
+        if (gender == Player.MALE) {
+            if (!moving) {
                 switch (direction) {
                     case (RIGHT):
-                        switch (frame % 4) {
-                            case (0):
-                                g.drawImage(boyImages.get("rightwalk1"), 410, 258, null);
-                                break;
-                            case (1):
-                            case (3):
-                                g.drawImage(boyImages.get("right"), 410, 258, null);
-                                break;
-                            case (2):
-                                g.drawImage(boyImages.get("rightwalk2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(boyImages.get("right"), 410, 258, null);
                         break;
                     case (UP):
-                        switch (frame % 2) {
-                            case (0):
-                                g.drawImage(boyImages.get("backwalk1"), 410, 258, null);
-                                break;
-                            case (1):
-                                g.drawImage(boyImages.get("backwalk2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(boyImages.get("back"), 410, 258, null);
                         break;
                     case (LEFT):
-                        switch (frame % 4) {
-                            case (0):
-                                g.drawImage(boyImages.get("leftwalk1"), 410, 258, null);
-                                break;
-                            case (1):
-                            case (3):
-                                g.drawImage(boyImages.get("left"), 410, 258, null);
-                                break;
-                            case (2):
-                                g.drawImage(boyImages.get("leftwalk2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(boyImages.get("left"), 410, 258, null);
                         break;
                     case (DOWN):
-                        switch (frame % 2) {
-                            case (0):
-                                g.drawImage(boyImages.get("frontwalk1"), 410, 258, null);
-                                break;
-                            case (1):
-                                g.drawImage(boyImages.get("frontwalk2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(boyImages.get("front"), 410, 258, null);
                         break;
                 }
             }
             else {
+                if (movementTick % 15 == 0) {
+                    frame++;
+                }
+                if (!running) {
+                    switch (direction) {
+                        case (RIGHT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(boyImages.get("rightwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(boyImages.get("right"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(boyImages.get("rightwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (UP):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(boyImages.get("backwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(boyImages.get("backwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (LEFT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(boyImages.get("leftwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(boyImages.get("left"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(boyImages.get("leftwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (DOWN):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(boyImages.get("frontwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(boyImages.get("frontwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                    }
+                } else {
+                    switch (direction) {
+                        case (RIGHT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(boyImages.get("rightrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(boyImages.get("right"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(boyImages.get("rightrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (UP):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(boyImages.get("backrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(boyImages.get("backrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (LEFT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(boyImages.get("leftrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(boyImages.get("left"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(boyImages.get("leftrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (DOWN):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(boyImages.get("frontrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(boyImages.get("frontrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        else {
+            if (!moving) {
                 switch (direction) {
                     case (RIGHT):
-                        switch (frame % 4) {
-                            case (0):
-                                g.drawImage(boyImages.get("rightrun1"), 410, 258, null);
-                                break;
-                            case (1):
-                            case (3):
-                                g.drawImage(boyImages.get("right"), 410, 258, null);
-                                break;
-                            case (2):
-                                g.drawImage(boyImages.get("rightrun2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(girlImages.get("right"), 410, 258, null);
                         break;
                     case (UP):
-                        switch (frame % 2) {
-                            case (0):
-                                g.drawImage(boyImages.get("backrun1"), 410, 258, null);
-                                break;
-                            case (1):
-                                g.drawImage(boyImages.get("backrun2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(girlImages.get("back"), 410, 258, null);
                         break;
                     case (LEFT):
-                        switch (frame % 4) {
-                            case (0):
-                                g.drawImage(boyImages.get("leftrun1"), 410, 258, null);
-                                break;
-                            case (1):
-                            case (3):
-                                g.drawImage(boyImages.get("left"), 410, 258, null);
-                                break;
-                            case (2):
-                                g.drawImage(boyImages.get("leftrun2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(girlImages.get("left"), 410, 258, null);
                         break;
                     case (DOWN):
-                        switch (frame % 2) {
-                            case (0):
-                                g.drawImage(boyImages.get("frontrun1"), 410, 258, null);
-                                break;
-                            case (1):
-                                g.drawImage(boyImages.get("frontrun2"), 410, 258, null);
-                                break;
-                        }
+                        g.drawImage(girlImages.get("front"), 410, 258, null);
                         break;
                 }
             }
-
-
+            else {
+                if (movementTick % 15 == 0) {
+                    frame++;
+                }
+                if (!running) {
+                    switch (direction) {
+                        case (RIGHT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(girlImages.get("rightwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(girlImages.get("right"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(girlImages.get("rightwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (UP):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(girlImages.get("backwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(girlImages.get("backwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (LEFT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(girlImages.get("leftwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(girlImages.get("left"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(girlImages.get("leftwalk2"), 410, 258, null);
+                                        break;
+                            }
+                            break;
+                        case (DOWN):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(girlImages.get("frontwalk1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(girlImages.get("frontwalk2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                    }
+                } else {
+                    switch (direction) {
+                        case (RIGHT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(girlImages.get("rightrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(girlImages.get("right"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(girlImages.get("rightrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (UP):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(girlImages.get("backrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(girlImages.get("backrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (LEFT):
+                            switch (frame % 4) {
+                                case (0):
+                                    g.drawImage(girlImages.get("leftrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                case (3):
+                                    g.drawImage(girlImages.get("left"), 410, 258, null);
+                                    break;
+                                case (2):
+                                    g.drawImage(girlImages.get("leftrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                        case (DOWN):
+                            switch (frame % 2) {
+                                case (0):
+                                    g.drawImage(girlImages.get("frontrun1"), 410, 258, null);
+                                    break;
+                                case (1):
+                                    g.drawImage(girlImages.get("frontrun2"), 410, 258, null);
+                                    break;
+                            }
+                            break;
+                    }
+                }
+            }
         }
     }
 
