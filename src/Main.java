@@ -1,9 +1,6 @@
 import javax.swing.*;
-import javax.swing.Timer;
-import java.awt.event.*;
-import java.util.*;
 import java.awt.*;
-import java.io.*;
+import java.awt.event.*;
 
 public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
@@ -60,12 +57,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Main mainFrame;   // Frame of the program
     private int count = 0;
 
-    private final Image map = new ImageIcon("Assets/Map/AC Map.png").getImage();
+    private final Image map = new ImageIcon("Assets/Map/PC Map.png").getImage();
 
     public static final int tileSize = 60;
     private Player player;
 
     private int mostRecentKeyPress = 0;
+
+    private Room curRoom;
 
 
     public GamePanel(Main m) {
@@ -75,7 +74,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         mainFrame = m;
         setSize(1020, 695);
 
-        // Adding action listeners
+        // Adding action listenersd
         addKeyListener(this);
         addMouseListener(this);
 
@@ -111,7 +110,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
-        player = new Player(600, 420, Player.FEMALE);
+        player = new Player(1500, 1440, Player.MALE);
     }
 
 
@@ -161,7 +160,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(map, 410 - player.getX(), 258 - player.getY(), null);
+        g.drawImage(map, 420 - player.getX(), 243 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
 

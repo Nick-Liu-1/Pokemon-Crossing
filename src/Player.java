@@ -1,9 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.*;
-import java.security.Key;
-import java.util.*;
+import java.io.File;
+import java.util.Hashtable;
 
 public class Player {
     // CONSTANTS
@@ -93,8 +92,6 @@ public class Player {
             }
             running = keys[KeyEvent.VK_SHIFT];
         }
-
-
     }
 
     public void move(int dir, boolean[] keys) {
@@ -155,16 +152,16 @@ public class Player {
             if (!moving) {
                 switch (direction) {
                     case (RIGHT):
-                        g.drawImage(boyImages.get("right"), 410, 258, null);
+                        g.drawImage(boyImages.get("right"), 410, 248, null);
                         break;
                     case (UP):
-                        g.drawImage(boyImages.get("back"), 410, 258, null);
+                        g.drawImage(boyImages.get("back"), 410, 248, null);
                         break;
                     case (LEFT):
-                        g.drawImage(boyImages.get("left"), 410, 258, null);
+                        g.drawImage(boyImages.get("left"), 410, 248, null);
                         break;
                     case (DOWN):
-                        g.drawImage(boyImages.get("front"), 410, 258, null);
+                        g.drawImage(boyImages.get("front"), 410, 248, null);
                         break;
                 }
             }
@@ -177,48 +174,48 @@ public class Player {
                         case (RIGHT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(boyImages.get("rightwalk1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("rightwalk1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(boyImages.get("right"), 410, 258, null);
+                                    g.drawImage(boyImages.get("right"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(boyImages.get("rightwalk2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("rightwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (UP):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(boyImages.get("backwalk1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("backwalk1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(boyImages.get("backwalk2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("backwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (LEFT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(boyImages.get("leftwalk1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("leftwalk1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(boyImages.get("left"), 410, 258, null);
+                                    g.drawImage(boyImages.get("left"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(boyImages.get("leftwalk2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("leftwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (DOWN):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(boyImages.get("frontwalk1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("frontwalk1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(boyImages.get("frontwalk2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("frontwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
@@ -228,48 +225,48 @@ public class Player {
                         case (RIGHT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(boyImages.get("rightrun1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("rightrun1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(boyImages.get("right"), 410, 258, null);
+                                    g.drawImage(boyImages.get("right"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(boyImages.get("rightrun2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("rightrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (UP):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(boyImages.get("backrun1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("backrun1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(boyImages.get("backrun2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("backrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (LEFT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(boyImages.get("leftrun1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("leftrun1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(boyImages.get("left"), 410, 258, null);
+                                    g.drawImage(boyImages.get("left"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(boyImages.get("leftrun2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("leftrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (DOWN):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(boyImages.get("frontrun1"), 410, 258, null);
+                                    g.drawImage(boyImages.get("frontrun1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(boyImages.get("frontrun2"), 410, 258, null);
+                                    g.drawImage(boyImages.get("frontrun2"), 410, 248, null);
                                     break;
                             }
                             break;
@@ -281,16 +278,16 @@ public class Player {
             if (!moving) {
                 switch (direction) {
                     case (RIGHT):
-                        g.drawImage(girlImages.get("right"), 410, 258, null);
+                        g.drawImage(girlImages.get("right"), 410, 248, null);
                         break;
                     case (UP):
-                        g.drawImage(girlImages.get("back"), 410, 258, null);
+                        g.drawImage(girlImages.get("back"), 410, 248, null);
                         break;
                     case (LEFT):
-                        g.drawImage(girlImages.get("left"), 410, 258, null);
+                        g.drawImage(girlImages.get("left"), 410, 248, null);
                         break;
                     case (DOWN):
-                        g.drawImage(girlImages.get("front"), 410, 258, null);
+                        g.drawImage(girlImages.get("front"), 410, 248, null);
                         break;
                 }
             }
@@ -303,48 +300,48 @@ public class Player {
                         case (RIGHT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(girlImages.get("rightwalk1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("rightwalk1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(girlImages.get("right"), 410, 258, null);
+                                    g.drawImage(girlImages.get("right"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(girlImages.get("rightwalk2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("rightwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (UP):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(girlImages.get("backwalk1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("backwalk1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(girlImages.get("backwalk2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("backwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (LEFT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(girlImages.get("leftwalk1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("leftwalk1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(girlImages.get("left"), 410, 258, null);
+                                    g.drawImage(girlImages.get("left"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(girlImages.get("leftwalk2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("leftwalk2"), 410, 248, null);
                                         break;
                             }
                             break;
                         case (DOWN):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(girlImages.get("frontwalk1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("frontwalk1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(girlImages.get("frontwalk2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("frontwalk2"), 410, 248, null);
                                     break;
                             }
                             break;
@@ -354,48 +351,48 @@ public class Player {
                         case (RIGHT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(girlImages.get("rightrun1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("rightrun1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(girlImages.get("right"), 410, 258, null);
+                                    g.drawImage(girlImages.get("right"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(girlImages.get("rightrun2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("rightrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (UP):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(girlImages.get("backrun1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("backrun1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(girlImages.get("backrun2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("backrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (LEFT):
                             switch (frame % 4) {
                                 case (0):
-                                    g.drawImage(girlImages.get("leftrun1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("leftrun1"), 410, 248, null);
                                     break;
                                 case (1):
                                 case (3):
-                                    g.drawImage(girlImages.get("left"), 410, 258, null);
+                                    g.drawImage(girlImages.get("left"), 410, 248, null);
                                     break;
                                 case (2):
-                                    g.drawImage(girlImages.get("leftrun2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("leftrun2"), 410, 248, null);
                                     break;
                             }
                             break;
                         case (DOWN):
                             switch (frame % 2) {
                                 case (0):
-                                    g.drawImage(girlImages.get("frontrun1"), 410, 258, null);
+                                    g.drawImage(girlImages.get("frontrun1"), 410, 248, null);
                                     break;
                                 case (1):
-                                    g.drawImage(girlImages.get("frontrun2"), 410, 258, null);
+                                    g.drawImage(girlImages.get("frontrun2"), 410, 248, null);
                                     break;
                             }
                             break;
