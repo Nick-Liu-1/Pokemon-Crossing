@@ -114,7 +114,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
-        player = new Player(1500, 1440, Player.FEMALE, grid);
+        player = new Player(1500, 1440, Player.MALE, grid);
     }
 
     public void loadMap() {
