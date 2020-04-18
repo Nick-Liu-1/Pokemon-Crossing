@@ -59,16 +59,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Main mainFrame;   // Frame of the program
     private int count = 0;
 
-    private final Image map = new ImageIcon("Assets/Map/PC Map.png").getImage();
-
     public static final int tileSize = 60;
     private Player player;
-
     private int mostRecentKeyPress = 0;
-
     private Room curRoom;
-
     private int[][] grid = new int[96][96];
+    private ArrayList<Room> rooms = new ArrayList<>();
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];
@@ -80,7 +76,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         // Adding action listeners
         addKeyListener(this);
         addMouseListener(this);
-        loadGrid();
+        loadMap();
+        curRoom = rooms.get(0);
         init();
         Player.load();
     }
@@ -110,13 +107,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         player.move();
+
+        if (player.isGoingToNewRoom()) {
+
+        }
     }
 
     public void init() {
-        player = new Player(1500, 1440, Player.MALE, grid);
+        player = new Player(1500, 1440, Player.FEMALE, grid);
     }
 
-    public void loadGrid() {
+    public void loadMap() {
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
             for (int i = 0; i < 85; i++) {
@@ -125,6 +126,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     grid[j][i] = Integer.parseInt(s[j]);
                 }
             }
+            rooms.add(new Room(grid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0));
         }
         catch (FileNotFoundException e) {
             System.out.println("error");
@@ -178,7 +180,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(map, 480 - player.getX(), 303 - player.getY(), null);
+        g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
 
@@ -191,7 +193,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             g.drawLine(0, i, 1020, i);
         }
 
-        System.out.println(player.getxTile() + " " + player.getyTile());
+        System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
         g.setColor(new Color(255,0,0));
         for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
             for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {

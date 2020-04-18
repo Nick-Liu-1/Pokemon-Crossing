@@ -37,6 +37,8 @@ public class Player {
 
     private final int[][] grid;
 
+    private boolean goingToNewRoom = false;
+
 
 
     public Player(int x, int y, int gender, int[][] grid) {
@@ -90,12 +92,11 @@ public class Player {
         if (x % tileSize == 0 && y % tileSize == 0) {
             xTile = x / tileSize;
             yTile = y / tileSize;
-            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || !canMoveDir(direction)) {
+            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) == 0) {
                 movementTick = 0;
                 frame = 0;
                 moving = false;
                 running = false;
-
             }
             running = keys[KeyEvent.VK_SHIFT];
         }
@@ -122,7 +123,11 @@ public class Player {
         if (!moving) {
             running = keys[KeyEvent.VK_SHIFT];
             direction = dir;
-            moving = canMoveDir(dir);
+            moving = inDir(dir) == 1;
+
+            if (inDir(dir) == 2) {
+                goingToNewRoom = true;
+            }
         }
     }
 
@@ -154,30 +159,18 @@ public class Player {
         return 0;
     }
 
-    public boolean canMoveDir(int dir) {
+    public int inDir(int dir) {
         switch (dir) {
             case (Player.RIGHT):
-                if (grid[xTile+1][yTile] == 0) {
-                    return false;
-                }
-                break;
+                return grid[xTile+1][yTile];
             case (Player.UP):
-                if (grid[xTile][yTile-1] == 0) {
-                    return false;
-                }
-                break;
+                return grid[xTile][yTile-1];
             case (Player.LEFT):
-                if (grid[xTile-1][yTile] == 0) {
-                    return false;
-                }
-                break;
+                return grid[xTile-1][yTile];
             case (Player.DOWN):
-                if (grid[xTile][yTile+1] == 0) {
-                    return false;
-                }
-                break;
+                return grid[xTile][yTile+1];
         }
-        return true;
+        return 0;
     }
 
     public void draw(Graphics g) {
@@ -449,5 +442,9 @@ public class Player {
 
     public int getyTile() {
         return yTile;
+    }
+
+    public boolean isGoingToNewRoom() {
+        return goingToNewRoom;
     }
 }

@@ -1,11 +1,17 @@
 import java.awt.*;
 
 public class Room {
-    private Tile[][] grid;
-    private Image map;
+    private int[][] grid;
+    private Image image;
+    private int entryX;
+    private int entryY;
 
-    public Room(Tile[][] grid, Image map) {
+    public Room(int[][] grid, Image image, int entryX, int entryY) {
         this.grid = grid;
-        this.map = map;
+        this.image = image;
+    }
+
+    public Image getImage() {
+        return image;
     }
 }
