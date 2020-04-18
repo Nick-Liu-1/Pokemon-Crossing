@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.io.*;
 
 public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
@@ -66,6 +68,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private Room curRoom;
 
+    private int[][] grid = new int[96][96];
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];
@@ -74,10 +77,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         mainFrame = m;
         setSize(1020, 695);
 
-        // Adding action listenersd
+        // Adding action listeners
         addKeyListener(this);
         addMouseListener(this);
-
+        loadGrid();
         init();
         Player.load();
     }
@@ -113,6 +116,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player = new Player(1500, 1440, Player.MALE);
     }
 
+    public void loadGrid() {
+        try{
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
+            for (int i = 0; i < 85; i++) {
+                String[] s = stdin.nextLine().split(" ");
+                for (int j = 0; j < 94; j++) {
+                    grid[j][i] = Integer.parseInt(s[j]);
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("error");
+        }
+
+    }
 
     @Override
     public void keyTyped(KeyEvent e) {
@@ -160,7 +178,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(map, 420 - player.getX(), 243 - player.getY(), null);
+        g.drawImage(map, 480 - player.getX(), 303 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
 
@@ -171,6 +189,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         for (int i = 0; i < 660; i+=tileSize) {
             g.drawLine(0, i, 1020, i);
+        }
+
+        //System.out.println(grid[player.getxTile()][player.getyTile()]);
+        g.setColor(new Color(255,0,0));
+        for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
+            for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
+                int a = i - Math.max(0, player.getxTile()-8);
+                int b = j - Math.max(0, player.getyTile()-5);
+
+                if (grid[i][j] == 0) {
+                    g.drawLine(a*60, b*60, a*60 + 60, b*60 + 60);
+                }
+            }
         }
 
         player.draw(g);
