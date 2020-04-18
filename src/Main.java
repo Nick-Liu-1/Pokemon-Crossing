@@ -113,7 +113,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
-        player = new Player(1500, 1440, Player.MALE);
+        player = new Player(1500, 1440, Player.MALE, grid);
     }
 
     public void loadGrid() {
@@ -191,7 +191,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             g.drawLine(0, i, 1020, i);
         }
 
-        //System.out.println(grid[player.getxTile()][player.getyTile()]);
+        System.out.println(player.getxTile() + " " + player.getyTile());
         g.setColor(new Color(255,0,0));
         for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
             for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {

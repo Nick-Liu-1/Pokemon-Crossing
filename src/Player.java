@@ -35,12 +35,15 @@ public class Player {
     private boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
     private int mostRecentKeyPress = 0;
 
+    private final int[][] grid;
 
 
-    public Player(int x, int y, int gender) {
+
+    public Player(int x, int y, int gender, int[][] grid) {
         this.x = x;
         this.y = y;
         this.gender = gender;
+        this.grid = grid;
     }
 
     public static void load() {
@@ -87,7 +90,7 @@ public class Player {
         if (x % tileSize == 0 && y % tileSize == 0) {
             xTile = x / tileSize;
             yTile = y / tileSize;
-            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction) {
+            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || !canMoveDir(direction)) {
                 movementTick = 0;
                 frame = 0;
                 moving = false;
@@ -119,7 +122,7 @@ public class Player {
         if (!moving) {
             running = keys[KeyEvent.VK_SHIFT];
             direction = dir;
-            moving = true;
+            moving = canMoveDir(dir);
         }
     }
 
@@ -149,6 +152,32 @@ public class Player {
                 return Player.DOWN;
         }
         return 0;
+    }
+
+    public boolean canMoveDir(int dir) {
+        switch (dir) {
+            case (Player.RIGHT):
+                if (grid[xTile+1][yTile] == 0) {
+                    return false;
+                }
+                break;
+            case (Player.UP):
+                if (grid[xTile][yTile-1] == 0) {
+                    return false;
+                }
+                break;
+            case (Player.LEFT):
+                if (grid[xTile-1][yTile] == 0) {
+                    return false;
+                }
+                break;
+            case (Player.DOWN):
+                if (grid[xTile][yTile+1] == 0) {
+                    return false;
+                }
+                break;
+        }
+        return true;
     }
 
     public void draw(Graphics g) {
