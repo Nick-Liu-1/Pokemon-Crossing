@@ -15,6 +15,7 @@ public class Player {
     public static final int FEMALE = 1;
 
     private int x, y;
+    private int xTile, yTile;
     private int[] items = new int[16];
     private int gender;
     private int direction = DOWN;
@@ -84,11 +85,14 @@ public class Player {
         }
 
         if (x % tileSize == 0 && y % tileSize == 0) {
+            xTile = x / tileSize;
+            yTile = y / tileSize;
             if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction) {
                 movementTick = 0;
                 frame = 0;
                 moving = false;
                 running = false;
+
             }
             running = keys[KeyEvent.VK_SHIFT];
         }
@@ -408,5 +412,13 @@ public class Player {
 
     public int getY() {
         return y;
+    }
+
+    public int getxTile() {
+        return xTile;
+    }
+
+    public int getyTile() {
+        return yTile;
     }
 }
