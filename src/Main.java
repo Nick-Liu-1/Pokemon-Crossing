@@ -67,6 +67,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] grid;
     private Hashtable<Point, Room> rooms = new Hashtable<>();
 
+    private ArrayList<Item> items = new ArrayList<Item>();
+
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];
 
@@ -192,6 +194,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
     }
+
+
+    public void load() {
+            try {
+                Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
+                int n = Integer.parseInt(stdin.nextLine());
+                String[] line;
+                String file;
+                for (int i = 0; i < n; i++) {
+                    line = stdin.nextLine().split(" ");
+                    file = "";
+                    for (int j = 1; j < line.length - 2; j++) {
+                        file += line[j] + " ";
+                    }
+                    file = file.substring(0, file.length()-1);
+                    items.add(new Item(Integer.parseInt(line[0]), new ImageIcon(file), ))
+                }
+            }
+            catch (Exception e) {
+                System.out.println("items not found");
+            }
+
+    }
+
 
     @Override
     public void keyTyped(KeyEvent e) {

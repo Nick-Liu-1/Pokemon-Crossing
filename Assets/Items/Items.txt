@@ -1,3 +1,3 @@
 2
-0 bells.png 1000
-1 fishing rod.png 125 500 
+0 bells.png 0 1000
+1 fishing rod.png 500 125

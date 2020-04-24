@@ -1,22 +1,17 @@
-import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.util.Hashtable;
 
 public class Item {
     private int id;
-    private int value;
-    private static Hashtable<String, Image> bugImages = new Hashtable<>();
-    private static Hashtable<String, Image> fishImages = new Hashtable<>();
-    private static Hashtable<String, Image> generalImages = new Hashtable<>();
-    private static Hashtable<String, Image> shellImages = new Hashtable<>();
+    private Image image;
+    private int buyCost;
+    private int sellCost;
 
-    public Item(int id, int value) {
+    public Item(int id, Image image, int buyCost, int sellCost) {
         this.id = id;
-        this.value = value;
+        this.image = image;
+        this.buyCost = buyCost;
+        this.sellCost = sellCost;
     }
 
-    public static void load() {
 
-    }
 }
