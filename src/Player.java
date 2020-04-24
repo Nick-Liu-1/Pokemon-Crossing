@@ -35,9 +35,10 @@ public class Player {
     private boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
     private int mostRecentKeyPress = 0;
 
-    private final int[][] grid;
+    private int[][] grid;
 
     private boolean goingToNewRoom = false;
+    private boolean exitingRoom = false;
 
 
 
@@ -92,7 +93,7 @@ public class Player {
         if (x % tileSize == 0 && y % tileSize == 0) {
             xTile = x / tileSize;
             yTile = y / tileSize;
-            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) == 0) {
+            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) != 1) {
                 movementTick = 0;
                 frame = 0;
                 moving = false;
@@ -102,8 +103,11 @@ public class Player {
         }
     }
 
-    public void move(int dir, boolean[] keys) {
+    public void move(int dir, boolean[] keys, int[][] grid) {
         this.keys = keys;
+        goingToNewRoom = false;
+        exitingRoom = false;
+        this.grid = grid;
 
         switch (dir) {
             case (Player.RIGHT):
@@ -127,6 +131,9 @@ public class Player {
 
             if (inDir(dir) == 2) {
                 goingToNewRoom = true;
+            }
+            else if (inDir(dir) == 3) {
+                exitingRoom = true;
             }
         }
     }
@@ -432,19 +439,39 @@ public class Player {
         return x;
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
     public int getY() {
         return y;
+    }
+
+    public void setY(int y) {
+        this.y = y;
     }
 
     public int getxTile() {
         return xTile;
     }
 
+    public void setxTile(int xTile) {
+        this.xTile = xTile;
+    }
+
     public int getyTile() {
         return yTile;
     }
 
+    public void setyTile(int yTile) {
+        this.yTile = yTile;
+    }
+
     public boolean isGoingToNewRoom() {
         return goingToNewRoom;
+    }
+
+    public boolean isExitingRoom() {
+        return exitingRoom;
     }
 }
