@@ -63,8 +63,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Player player;
     private int mostRecentKeyPress = 0;
     private Room curRoom;
-    private int[][] grid = new int[96][96];
-    private ArrayList<Room> rooms = new ArrayList<>();
+    private Room outside;
+    private int[][] grid;
+    private Hashtable<Point, Room> rooms = new Hashtable<>();
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];
@@ -77,7 +78,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         addKeyListener(this);
         addMouseListener(this);
         loadMap();
-        curRoom = rooms.get(0);
+        curRoom = outside;
+        grid = curRoom.getGrid();
         init();
         Player.load();
     }
@@ -89,27 +91,43 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void move() {
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
         count++;
         if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
-            player.move(Player.RIGHT, keys);
+            player.move(Player.RIGHT, keys, grid);
         }
 
         if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {
-            player.move(Player.UP, keys);
+            player.move(Player.UP, keys, grid);
         }
 
         if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {
-            player.move(Player.LEFT, keys);
+            player.move(Player.LEFT, keys, grid);
         }
 
         if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {
-            player.move(Player.DOWN, keys);
+            player.move(Player.DOWN, keys, grid);
         }
 
         player.move();
 
         if (player.isGoingToNewRoom()) {
+            curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));
+            grid = curRoom.getGrid();
+            player.setxTile(curRoom.getExitX());
+            player.setyTile(curRoom.getExitY());
+            player.setX(curRoom.getExitX() * tileSize);
+            player.setY(curRoom.getExitY() * tileSize);
+        }
 
+        else if (player.isExitingRoom()) {
+            player.setxTile(curRoom.getEntryX());
+            player.setyTile(curRoom.getEntryY());
+            player.setX(curRoom.getEntryX() * tileSize);
+            player.setY(curRoom.getEntryY() * tileSize);
+            curRoom = outside;
+            grid = curRoom.getGrid();
+            System.out.println(player.getxTile() + " " + player.getyTile());
         }
     }
 
@@ -118,18 +136,27 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void loadMap() {
+        int[][] mapGrid = new int[94][85];
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
                 for (int j = 0; j < 94; j++) {
-                    grid[j][i] = Integer.parseInt(s[j]);
+                    mapGrid[j][i] = Integer.parseInt(s[j]);
                 }
             }
-            rooms.add(new Room(grid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0));
         }
         catch (FileNotFoundException e) {
-            System.out.println("error");
+            System.out.println("error loading main map");
+        }
+        outside = new Room(mapGrid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0, 0 ,0);
+
+        try{
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Room/rooms.txt")));
+
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("error loading rooms");
         }
 
     }
@@ -193,9 +220,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             g.drawLine(0, i, 1020, i);
         }
 
-        System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
+        //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
         g.setColor(new Color(255,0,0));
-        for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
+        /*for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
             for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
                 int a = i - Math.max(0, player.getxTile()-8);
                 int b = j - Math.max(0, player.getyTile()-5);
@@ -204,9 +231,25 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     g.drawLine(a*60, b*60, a*60 + 60, b*60 + 60);
                 }
             }
-        }
+        }*/
 
         player.draw(g);
+
+    }
+
+    public static int[][] transpose(int[][] arr) {
+        /*  Takes an axb array and transposes it to a bxa array such that arr[a][b] == out[b][a]
+         */
+
+        int[][] out = new int[arr[0].length][arr.length];
+
+        for (int i = 0; i < arr.length; i++) {
+            for (int j = 0; j < arr[0].length; j++) {
+                out[j][i] = arr[i][j];
+            }
+        }
+
+        return out;
 
     }
 }
