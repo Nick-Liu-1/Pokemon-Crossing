@@ -13,7 +13,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 myClock = time.Clock()
-pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\villagerHouse1Mask.png")
+pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\villagerHouse3Mask.png")
 
 grid = [[None for i in range(32)] for j in range(23)]
 

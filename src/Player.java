@@ -16,7 +16,8 @@ public class Player {
 
     private int x, y;
     private int xTile, yTile;
-    private int[] items = new int[16];
+    private int[] items = new int[18];
+    private Item equippedItem;
     private int gender;
     private int direction = DOWN;
     private boolean moving = false;
@@ -40,6 +41,10 @@ public class Player {
     private boolean goingToNewRoom = false;
     private boolean exitingRoom = false;
 
+    private boolean inventoryOpen = false;
+    private final Image inventoryImage = new ImageIcon("Assets/Items/General/inventory.png").getImage();
+
+    private int bells = 0;
 
 
     public Player(int x, int y, int gender, int[][] grid) {
@@ -433,6 +438,9 @@ public class Player {
                 }
             }
         }
+        if (inventoryOpen) {
+            g.drawImage(inventoryImage, 288, 20, null);
+        }
     }
 
     public int getX() {
@@ -473,5 +481,11 @@ public class Player {
 
     public boolean isExitingRoom() {
         return exitingRoom;
+    }
+
+    public boolean isInventoryOpen() { return inventoryOpen; }
+
+    public void setInventoryOpen(boolean inventoryOpen) {
+        this.inventoryOpen = inventoryOpen;
     }
 }
