@@ -6,6 +6,7 @@ public class Item {
     private int buyCost;
     private int sellCost;
 
+
     public Item(int id, Image image, int buyCost, int sellCost) {
         this.id = id;
         this.image = image;
@@ -13,5 +14,19 @@ public class Item {
         this.sellCost = sellCost;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public Image getImage() {
+        return image;
+    }
+
+    public int getBuyCost() {
+        return buyCost;
+    }
+
+    public int getSellCost() {
+        return sellCost;
+    }
 }

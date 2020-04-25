@@ -1,8 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.util.Hashtable;
+import java.io.*;
+import java.util.*;
 
 public class Player {
     // CONSTANTS
@@ -16,7 +16,7 @@ public class Player {
 
     private int x, y;
     private int xTile, yTile;
-    private int[] items = new int[18];
+    private Item[][] items = new Item[6][3];
     private Item equippedItem;
     private int gender;
     private int direction = DOWN;
@@ -42,7 +42,7 @@ public class Player {
     private boolean exitingRoom = false;
 
     private boolean inventoryOpen = false;
-    private final Image inventoryImage = new ImageIcon("Assets/Items/General/inventory.png").getImage();
+    private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
 
     private int bells = 0;
 
@@ -52,6 +52,12 @@ public class Player {
         this.y = y;
         this.gender = gender;
         this.grid = grid;
+
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
+            }
+        }
     }
 
     public static void load() {
@@ -440,6 +446,13 @@ public class Player {
         }
         if (inventoryOpen) {
             g.drawImage(inventoryImage, 288, 20, null);
+            for (int i = 0; i < items.length; i++) {
+                for (int j = 0; j < items[0].length; j++) {
+                    if (items[i][j] != null) {
+                        g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                    }
+                }
+            }
         }
     }
 

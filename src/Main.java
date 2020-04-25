@@ -1,8 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
@@ -93,9 +93,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void move() {
+        Point mouse = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        Point offset = getLocationOnScreen();  // Get window position
+        //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+
         //System.out.println(player.getxTile()+ " "+ player.getyTile());
         count++;
-        System.out.println(player.isInventoryOpen());
+        //System.out.println(player.isInventoryOpen());
         if (!player.isInventoryOpen()) {
             if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
                 player.move(Player.RIGHT, keys, grid);
@@ -132,13 +136,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setY(curRoom.getEntryY() * tileSize);
                 curRoom = outside;
                 grid = curRoom.getGrid();
-                System.out.println(player.getxTile() + " " + player.getyTile());
+                //System.out.println(player.getxTile() + " " + player.getyTile());
             }
         }
     }
 
     public void init() {
         player = new Player(1500, 1440, Player.MALE, grid);
+        loadItems();
     }
 
     public void loadMap() {
@@ -196,26 +201,65 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
 
-    public void load() {
-            try {
-                Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
-                int n = Integer.parseInt(stdin.nextLine());
-                String[] line;
-                String file;
-                for (int i = 0; i < n; i++) {
-                    line = stdin.nextLine().split(" ");
-                    file = "";
-                    for (int j = 1; j < line.length - 2; j++) {
-                        file += line[j] + " ";
-                    }
-                    file = file.substring(0, file.length()-1);
-                    items.add(new Item(Integer.parseInt(line[0]), new ImageIcon(file), ))
+    public void loadItems() {
+        Hashtable<String, int[]> itemInfo = new Hashtable<>();
+
+        try {
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
+            int n = Integer.parseInt(stdin.nextLine());
+            String[] line;
+            String fileName;
+            for (int i = 0 ; i < n; i++) {
+                line = stdin.nextLine().split(" ");
+                fileName = "";
+                for (int j = 1; j < line.length-2; j++) {
+                    fileName += line[j] + " ";
                 }
-            }
-            catch (Exception e) {
-                System.out.println("items not found");
+                fileName = fileName.substring(0, fileName.length()-1);
+                System.out.println(fileName);
+                itemInfo.put(fileName, new int[] {Integer.parseInt(line[0]), Integer.parseInt(line[line.length-2]), Integer.parseInt(line[line.length-1])});
             }
 
+            for (int i = 0; i < n; i++) {
+                items.add(null);
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("Item info not found");
+        }
+
+
+        File folder = new File("Assets/Items");
+        ArrayList<String> absolutePaths = new ArrayList<>();
+        search(".*\\.png", folder, absolutePaths);
+
+        String name;
+        String[] splitFile;
+        int[] info;
+        System.out.println(itemInfo);
+        for (String file : absolutePaths) {
+            splitFile = file.split("\\\\");
+            name = splitFile[splitFile.length-1];
+            info = itemInfo.get(name);
+            System.out.println(Arrays.toString(info) +" "+ name);
+            items.set(info[0], new Item(info[0], new ImageIcon(file).getImage(), info[1], info[2]));
+        }
+
+
+    }
+
+    public void search(String pattern, File folder, ArrayList<String> result) {
+        for (File f : Objects.requireNonNull(folder.listFiles())) {
+            if (f.isDirectory()) {
+                search(pattern, f, result);
+            }
+
+            if (f.isFile()) {
+                if (f.getName().matches(pattern)) {
+                    result.add(f.getAbsolutePath());
+                }
+            }
+        }
     }
 
 
@@ -272,7 +316,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
-
         g.setColor(new Color(0, 0, 0));
         for (int i = 0; i < 1020; i+=tileSize) {
             g.drawLine(i, 0, i, 660);
@@ -283,7 +326,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
-        g.setColor(new Color(255,0,0));
+        /*g.setColor(new Color(255,0,0));
         for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
             for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
                 int a = i - Math.max(0, player.getxTile()-8);
@@ -294,7 +337,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     g.drawLine(a*60, b*60+60, a*60+60, b*60);
                 }
             }
-        }
+        }*/
 
         player.draw(g);
 
