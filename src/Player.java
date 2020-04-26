@@ -5,48 +5,61 @@ import java.io.*;
 import java.util.*;
 
 public class Player {
-    // CONSTANTS
+    // Player direction constants
     public static final int RIGHT = 0;
     public static final int UP = 1;
     public static final int LEFT = 2;
     public static final int DOWN = 3;
 
+    // Gender constants
     public static final int MALE = 0;
     public static final int FEMALE = 1;
 
+    // Player pos
     private int x, y;
     private int xTile, yTile;
+
+    // Player items
     private Item[][] items = new Item[6][3];
     private Item equippedItem;
+
+    // Other player info
     private int gender;
     private int direction = DOWN;
     private boolean moving = false;
 
+    // Other constants
     private final int tileSize = GamePanel.tileSize;
     private final int wSpeed = 2;
     private final int rSpeed = 4;
 
+    // Player images
     private static Hashtable<String, Image> boyImages = new Hashtable<>();
     private static Hashtable<String, Image> girlImages = new Hashtable<>();
 
+    // Help deal with drawing the player
     private int movementTick = 0;
     private int frame = 1;
     private boolean running = false;
 
+    // Keys
     private boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
     private int mostRecentKeyPress = 0;
 
+    // Grid of current room
     private int[][] grid;
 
+    // Flags
     private boolean goingToNewRoom = false;
     private boolean exitingRoom = false;
-
     private boolean inventoryOpen = false;
+
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
 
+    // How many bells player has
     private int bells = 0;
 
-
+    // Constructor
     public Player(int x, int y, int gender, int[][] grid) {
         this.x = x;
         this.y = y;
@@ -60,6 +73,7 @@ public class Player {
         }
     }
 
+    // Load boy and girl images
     public static void load() {
         File folder = new File("Assets/Player/Boy");
         File[] listOfFiles = folder.listFiles();
@@ -82,8 +96,11 @@ public class Player {
         }
     }
 
+    // Move the player, called every frame
     public void move() {
-        int speed = running ? rSpeed : wSpeed;
+        int speed = running ? rSpeed : wSpeed;  // Set speed
+
+        // If moving. move in the correct direction
         if (moving) {
             switch (direction) {
                 case (RIGHT):
@@ -101,10 +118,15 @@ public class Player {
             movementTick++;
         }
 
+        // Player has reached a new tile
         if (x % tileSize == 0 && y % tileSize == 0) {
+            // Set tile pos
             xTile = x / tileSize;
             yTile = y / tileSize;
+
+            // Player stops if not continuing in same direction
             if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) != 1) {
+                // Reset movement variables
                 movementTick = 0;
                 frame = 0;
                 moving = false;
@@ -114,12 +136,16 @@ public class Player {
         }
     }
 
+    // Move player in certain direction
     public void move(int dir, boolean[] keys, int[][] grid) {
-        this.keys = keys;
+        this.keys = keys;  // Update keys
+        // Reset going to room stuff
         goingToNewRoom = false;
         exitingRoom = false;
-        this.grid = grid;
 
+        this.grid = grid; // Update grid
+
+        // Set mostRecentKeyPress to specified direction
         switch (dir) {
             case (Player.RIGHT):
                 mostRecentKeyPress = KeyEvent.VK_D;
@@ -135,6 +161,7 @@ public class Player {
                 break;
         }
 
+        // If player is stopped change direction
         if (!moving) {
             running = keys[KeyEvent.VK_SHIFT];
             direction = dir;
@@ -149,6 +176,7 @@ public class Player {
         }
     }
 
+    // Check if the current direction is pressed
     public boolean dirIsPressed() {
         switch (direction) {
             case (Player.RIGHT):
@@ -163,6 +191,7 @@ public class Player {
         return false;
     }
 
+    // Converts key press to direction
     private int keyPressToDir(int keyPress) {
         switch (keyPress) {
             case (KeyEvent.VK_D):
@@ -177,6 +206,7 @@ public class Player {
         return 0;
     }
 
+    // Return what is in the grid in the specified direction
     public int inDir(int dir) {
         switch (dir) {
             case (Player.RIGHT):
@@ -191,6 +221,7 @@ public class Player {
         return 0;
     }
 
+    // Draw the the player
     public void draw(Graphics g) {
         if (gender == Player.MALE) {
             if (!moving) {
@@ -456,6 +487,7 @@ public class Player {
         }
     }
 
+    // Getters and setters
     public int getX() {
         return x;
     }

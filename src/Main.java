@@ -1,3 +1,10 @@
+/*
+    Main.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    Main class implementing the game
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -59,18 +66,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Main mainFrame;   // Frame of the program
     private int count = 0;
 
-    public static final int tileSize = 60;
+    public static final int tileSize = 60;  // Dimension of the tile
     private Player player;
-    private int mostRecentKeyPress = 0;
-    private Room curRoom;
-    private Room outside;
-    private int[][] grid;
-    private Hashtable<Point, Room> rooms = new Hashtable<>();
+    private int mostRecentKeyPress = 0;  // Most recent movement key press (WASD)
+    private Room curRoom;  // Room player is in
+    private Room outside;  // The outside map room
+    private int[][] grid;  // Current grid of the room the player is in
+    private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms
 
-    private ArrayList<Item> items = new ArrayList<Item>();
+    private ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
     public GamePanel(Main m) {
-        keys = new boolean[KeyEvent.KEY_LAST + 1];
+        keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
         // Setting panel
         mainFrame = m;
@@ -86,20 +93,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Player.load();
     }
 
+    // Requests focus of game panel
     public void addNotify() {
         super.addNotify();
         requestFocus();
         mainFrame.start();
     }
 
+    // Deals with all player movement
     public void move() {
-        Point mouse = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        /*Point mouse = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
-        //System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
+        System.out.println(player.getxTile()+ " "+ player.getyTile());*/
 
-        //System.out.println(player.getxTile()+ " "+ player.getyTile());
         count++;
-        //System.out.println(player.isInventoryOpen());
+
+        // Move player in different directions if WASD is pressed and the inventory is not open
         if (!player.isInventoryOpen()) {
             if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
                 player.move(Player.RIGHT, keys, grid);
@@ -119,24 +129,29 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             player.move();
 
-            //System.out.println(player.getxTile() + " " + player.getyTile() + " " + curRoom);
+            // Deal with going to new room
             if (player.isGoingToNewRoom()) {
-                curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));
-                grid = curRoom.getGrid();
+                curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
+                grid = curRoom.getGrid();  // Set grid
+
+                // Set player pos
                 player.setxTile(curRoom.getExitX());
                 player.setyTile(curRoom.getExitY());
                 player.setX(curRoom.getExitX() * tileSize);
                 player.setY(curRoom.getExitY() * tileSize);
             }
 
+            // Deal with exiting room
             else if (player.isExitingRoom()) {
+                // Set player pos
                 player.setxTile(curRoom.getEntryX());
                 player.setyTile(curRoom.getEntryY());
                 player.setX(curRoom.getEntryX() * tileSize);
                 player.setY(curRoom.getEntryY() * tileSize);
+
+                // Set curRoom and grid to be the outside
                 curRoom = outside;
                 grid = curRoom.getGrid();
-                //System.out.println(player.getxTile() + " " + player.getyTile());
             }
         }
     }
@@ -146,8 +161,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadItems();
     }
 
+    // Read from the map and room files and loads them
     public void loadMap() {
         int[][] mapGrid = new int[94][85];
+
+        // Reading from the map grid
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
             for (int i = 0; i < 85; i++) {
@@ -160,8 +178,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         catch (FileNotFoundException e) {
             System.out.println("error loading main map");
         }
+        // Creating the outside room
         outside = new Room(mapGrid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0, 0 ,0, 0, 0);
 
+        // Reading from the room file
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Rooms/rooms.txt")));
             int n = Integer.parseInt(stdin.nextLine());
@@ -200,9 +220,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     }
 
-
+    // Reading from the items file and loading it to the ArrayList
     public void loadItems() {
-        Hashtable<String, int[]> itemInfo = new Hashtable<>();
+        Hashtable<String, int[]> itemInfo = new Hashtable<>();  // Temporary info
 
         try {
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
@@ -227,7 +247,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         catch (FileNotFoundException e) {
             System.out.println("Item info not found");
         }
-
 
         File folder = new File("Assets/Items");
         ArrayList<String> absolutePaths = new ArrayList<>();
@@ -313,7 +332,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void paintComponent(Graphics g) {
-        g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);
+        g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
+
+        // Drawing grids
         g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
         g.setColor(new Color(0, 0, 0));
