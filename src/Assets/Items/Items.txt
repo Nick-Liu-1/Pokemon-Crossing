@@ -1,0 +1,116 @@
+115
+0 bells.png 0 1000
+1 fishing rod.png 500 125
+2 fossil.png 0 100
+3 fossil2.png 0 3000
+4 leaf.png 0 0
+5 net.png 500 125
+6 shovel.png 500 125
+7 bell cricket.png 0 430
+8 cricket.png 0 160
+9 grasshopper.png 0 160
+10 scorpion.png 0 8000
+11 tarantula.png 0 8000
+12 agrias butterfly.png 0 3000
+13 bee.png 0 2500
+14 common butterfly.png 0 90
+15 cyclommatus stag.png 0 8000
+16 emperor butterfly.png 0 2500
+17 firefly.png 0 300
+18 fly.png 0 50
+19 fruit beetle.png 0 100
+20 giant cicada.png 0 500
+21 giant stag.png 0 10000
+22 goliath beetle.png 0 6000
+23 honeybee.png 0 100
+24 ladybug.png 0 200
+25 longhorn beetle.png 0 260
+26 miyama stag.png 0 1000
+27 monarch butterfly.png 0 140
+28 oak silk moth.png 0 1200
+29 peacock butterfly.png 0 220
+30 rainbow stag.png 0 10000
+31 tiger beetle.png 0 1500
+32 tiger butterfly.png 0 160
+33 violin beetle.png 0 260
+34 walker cicada.png 0 400
+35 walking leaf.png 0 600
+36 walking stick.png 0 600
+37 yellow butterfly.png 0 90
+38 barred knifejaw.png 0 5000
+39 blowfish.png 0 125
+40 blue marlin.png 0 1000
+41 boot.png 0 0
+42 butterfly fish.png 0 1000
+43 can.png 0 0
+44 clownfish.png 0 650
+45 coelacanth.png 0 15000
+46 dab.png 0 300
+47 football fish.png 0 2500
+48 hammerhead shark.png 0 8000
+49 horse mackerel.png 0 150
+50 moray eel.png 0 2000
+51 napoleonfish.png 0 10000
+52 oarfish.png 0 9000
+53 ocean sunfish.png 0 4000
+54 octopus.png 0 500
+55 olive flounder.png 0 800
+56 puffer fish.png 0 240
+57 ray.png 0 3000
+58 red snapper.png 0 3000
+59 saw shark.png 0 12000
+60 sea bass.png 0 200
+61 sea butterfly.png 0 1000
+62 seahorse.png 0 1100
+63 shark.png 0 15000
+64 squid.png 0 400
+65 surgeonfish.png 0 1000
+66 tire.png 0 0
+67 tuna.png 0 7000
+68 whale shark.png 0 13000
+69 zebra turkeyfish.png 0 400
+70 crawfish.png 0 200
+71 frog.png 0 120
+72 goldfish.png 0 1300
+73 killifish.png 0 300
+74 tadpole.png 0 100
+75 angelfish.png 0 3000
+76 arapaima.png 0 10000
+77 arowana.png 0 10000
+78 bitterling.png 0 900
+79 black bass.png 0 300
+80 bluegill.png 0 120
+81 boot.png 0 0
+82 can.png 0 0
+83 carp.png 0 300
+84 catfish.png 0 800
+85 crucian carp.png 0 120
+86 dace.png 0 200
+87 dorado.png 0 15000
+88 eel.png 0 2000
+89 freshwater goby.png 0 300
+90 gar.png 0 6000
+91 giant snakehead.png 0 5500
+92 guppy.png 0 1300
+93 king salmon.png 0 1800
+94 koi.png 0 4000
+95 loach.png 0 300
+96 mitten crab.png 0 2000
+97 neon tetra.png 0 500
+98 pale chub.png 0 200
+99 pike.png 0 1800
+100 piranha.png 0 2500
+101 pond smelt.png 0 300
+102 popeyed goldfish.png 0 1300
+103 salmon.png 0 700
+104 soft-shelled turtle.png 0 3750
+105 stringfish.png 0 15000
+106 sweetfish.png 0 900
+107 tire.png 0 0
+108 yellow perch.png 0 240
+109 conch.png 0 350
+110 coral.png 0 250
+111 cowrie shell.png 0 30
+112 giant clam.png 0 450
+113 sand dollar.png 0 60
+114 scallop.png 0 600

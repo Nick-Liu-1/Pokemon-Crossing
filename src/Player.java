@@ -22,6 +22,8 @@ public class Player {
     // Player items
     private Item[][] items = new Item[6][3];
     private Item equippedItem;
+    private int selectedItemR = -1;	//pos of selected item in inventory
+    private int selectedItemC = -1;
 
     // Other player info
     private int gender;
@@ -67,8 +69,13 @@ public class Player {
         this.grid = grid;
 
         for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 3; j++) {
-                items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
+            for (int j = 0; j < 2; j++) {
+            	if(j==0){
+            		items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
+            	}
+                else{
+                	items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
+                }
             }
         }
     }
@@ -484,7 +491,73 @@ public class Player {
                     }
                 }
             }
+            if (selectedItemR!=-1 && selectedItemC!=-1){
+            	g.setColor(new Color(0,255,0));
+               	g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
+            }
         }
+    }
+    
+    public void addItem(Item item){
+    	for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                if(items[i][j] == null){
+					items[i][j] = item;
+					break;
+                }
+            }
+        }
+    }
+    
+    public void removeItem(Item item){
+    	
+    }
+    
+    public void selectItem(Point mouse){
+    	int noCollision=0;
+    	for (int i = 0; i < items.length; i++) {
+            for (int j = 0; j < items[0].length; j++) {
+               	if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
+               		selectedItemR = i;
+               		selectedItemC = j;
+               		break;
+               	}
+               	noCollision++;
+            }    
+		}
+		if (noCollision==18){
+			selectedItemR = -1;
+        	selectedItemC = -1;
+		}
+    }
+    
+    public void moveItem(Point mouse){
+    	int shortestDist = Integer.MAX_VALUE;
+    	int swapR=0;
+    	int swapC=0;
+    	if(selectedItemR < 6 && selectedItemC < 3){
+	    	for (int i = 0; i < 6; i++) {
+	            for (int j = 0; j < 3; j++) {
+	                int dist = (int)(Math.hypot(mouse.x - (342 + i * 68),  mouse.y - (72 + j * 68)));
+	                if(dist<=shortestDist){
+	                	shortestDist = dist;
+	                	swapR = i;
+	                	swapC=j;
+	                }
+	            }
+	        }
+	        if(items[swapR][swapC] == null){
+	        	items[swapR][swapC] = items[selectedItemR][selectedItemC];
+	        	items[selectedItemR][selectedItemC] = null;
+	        }
+	        else{
+	        	Item temp = items[selectedItemR][selectedItemC];
+	        	items[selectedItemR][selectedItemC] = items[swapR][swapC];
+	        	items[swapR][swapC] = temp;
+	        }
+	        selectedItemR=swapR;
+	        selectedItemC=swapC;
+    	}
     }
 
     // Getters and setters
@@ -533,4 +606,21 @@ public class Player {
     public void setInventoryOpen(boolean inventoryOpen) {
         this.inventoryOpen = inventoryOpen;
     }
+    
+    public int getSelectedItemR(){
+    	return selectedItemR;
+    }
+    
+    public void setSelectedItemR(int n){
+    	selectedItemR = n;
+    }
+    
+    public int getSelectedItemC(){
+    	return selectedItemC;
+    }
+    
+    public void setSelectedItemC(int n){
+    	selectedItemC = n;
+    }
+   
 }

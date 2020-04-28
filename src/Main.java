@@ -102,8 +102,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Deals with all player movement
     public void move() {
-        /*Point mouse = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        /*Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
+        Point mouse = new Point (mouse.x-offset.x, mouse.y-offset.y);
         System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
         System.out.println(player.getxTile()+ " "+ player.getyTile());*/
 
@@ -236,7 +237,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     fileName += line[j] + " ";
                 }
                 fileName = fileName.substring(0, fileName.length()-1);
-                System.out.println(fileName);
+                //System.out.println(fileName);
                 itemInfo.put(fileName, new int[] {Integer.parseInt(line[0]), Integer.parseInt(line[line.length-2]), Integer.parseInt(line[line.length-1])});
             }
 
@@ -255,12 +256,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         String name;
         String[] splitFile;
         int[] info;
-        System.out.println(itemInfo);
+        //System.out.println(itemInfo);
         for (String file : absolutePaths) {
             splitFile = file.split("\\\\");
             name = splitFile[splitFile.length-1];
             info = itemInfo.get(name);
-            System.out.println(Arrays.toString(info) +" "+ name);
+            //System.out.println(Arrays.toString(info) +" "+ name);
             items.set(info[0], new Item(info[0], new ImageIcon(file).getImage(), info[1], info[2]));
         }
 
@@ -297,6 +298,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (keys[KeyEvent.VK_ESCAPE]) {
             player.setInventoryOpen(!player.isInventoryOpen());
+            player.setSelectedItemR(-1);
+        	player.setSelectedItemC(-1);
         }
     }
 
@@ -308,17 +311,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+		
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-
+    	Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        Point offset = getLocationOnScreen();  // Get window position
+        Point mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
+		
+		if (player.isInventoryOpen()){
+			player.selectItem(mouse);
+			System.out.println(mouse);
+		}  	
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-
+		Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        Point offset = getLocationOnScreen();  // Get window position
+        Point mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
+		
+		if(player.isInventoryOpen()){
+			player.moveItem(mouse);
+		}
     }
 
     @Override
