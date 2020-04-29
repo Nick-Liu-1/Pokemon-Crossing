@@ -76,6 +76,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
+    private Point mouse;
+    private boolean clicked = false;
+
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
@@ -102,11 +105,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Deals with all player movement
     public void move() {
-        /*Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
-        Point mouse = new Point (mouse.x-offset.x, mouse.y-offset.y);
-        System.out.println("("+(mouse.x-offset.x)+", "+(mouse.y-offset.y)+")");
-        System.out.println(player.getxTile()+ " "+ player.getyTile());*/
+        mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -158,7 +160,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
-        player = new Player(1500, 1440, Player.MALE, grid);
+        player = new Player(1500, 1440, Player.MALE, grid, this);
         loadItems();
     }
 
@@ -316,25 +318,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-    	Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
-        Point offset = getLocationOnScreen();  // Get window position
-        Point mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-		
-		if (player.isInventoryOpen()){
-			player.selectItem(mouse);
-			System.out.println(mouse);
-		}  	
+        if (e.getButton() ==  MouseEvent.BUTTON1) {
+            clicked = true;
+            if (player.isInventoryOpen()){
+                player.selectItem(mouse);
+                System.out.println(mouse);
+            }
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-		Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
-        Point offset = getLocationOnScreen();  // Get window position
-        Point mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-		
-		if(player.isInventoryOpen()){
-			player.moveItem(mouse);
-		}
+        if (e.getButton() ==  MouseEvent.BUTTON1) {
+            clicked = false;
+            if (player.isInventoryOpen()) {
+                player.moveItem(mouse);
+            }
+        }
+
     }
 
     @Override
@@ -394,5 +395,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         return out;
 
+    }
+
+    public Point getMouse() {
+        return mouse;
+    }
+
+    public boolean isClicked() {
+        return clicked;
     }
 }

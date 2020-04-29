@@ -61,12 +61,17 @@ public class Player {
     // How many bells player has
     private int bells = 0;
 
+    private GamePanel mainFrame;
+
+    private int offsetX, offsetY;
+
     // Constructor
-    public Player(int x, int y, int gender, int[][] grid) {
+    public Player(int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
         this.x = x;
         this.y = y;
         this.gender = gender;
         this.grid = grid;
+        this.mainFrame = mainFrame;
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
@@ -487,10 +492,16 @@ public class Player {
             for (int i = 0; i < items.length; i++) {
                 for (int j = 0; j < items[0].length; j++) {
                     if (items[i][j] != null) {
-                        g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                        if (!(i == selectedItemR && j == selectedItemC && mainFrame.isClicked())) {
+                            g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                        }
+                        else if (i == selectedItemR && j == selectedItemC) {
+                            g.drawImage(items[i][j].getImage(), mainFrame.getMouse().x - offsetX - 19, mainFrame.getMouse().y - offsetY - 18, null);
+                        }
                     }
                 }
             }
+            System.out.println(selectedItemR + " " + selectedItemC);
             if (selectedItemR!=-1 && selectedItemC!=-1){
             	g.setColor(new Color(0,255,0));
                	g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
@@ -520,6 +531,8 @@ public class Player {
                	if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
                		selectedItemR = i;
                		selectedItemC = j;
+               		offsetX = (int) (mouse.getX() - (342 + i * 68));
+               		offsetY = (int) (mouse.getY() - (72 + j * 68));
                		break;
                	}
                	noCollision++;
@@ -546,17 +559,19 @@ public class Player {
 	                }
 	            }
 	        }
-	        if(items[swapR][swapC] == null){
-	        	items[swapR][swapC] = items[selectedItemR][selectedItemC];
-	        	items[selectedItemR][selectedItemC] = null;
-	        }
-	        else{
-	        	Item temp = items[selectedItemR][selectedItemC];
-	        	items[selectedItemR][selectedItemC] = items[swapR][swapC];
-	        	items[swapR][swapC] = temp;
-	        }
-	        selectedItemR=swapR;
-	        selectedItemC=swapC;
+	    	if (selectedItemC != -1 && selectedItemR != -1) {
+                if (items[swapR][swapC] == null){
+                    items[swapR][swapC] = items[selectedItemR][selectedItemC];
+                    items[selectedItemR][selectedItemC] = null;
+                }
+                else {
+                    Item temp = items[selectedItemR][selectedItemC];
+                    items[selectedItemR][selectedItemC] = items[swapR][swapC];
+                    items[swapR][swapC] = temp;
+                }
+                selectedItemR=swapR;
+                selectedItemC=swapC;
+            }
     	}
     }
 
