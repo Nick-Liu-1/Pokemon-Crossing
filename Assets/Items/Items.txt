@@ -1,4 +1,4 @@
-115
+129
 0 bells.png 0 1000
 1 fishing rod.png 500 125
 2 fossil.png 0 100
@@ -114,3 +114,17 @@
 112 giant clam.png 0 450
 113 sand dollar.png 0 60
 114 scallop.png 0 600
+115 apple.png 0 100
+116 orange.png 0 100
+117 peach.png 0 100
+118 pear.png 0 100
+119 flower seeds.png 160 25
+120 pink tulip.png 0 80
+121 red rose.png 0 40
+122 red tulip.png 0 40
+123 white cosmos.png 0 40
+124 white tulip.png 0 40
+125 yellow cosmos.png 0 40
+126 yellow rose.png 0 40
+127 medicine.png 400 100
+128 wallpaper.png 1000 200
