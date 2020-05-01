@@ -55,11 +55,15 @@ public class Player {
     private boolean goingToNewRoom = false;
     private boolean exitingRoom = false;
     private boolean inventoryOpen = false;
+    private boolean escapeQueued = false;
+    private boolean rightClickMenuOpen = false;
+
+    private Rectangle rightClickMenu = null;
 
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
 
     // How many bells player has
-    private int bells = 0;
+    private int bells = 69420;
 
     private GamePanel mainFrame;
 
@@ -137,13 +141,19 @@ public class Player {
             yTile = y / tileSize;
 
             // Player stops if not continuing in same direction
-            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) != 1) {
+            if (!dirIsPressed() || keyPressToDir(mostRecentKeyPress) != direction || inDir(direction) != 1 || escapeQueued) {
                 // Reset movement variables
                 movementTick = 0;
                 frame = 0;
                 moving = false;
                 running = false;
             }
+            
+            if (escapeQueued) {
+                inventoryOpen = !inventoryOpen;
+                escapeQueued = false;
+            }
+
             running = keys[KeyEvent.VK_SHIFT];
         }
     }
@@ -220,17 +230,25 @@ public class Player {
 
     // Return what is in the grid in the specified direction
     public int inDir(int dir) {
+        int ans = 0;
         switch (dir) {
             case (Player.RIGHT):
-                return grid[xTile+1][yTile];
+                ans = grid[xTile+1][yTile];
+                break;
             case (Player.UP):
-                return grid[xTile][yTile-1];
+                ans = grid[xTile][yTile-1];
+                break;
             case (Player.LEFT):
-                return grid[xTile-1][yTile];
+                ans = grid[xTile-1][yTile];
+                break;
             case (Player.DOWN):
-                return grid[xTile][yTile+1];
+                ans = grid[xTile][yTile+1];
+                break;
         }
-        return 0;
+        if (ans == 4) {
+            ans = 1;
+        }
+        return ans;
     }
 
     // Draw the the player
@@ -501,10 +519,48 @@ public class Player {
                     }
                 }
             }
-            System.out.println(selectedItemR + " " + selectedItemC);
+            //System.out.println(selectedItemR + " " + selectedItemC);
             if (selectedItemR!=-1 && selectedItemC!=-1){
             	g.setColor(new Color(0,255,0));
                	g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
+               	if (rightClickMenuOpen) {
+               	    rightClickMenu = new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
+               	    g.setColor(Color.WHITE);
+                    g.fillRect(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
+                    g.setColor(Color.BLACK);
+                    g.drawRect(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
+                }
+
+            }
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+                Font finkHeavy = null;
+
+                try {
+                    //create the font to use. Specify the size!
+                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
+                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                    //register the font
+                    ge.registerFont(finkHeavy);
+                } catch (IOException | FontFormatException e) {
+                    e.printStackTrace();
+                }
+               
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(finkHeavy);
+                g2.setColor(new Color(0,0,0));
+
+                int x, y;  // x, y coordinates of text
+                int width;  // width of text
+
+                // Score text
+                g2.drawString(String.valueOf(bells), 360 ,293);
+
+                if (rightClickMenuOpen && selectedItemR!=-1 && selectedItemC!=-1) {
+                    g2.drawString("Drop",323 + selectedItemR * 68 + offsetX + 19 + 10, 54 + selectedItemC * 68 + offsetY + 18 + 25);
+                }
             }
         }
     }
@@ -575,6 +631,10 @@ public class Player {
     	}
     }
 
+    public void dropSelectedItem() {
+        items[selectedItemR][selectedItemC] = null;
+    }
+
     // Getters and setters
     public int getX() {
         return x;
@@ -636,6 +696,34 @@ public class Player {
     
     public void setSelectedItemC(int n){
     	selectedItemC = n;
+    }
+
+    public boolean isEscapeQueued() {
+        return escapeQueued;
+    }
+
+    public void setEscapeQueued(boolean escapeQueued) {
+        this.escapeQueued = escapeQueued;
+    }
+
+    public boolean isRightClickMenuOpen() {
+        return rightClickMenuOpen;
+    }
+
+    public void setRightClickMenuOpen(boolean b) {
+        rightClickMenuOpen = b;
+    }
+
+    public Rectangle getRightClickMenu() {
+        return rightClickMenu;
+    }
+
+    public Item getSelectedItem() {
+        if (selectedItemC != -1 && selectedItemR != -1) {
+            return items[selectedItemR][selectedItemC];
+        }
+        return null;
+
     }
    
 }

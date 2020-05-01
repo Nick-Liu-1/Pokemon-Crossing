@@ -79,6 +79,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Point mouse;
     private boolean clicked = false;
 
+    private ArrayList<DroppedItem> droppedItems = new ArrayList<>();
+
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
@@ -134,6 +136,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             // Deal with going to new room
             if (player.isGoingToNewRoom()) {
+                curRoom.setGrid(grid);
                 curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
                 grid = curRoom.getGrid();  // Set grid
 
@@ -146,6 +149,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             // Deal with exiting room
             else if (player.isExitingRoom()) {
+                curRoom.setGrid(grid);
                 // Set player pos
                 player.setxTile(curRoom.getEntryX());
                 player.setyTile(curRoom.getEntryY());
@@ -160,7 +164,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
-        player = new Player(1500, 1440, Player.MALE, grid, this);
+        player = new Player(1500, 1440, Player.FEMALE, grid, this);
         loadItems();
     }
 
@@ -299,10 +303,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
         if (keys[KeyEvent.VK_ESCAPE]) {
-            player.setInventoryOpen(!player.isInventoryOpen());
+            if (!player.isInventoryOpen()) {
+                player.setEscapeQueued(true);
+            }
+            else {
+                player.setInventoryOpen(false);
+            }
+
             player.setSelectedItemR(-1);
         	player.setSelectedItemC(-1);
         }
+
+        player.setRightClickMenuOpen(false);
     }
 
     @Override
@@ -318,13 +330,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() ==  MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = true;
             if (player.isInventoryOpen()){
+                if (player.isRightClickMenuOpen() && player.getRightClickMenu().contains(mouse.x, mouse.y) && grid[player.getxTile()][player.getyTile()] != 4) {
+                    droppedItems.add(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
+                    grid[player.getxTile()][player.getyTile()] = 4;
+                    player.dropSelectedItem();
+                }
                 player.selectItem(mouse);
-                System.out.println(mouse);
+
             }
         }
+
+        player.setRightClickMenuOpen(false);
+
+        if (e.getButton() == MouseEvent.BUTTON3) {
+            if (player.isInventoryOpen()) {
+                player.selectItem(mouse);
+                player.setRightClickMenuOpen(true);
+            }
+        }
+
     }
 
     @Override
@@ -376,6 +403,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
         }*/
+
+        for (DroppedItem item : droppedItems) {
+            g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
+        }
 
         player.draw(g);
 

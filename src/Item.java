@@ -31,3 +31,21 @@ public class Item {
         return sellCost;
     }
 }
+
+class DroppedItem extends Item {
+    private int xTile, yTile;
+
+    public DroppedItem(Item item, int xTile, int yTile) {
+        super(item.getId(), item.getImage(), item.getBuyCost(), item.getSellCost());
+        this.xTile = xTile;
+        this.yTile = yTile;
+    }
+
+    public int getxTile() {
+        return xTile;
+    }
+
+    public int getyTile() {
+        return yTile;
+    }
+}

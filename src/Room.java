@@ -1,7 +1,7 @@
 import java.awt.*;
 
 public class Room {
-    private final int[][] grid;
+    private int[][] grid;
     private final Image image;
     private final int entryX;
     private final int entryY;
@@ -43,5 +43,9 @@ public class Room {
 
     public int[][] getGrid() {
         return grid;
+    }
+
+    public void setGrid(int[][] grid) {
+        this.grid = grid;
     }
 }
