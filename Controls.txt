@@ -1,0 +1,6 @@
+Controls:
+WASD - Movement of the character
+Shift + Direction - Run in that direction
+Esc - Open/Close inventory
+Right clicking item opens drop down menu
+Right clicking dropped item adds it to the inventory
