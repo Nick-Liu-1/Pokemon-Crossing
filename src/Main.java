@@ -79,8 +79,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Point mouse;
     private boolean clicked = false;
 
-    private ArrayList<DroppedItem> droppedItems = new ArrayList<>();
-
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
@@ -334,7 +332,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             clicked = true;
             if (player.isInventoryOpen()){
                 if (player.isRightClickMenuOpen() && player.getRightClickMenu().contains(mouse.x, mouse.y) && grid[player.getxTile()][player.getyTile()] != 4) {
-                    droppedItems.add(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
+                    curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
                     grid[player.getxTile()][player.getyTile()] = 4;
                     player.dropSelectedItem();
                 }
@@ -349,6 +347,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             if (player.isInventoryOpen()) {
                 player.selectItem(mouse);
                 player.setRightClickMenuOpen(true);
+            }
+            else {
+                int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
+                int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
+                DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
+                System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
+
+                if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull()) {
+                    player.addItem(new Item(droppedItem.getId(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
+                    Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
+                    temp.remove(new Point(xTile, yTile));
+                    curRoom.setDroppedItems(temp);
+                }
             }
         }
 
@@ -404,7 +416,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }*/
 
-        for (DroppedItem item : droppedItems) {
+        for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
+            DroppedItem item = pair.getValue();
             g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
         }
 

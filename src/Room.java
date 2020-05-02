@@ -1,4 +1,5 @@
 import java.awt.*;
+import java.util.Hashtable;
 
 public class Room {
     private int[][] grid;
@@ -9,6 +10,8 @@ public class Room {
     private final int exitY;
     private final int exitX2;
     private final int exitY2;
+
+    private Hashtable<Point, DroppedItem> droppedItems = new Hashtable<>();
 
     public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2) {
         this.grid = grid;
@@ -47,5 +50,17 @@ public class Room {
 
     public void setGrid(int[][] grid) {
         this.grid = grid;
+    }
+
+    public Hashtable<Point, DroppedItem> getDroppedItems() {
+        return droppedItems;
+    }
+
+    public void setDroppedItems(Hashtable<Point, DroppedItem> droppedItems) {
+        this.droppedItems = droppedItems;
+    }
+
+    public void addDroppedItem(DroppedItem item) {
+        droppedItems.put(new Point(item.getxTile(), item.getyTile()), item);
     }
 }

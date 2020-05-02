@@ -1,4 +1,4 @@
-129
+131
 0 bells.png 0 1000
 1 fishing rod.png 500 125
 2 fossil.png 0 100
@@ -128,3 +128,5 @@
 126 yellow rose.png 0 40
 127 medicine.png 400 100
 128 wallpaper.png 1000 200
+129 letter.png 0 0
+130 open letter.png 0 0

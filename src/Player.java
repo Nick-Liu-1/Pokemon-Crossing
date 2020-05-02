@@ -564,13 +564,26 @@ public class Player {
             }
         }
     }
+
+    public boolean isInventoryFull() {
+        boolean ans = true;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (items[i][j] == null) {
+                    ans = false;
+                    break;
+                }
+            }
+        }
+        return ans;
+    }
     
     public void addItem(Item item){
-    	for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 3; j++) {
-                if(items[i][j] == null){
+    	for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 6; i++) {
+                if(items[i][j] == null) {
 					items[i][j] = item;
-					break;
+					return;
                 }
             }
         }
