@@ -3,6 +3,7 @@ import java.util.Hashtable;
 
 public class Room {
     private int[][] grid;
+    private final int[][] originalGrid;
     private final Image image;
     private final int entryX;
     private final int entryY;
@@ -15,6 +16,7 @@ public class Room {
 
     public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2) {
         this.grid = grid;
+        this.originalGrid = grid;
         this.image = image;
         this.entryX = entryX;
         this.entryY = entryY;
@@ -50,6 +52,10 @@ public class Room {
 
     public void setGrid(int[][] grid) {
         this.grid = grid;
+    }
+
+    public int[][] getOriginalGrid() {
+        return originalGrid;
     }
 
     public Hashtable<Point, DroppedItem> getDroppedItems() {

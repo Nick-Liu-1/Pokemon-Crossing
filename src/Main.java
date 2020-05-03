@@ -140,9 +140,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 // Set player pos
                 player.setxTile(curRoom.getExitX());
-                player.setyTile(curRoom.getExitY());
+                player.setyTile(curRoom.getExitY() + 1);
                 player.setX(curRoom.getExitX() * tileSize);
-                player.setY(curRoom.getExitY() * tileSize);
+                player.setY(curRoom.getExitY() * tileSize + tileSize);
             }
 
             // Deal with exiting room
@@ -150,9 +150,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 curRoom.setGrid(grid);
                 // Set player pos
                 player.setxTile(curRoom.getEntryX());
-                player.setyTile(curRoom.getEntryY());
+                player.setyTile(curRoom.getEntryY() - 1);
                 player.setX(curRoom.getEntryX() * tileSize);
-                player.setY(curRoom.getEntryY() * tileSize);
+                player.setY(curRoom.getEntryY() * tileSize - tileSize);
 
                 // Set curRoom and grid to be the outside
                 curRoom = outside;
@@ -287,6 +287,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
 
+    public boolean isAdjacentToPlayer(int xTile, int yTile) {
+        return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() - 1) ||
+            (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -352,14 +357,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
-                DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
-                System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
+                if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
+                    DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
+                    System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
 
-                if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull()) {
-                    player.addItem(new Item(droppedItem.getId(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
-                    Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
-                    temp.remove(new Point(xTile, yTile));
-                    curRoom.setDroppedItems(temp);
+                    if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull() && isAdjacentToPlayer(xTile, yTile)) {
+                        player.addItem(new Item(droppedItem.getId(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
+                        Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
+                        temp.remove(new Point(xTile, yTile));
+                        curRoom.setDroppedItems(temp);
+                        grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
+                    }
                 }
             }
         }
@@ -391,7 +399,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
 
         // Drawing grids
-        g.setColor(new Color(255, 255, 255));
+        /*g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
         g.setColor(new Color(0, 0, 0));
         for (int i = 0; i < 1020; i+=tileSize) {
@@ -400,7 +408,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         for (int i = 0; i < 660; i+=tileSize) {
             g.drawLine(0, i, 1020, i);
-        }
+        }*/
 
         //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
         /*g.setColor(new Color(255,0,0));
