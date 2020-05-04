@@ -79,6 +79,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Point mouse;
     private boolean clicked = false;
 
+    private ArrayList<DormantNPC> dormantNPCS = new ArrayList<>();
+
+
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
@@ -89,11 +92,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         // Adding action listeners
         addKeyListener(this);
         addMouseListener(this);
-        loadMap();
-        curRoom = outside;
-        grid = curRoom.getGrid();
+
         init();
-        Player.load();
+
     }
 
     // Requests focus of game panel
@@ -108,7 +109,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        //System.out.println(player.getxTile()+ " "+ player.getyTile());
+        System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -162,8 +163,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void init() {
+        loadMap();
+        curRoom = outside;
+        grid = curRoom.getGrid();
         player = new Player(1500, 1440, Player.FEMALE, grid, this);
         loadItems();
+        Player.load();
+        dormantNPCS.add(new DormantNPC(11, 9, rooms.get(new Point(39,55)), new ImageIcon("Assets/NPCs/tom nook.png").getImage()));
     }
 
     // Read from the map and room files and loads them
@@ -430,6 +436,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         player.draw(g);
+        for (DormantNPC temp : dormantNPCS) {
+            temp.draw(g, player.getX(), player.getY(), curRoom);
+        }
 
     }
 
