@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.operations.Bool;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -58,7 +60,8 @@ public class Player {
     private boolean escapeQueued = false;
     private boolean rightClickMenuOpen = false;
 
-    private Rectangle rightClickMenu = null;
+    private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
+    private Image rightClickImage;
 
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
 
@@ -68,6 +71,8 @@ public class Player {
     private GamePanel mainFrame;
 
     private int offsetX, offsetY;
+
+    private boolean shopOpen;
 
     // Constructor
     public Player(int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
@@ -524,7 +529,13 @@ public class Player {
             	g.setColor(new Color(0,255,0));
                	g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
                	if (rightClickMenuOpen) {
-               	    rightClickMenu = new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
+               	    rightClickMenu.clear();
+               	    if (items[selectedItemR][selectedItemC].canBeEquipped()) {
+
+                    }
+
+
+               	    //rightClickMenu = new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
                	    g.setColor(Color.WHITE);
                     g.fillRect(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
                     g.setColor(Color.BLACK);
@@ -685,8 +696,16 @@ public class Player {
         return goingToNewRoom;
     }
 
+    public void setGoingToNewRoom(Boolean b) {
+        goingToNewRoom = b;
+    }
+
     public boolean isExitingRoom() {
         return exitingRoom;
+    }
+
+    public void setExitingRoom(Boolean b) {
+        exitingRoom = b;
     }
 
     public boolean isInventoryOpen() { return inventoryOpen; }
@@ -727,9 +746,9 @@ public class Player {
         rightClickMenuOpen = b;
     }
 
-    public Rectangle getRightClickMenu() {
+    /*public Rectangle getRightClickMenu() {
         return rightClickMenu;
-    }
+    }*/
 
     public Item getSelectedItem() {
         if (selectedItemC != -1 && selectedItemR != -1) {
@@ -737,6 +756,14 @@ public class Player {
         }
         return null;
 
+    }
+
+    public boolean isShopOpen() {
+        return shopOpen;
+    }
+
+    public void setShopOpen(Boolean b) {
+        this.shopOpen = b;
     }
    
 }

@@ -81,6 +81,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private ArrayList<DormantNPC> dormantNPCS = new ArrayList<>();
 
+    private boolean fadingToBlack = false;
+    private int fadeTimeStart = 0;
+
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
@@ -106,10 +109,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Deals with all player movement
     public void move() {
+        count++;
+
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        System.out.println(player.getxTile()+ " "+ player.getyTile());
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -134,42 +139,57 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             player.move();
 
             // Deal with going to new room
-            if (player.isGoingToNewRoom()) {
-                curRoom.setGrid(grid);
-                curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
-                grid = curRoom.getGrid();  // Set grid
-
-                // Set player pos
-                player.setxTile(curRoom.getExitX());
-                player.setyTile(curRoom.getExitY() + 1);
-                player.setX(curRoom.getExitX() * tileSize);
-                player.setY(curRoom.getExitY() * tileSize + tileSize);
+            if (player.isGoingToNewRoom() && !fadingToBlack) {
+                fadingToBlack = true;
+                fadeTimeStart = count;
             }
 
             // Deal with exiting room
-            else if (player.isExitingRoom()) {
-                curRoom.setGrid(grid);
-                // Set player pos
-                player.setxTile(curRoom.getEntryX());
-                player.setyTile(curRoom.getEntryY() - 1);
-                player.setX(curRoom.getEntryX() * tileSize);
-                player.setY(curRoom.getEntryY() * tileSize - tileSize);
-
-                // Set curRoom and grid to be the outside
-                curRoom = outside;
-                grid = curRoom.getGrid();
+            else if (player.isExitingRoom() && !fadingToBlack) {
+                fadingToBlack = true;
+                fadeTimeStart = count;
             }
         }
+    }
+
+    public void goToNewRoom() {
+        curRoom.setGrid(grid);
+        System.out.println(player.getxTile() + " " + player.getyTile());
+        curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
+        grid = curRoom.getGrid();  // Set grid
+
+        // Set player pos
+        player.setxTile(curRoom.getExitX());
+        player.setyTile(curRoom.getExitY());
+        player.setX(curRoom.getExitX() * tileSize);
+        player.setY(curRoom.getExitY() * tileSize);
+
+        player.setGoingToNewRoom(false);
+    }
+
+    public void exitRoom() {
+        curRoom.setGrid(grid);
+        // Set player pos
+        player.setxTile(curRoom.getEntryX());
+        player.setyTile(curRoom.getEntryY());
+        player.setX(curRoom.getEntryX() * tileSize);
+        player.setY(curRoom.getEntryY() * tileSize);
+
+        // Set curRoom and grid to be the outside
+        curRoom = outside;
+        grid = curRoom.getGrid();
+
+        player.setExitingRoom(false);
     }
 
     public void init() {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player(1500, 1440, Player.FEMALE, grid, this);
+        player = new Player(2760, 3000, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
-        dormantNPCS.add(new DormantNPC(11, 9, rooms.get(new Point(39,55)), new ImageIcon("Assets/NPCs/tom nook.png").getImage()));
+        dormantNPCS.add(new DormantNPC(11, 8, rooms.get(new Point(39,55)), new ImageIcon("Assets/NPCs/tom nook.png").getImage(), "Tom Nook"));
     }
 
     // Read from the map and room files and loads them
@@ -298,6 +318,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
     }
 
+    public DormantNPC dormantNPCAtPoint(int xTile, int yTile) {
+        for (DormantNPC temp: dormantNPCS) {
+            if (xTile == temp.getxTile() && yTile == temp.getyTile()) {
+                return temp;
+            }
+        }
+        return null;
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -312,15 +341,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
         if (keys[KeyEvent.VK_ESCAPE]) {
-            if (!player.isInventoryOpen()) {
-                player.setEscapeQueued(true);
+            if (!player.isShopOpen()) {
+                if (!player.isInventoryOpen()) {
+                    player.setEscapeQueued(true);
+                }
+                else {
+                    player.setInventoryOpen(false);
+                }
+
+                player.setSelectedItemR(-1);
+                player.setSelectedItemC(-1);
             }
             else {
-                player.setInventoryOpen(false);
+                player.setShopOpen(false);
             }
 
-            player.setSelectedItemR(-1);
-        	player.setSelectedItemC(-1);
         }
 
         player.setRightClickMenuOpen(false);
@@ -342,12 +377,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = true;
             if (player.isInventoryOpen()){
-                if (player.isRightClickMenuOpen() && player.getRightClickMenu().contains(mouse.x, mouse.y) && grid[player.getxTile()][player.getyTile()] != 4) {
+                /*if (player.isRightClickMenuOpen() && player.getRightClickMenu().contains(mouse.x, mouse.y) && grid[player.getxTile()][player.getyTile()] != 4) {
                     curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
                     grid[player.getxTile()][player.getyTile()] = 4;
                     player.dropSelectedItem();
                 }
-                player.selectItem(mouse);
+                player.selectItem(mouse);*/
 
             }
         }
@@ -357,7 +392,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (e.getButton() == MouseEvent.BUTTON3) {
             if (player.isInventoryOpen()) {
                 player.selectItem(mouse);
-                player.setRightClickMenuOpen(true);
+                if (player.getSelectedItem() != null) {
+                    player.setRightClickMenuOpen(true);
+                }
             }
             else {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
@@ -365,7 +402,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
-                    System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
+                    //System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
 
                     if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull() && isAdjacentToPlayer(xTile, yTile)) {
                         player.addItem(new Item(droppedItem.getId(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
@@ -375,7 +412,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
                     }
                 }
+
+                else if (dormantNPCAtPoint(xTile, yTile) != null) {
+                    DormantNPC npc = dormantNPCAtPoint(xTile, yTile);
+                    if (npc.getName() == "Tom Nook") {
+                        player.setShopOpen(true);
+                    }
+                }
             }
+
         }
 
     }
@@ -401,9 +446,26 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     }
 
+    public void fadingToBlack(boolean isEntering, Graphics g) {
+        //System.out.println(count - fadeTimeStart);
+        if (count - fadeTimeStart == 100) {
+            if (isEntering) {
+                goToNewRoom();
+            }
+            else {
+                exitRoom();
+            }
+            fadingToBlack = false;
+            return;
+        }
+        int alpha = Math.min((int) ((double) (count - fadeTimeStart + 20) / 100 * 255), 255);
+        g.setColor(new Color(0, 0, 0, alpha));
+        g.fillRect(0, 0, getWidth(), getHeight());
+    }
+
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
-
+        g.setColor(new Color(255, 255, 255));
         // Drawing grids
         /*g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
@@ -440,6 +502,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             temp.draw(g, player.getX(), player.getY(), curRoom);
         }
 
+        if (fadingToBlack) {
+            fadingToBlack(player.isGoingToNewRoom(), g);
+        }
+
     }
 
     public static int[][] transpose(int[][] arr) {
@@ -464,5 +530,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public boolean isClicked() {
         return clicked;
+    }
+
+    public static boolean contains(int n, int[] array) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == n) {
+                return true;
+            }
+        }
+        return false;
     }
 }

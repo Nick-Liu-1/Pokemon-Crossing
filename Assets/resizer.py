@@ -11,7 +11,7 @@ def resize(file, basewidth):
 
 def resizeFolder(folder):
     for file in glob.glob(folder):
-        resize(file)
+        resize(folder+file)
     print("done")
 
 

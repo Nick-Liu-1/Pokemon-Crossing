@@ -10,13 +10,16 @@ public class DormantNPC {
     private Room curRoom;
     private Image image;
 
-    public DormantNPC(int xTile, int yTile, Room curRoom, Image image) {
+    private final String name;
+
+    public DormantNPC(int xTile, int yTile, Room curRoom, Image image, String name) {
         this.xTile = xTile;
         this.yTile = yTile;
         this.x = xTile * tileSize;
         this.y = yTile * tileSize;
         this.curRoom = curRoom;
         this.image = image;
+        this.name = name;
     }
 
     public void draw(Graphics g, int playerX, int playerY, Room curRoom) {
@@ -49,5 +52,9 @@ public class DormantNPC {
 
     public Image getImage() {
         return image;
+    }
+
+    public String getName() {
+        return name;
     }
 }

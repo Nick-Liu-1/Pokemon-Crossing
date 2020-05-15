@@ -5,6 +5,7 @@ public class Item {
     private Image image;
     private int buyCost;
     private int sellCost;
+    private static final int[] canBeEquipped = new int[]{1, 5, 6};
 	
 
     public Item(int id, Image image, int buyCost, int sellCost) {
@@ -29,6 +30,14 @@ public class Item {
 
     public int getSellCost() {
         return sellCost;
+    }
+
+    public static boolean canBeEquipped(int n) {
+        return GamePanel.contains(n, canBeEquipped);
+    }
+
+    public boolean canBeEquipped() {
+        return GamePanel.contains(id, canBeEquipped);
     }
 }
 
