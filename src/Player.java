@@ -1,5 +1,3 @@
-import com.sun.org.apache.xpath.internal.operations.Bool;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -59,6 +57,7 @@ public class Player {
     private boolean inventoryOpen = false;
     private boolean escapeQueued = false;
     private boolean rightClickMenuOpen = false;
+    private boolean selectedEquipped = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
     private Image rightClickImage;
@@ -73,6 +72,14 @@ public class Player {
     private int offsetX, offsetY;
 
     private boolean shopOpen;
+    private final Image[] dropDownMenus = { new ImageIcon("Assets/Misc/dropdown1.png").getImage(),
+                                            new ImageIcon("Assets/Misc/dropdown2.png").getImage(),
+                                            new ImageIcon("Assets/Misc/dropdown3.png").getImage(),
+                                            new ImageIcon("Assets/Misc/dropdown4.png").getImage(), };
+    private final int[][] yPositionsOfText= {{48, -1, -1, -1}, {48, 0, -1, -1}, {48, 0, 0, -1}, {48, 86, 124, 162}};
+
+    private final int equippedX = 682;
+    private final int equippedY = 280;
 
     // Constructor
     public Player(int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
@@ -88,7 +95,7 @@ public class Player {
             		items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
             	}
                 else{
-                	items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
+                	items[i][j] = new Item(6, new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
                 }
             }
         }
@@ -525,23 +532,42 @@ public class Player {
                 }
             }
             //System.out.println(selectedItemR + " " + selectedItemC);
-            if (selectedItemR!=-1 && selectedItemC!=-1){
+            if ((selectedItemR != -1 && selectedItemC != -1) || selectedEquipped){
             	g.setColor(new Color(0,255,0));
-               	g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
+
+            	if (!selectedEquipped) {
+                    g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
+                }
+            	else {
+                    g.drawOval(663, 262, 38, 38);
+                }
+
                	if (rightClickMenuOpen) {
                	    rightClickMenu.clear();
-               	    if (items[selectedItemR][selectedItemC].canBeEquipped()) {
-
+                    System.out.println(selectedEquipped);
+               	    if (!selectedEquipped) {
+                        rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 140, 40));
+                        if (items[selectedItemR][selectedItemC].canBeEquipped()) {
+                            rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 94 + selectedItemC * 68 + offsetY + 18, 140, 40));
+                        }
+                    }
+               	    else {
+               	        rightClickMenu.add(new Rectangle(663 + offsetX, 262 + offsetY, 140, 40));
+               	        rightClickMenu.add(new Rectangle(663 + offsetX, 262 + offsetY + 40, 140, 40));
                     }
 
 
-               	    //rightClickMenu = new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
-               	    g.setColor(Color.WHITE);
-                    g.fillRect(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
-                    g.setColor(Color.BLACK);
-                    g.drawRect(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 120, 40);
+                    for (Rectangle r : rightClickMenu) {
+                        g.setColor(Color.WHITE);
+                        g.fillRect(r.x, r.y, r.width, r.height);
+                        g.setColor(Color.BLACK);
+                        g.drawRect(r.x, r.y, r.width, r.height);
+                    }
                 }
+            }
 
+            if (equippedItem != null) {
+                g.drawImage(equippedItem.getImage(), 663,262, null);
             }
 
             if (g instanceof Graphics2D) {
@@ -569,8 +595,22 @@ public class Player {
                 // Score text
                 g2.drawString(String.valueOf(bells), 360 ,293);
 
-                if (rightClickMenuOpen && selectedItemR!=-1 && selectedItemC!=-1) {
-                    g2.drawString("Drop",323 + selectedItemR * 68 + offsetX + 19 + 10, 54 + selectedItemC * 68 + offsetY + 18 + 25);
+                if (rightClickMenuOpen) {
+                    if (selectedItemR!=-1 && selectedItemC!=-1) {
+                        width = fontMetrics.stringWidth("Drop");
+                        g2.drawString("Drop",323 + selectedItemR * 68 + offsetX + 19 + (140 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 28);
+                        if (rightClickMenu.size() >= 2) {
+                            width = fontMetrics.stringWidth("Equip");
+                            g2.drawString("Equip",323 + selectedItemR * 68 + offsetX + 19 + (142 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 68);
+
+                        }
+                    }
+                    else if (selectedEquipped) {
+                        width = fontMetrics.stringWidth("Drop");
+                        g2.drawString("Drop",663 + offsetX  + (140 - width) / 2, 262 + offsetY + 28);
+                        width = fontMetrics.stringWidth("Unequip");
+                        g2.drawString("Unequip",663 + offsetX + (140 - width) / 2, 262 + offsetY + 68);
+                    }
                 }
             }
         }
@@ -611,6 +651,7 @@ public class Player {
                	if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
                		selectedItemR = i;
                		selectedItemC = j;
+               		selectedEquipped = false;
                		offsetX = (int) (mouse.getX() - (342 + i * 68));
                		offsetY = (int) (mouse.getY() - (72 + j * 68));
                		break;
@@ -618,6 +659,15 @@ public class Player {
                	noCollision++;
             }    
 		}
+
+    	if (Math.hypot(mouse.getX() - equippedX,  mouse.getY() - equippedY) < 19 && equippedItem != null) {
+    	    selectedItemR = -1;
+    	    selectedItemC = -1;
+    	    selectedEquipped = true;
+            offsetX = (int) (mouse.getX() - 663);
+            offsetY = (int) (mouse.getY() - 262);
+        }
+
 		if (noCollision==18){
 			selectedItemR = -1;
         	selectedItemC = -1;
@@ -635,10 +685,11 @@ public class Player {
 	                if(dist<=shortestDist){
 	                	shortestDist = dist;
 	                	swapR = i;
-	                	swapC=j;
+	                	swapC = j;
 	                }
 	            }
 	        }
+
 	    	if (selectedItemC != -1 && selectedItemR != -1) {
                 if (items[swapR][swapC] == null){
                     items[swapR][swapC] = items[selectedItemR][selectedItemC];
@@ -656,7 +707,36 @@ public class Player {
     }
 
     public void dropSelectedItem() {
-        items[selectedItemR][selectedItemC] = null;
+        if (!selectedEquipped) {
+            items[selectedItemR][selectedItemC] = null;
+        }
+        else {
+            selectedEquipped = false;
+            equippedItem = null;
+        }
+    }
+
+
+    public int clickedMenuBox(int x, int y) {
+        for (int i = 0; i < rightClickMenu.size(); i++) {
+            if (rightClickMenu.get(i).contains(x, y)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public void equipItem() {
+        Item temp = equippedItem;
+        equippedItem = items[selectedItemR][selectedItemC];
+        items[selectedItemR][selectedItemC] = temp;
+    }
+
+    public void unequipItem() {
+        if (!isInventoryFull()) {
+            addItem(equippedItem);
+            equippedItem = null;
+        }
     }
 
     // Getters and setters
@@ -746,13 +826,17 @@ public class Player {
         rightClickMenuOpen = b;
     }
 
-    /*public Rectangle getRightClickMenu() {
+    public ArrayList<Rectangle> getRightClickMenu() {
         return rightClickMenu;
-    }*/
+    }
 
     public Item getSelectedItem() {
         if (selectedItemC != -1 && selectedItemR != -1) {
             return items[selectedItemR][selectedItemC];
+        }
+
+        if (selectedEquipped) {
+            return equippedItem;
         }
         return null;
 
@@ -765,5 +849,8 @@ public class Player {
     public void setShopOpen(Boolean b) {
         this.shopOpen = b;
     }
-   
+
+    public boolean isSelectedEquipped() {
+        return selectedEquipped;
+    }
 }

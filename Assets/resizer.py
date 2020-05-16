@@ -9,10 +9,10 @@ def resize(file, basewidth):
     img.save(file)
     print("done")
 
-def resizeFolder(folder):
+def resizeFolder(folder, baseWidth):
     for file in glob.glob(folder):
-        resize(folder+file)
-    print("done")
+        resize(file, baseWidth)
+    print("done all")
 
 
 

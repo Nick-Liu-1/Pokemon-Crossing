@@ -79,11 +79,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Point mouse;
     private boolean clicked = false;
 
-    private ArrayList<DormantNPC> dormantNPCS = new ArrayList<>();
-
     private boolean fadingToBlack = false;
     private int fadeTimeStart = 0;
 
+    private Tom_Nook tom_nook;
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
@@ -187,9 +186,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         curRoom = outside;
         grid = curRoom.getGrid();
         player = new Player(2760, 3000, Player.FEMALE, grid, this);
+        tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)));
         loadItems();
         Player.load();
-        dormantNPCS.add(new DormantNPC(11, 8, rooms.get(new Point(39,55)), new ImageIcon("Assets/NPCs/tom nook.png").getImage(), "Tom Nook"));
     }
 
     // Read from the map and room files and loads them
@@ -318,15 +317,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
     }
 
-    public DormantNPC dormantNPCAtPoint(int xTile, int yTile) {
-        for (DormantNPC temp: dormantNPCS) {
-            if (xTile == temp.getxTile() && yTile == temp.getyTile()) {
-                return temp;
-            }
-        }
-        return null;
-    }
-
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -377,13 +367,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = true;
             if (player.isInventoryOpen()){
-                /*if (player.isRightClickMenuOpen() && player.getRightClickMenu().contains(mouse.x, mouse.y) && grid[player.getxTile()][player.getyTile()] != 4) {
-                    curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
-                    grid[player.getxTile()][player.getyTile()] = 4;
-                    player.dropSelectedItem();
-                }
-                player.selectItem(mouse);*/
+                if (player.isRightClickMenuOpen()) {
+                    if (player.clickedMenuBox(mouse.x, mouse.y) == 0 && grid[player.getxTile()][player.getyTile()] != 4) {
+                        curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
+                        grid[player.getxTile()][player.getyTile()] = 4;
+                        player.dropSelectedItem();
+                    }
+                    else if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
+                        if (!player.isSelectedEquipped()) {
+                            player.equipItem();
+                        }
+                        else {
+                            player.unequipItem();
+                        }
 
+                    }
+                }
+
+                player.selectItem(mouse);
             }
         }
 
@@ -413,12 +414,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-                else if (dormantNPCAtPoint(xTile, yTile) != null) {
-                    DormantNPC npc = dormantNPCAtPoint(xTile, yTile);
-                    if (npc.getName() == "Tom Nook") {
-                        player.setShopOpen(true);
-                    }
-                }
             }
 
         }
@@ -497,10 +492,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
         }
 
-        player.draw(g);
-        for (DormantNPC temp : dormantNPCS) {
-            temp.draw(g, player.getX(), player.getY(), curRoom);
+        if (curRoom == tom_nook.getRoom()) {
+            System.out.println("lolxddddd");
+            g.drawImage(tom_nook.getImage(), tom_nook.getxTile() * tileSize - player.getX() + 480, tom_nook.getyTile() * tileSize - player.getY() + 300, null);
         }
+
+        player.draw(g);
+
 
         if (fadingToBlack) {
             fadingToBlack(player.isGoingToNewRoom(), g);
