@@ -474,7 +474,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }*/
 
         //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
-        /*g.setColor(new Color(255,0,0));
+        g.setColor(new Color(255,0,0));
         for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
             for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
                 int a = i - Math.max(0, player.getxTile()-8);
@@ -485,7 +485,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     g.drawLine(a*60, b*60+60, a*60+60, b*60);
                 }
             }
-        }*/
+        }
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
             DroppedItem item = pair.getValue();
