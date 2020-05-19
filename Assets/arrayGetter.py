@@ -13,7 +13,7 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 myClock = time.Clock()
-pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\villagerHouse3Mask.png")
+pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\TownHallMask.png")
 
 grid = [[None for i in range(32)] for j in range(23)]
 
@@ -27,7 +27,7 @@ while running:
     
     for i in range(32):
         for j in range(23):
-            if screen.get_at((i*60+30, j*60+30)) == (248, 248, 248):
+            if screen.get_at((i*60+30, j*60+30)) == (240, 248, 240):
                 grid[j][i] = "1"
             else:
                 grid[j][i] = "0"
