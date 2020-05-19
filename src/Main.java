@@ -188,7 +188,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player = new Player(2460, 3300, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
-        NPC.loadDialogue();
+        //NPC.loadDialogue();
         tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)), player);
         tom_nook.generateStoreItems();
     }
