@@ -58,6 +58,8 @@ public class Player {
     private boolean escapeQueued = false;
     private boolean rightClickMenuOpen = false;
     private boolean selectedEquipped = false;
+    private boolean talkingToNPC = false;
+    private boolean shopOpen = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
     private Image rightClickImage;
@@ -71,15 +73,19 @@ public class Player {
 
     private int offsetX, offsetY;
 
-    private boolean shopOpen;
-    private final Image[] dropDownMenus = { new ImageIcon("Assets/Misc/dropdown1.png").getImage(),
-                                            new ImageIcon("Assets/Misc/dropdown2.png").getImage(),
-                                            new ImageIcon("Assets/Misc/dropdown3.png").getImage(),
-                                            new ImageIcon("Assets/Misc/dropdown4.png").getImage(), };
-    private final int[][] yPositionsOfText= {{48, -1, -1, -1}, {48, 0, -1, -1}, {48, 0, 0, -1}, {48, 86, 124, 162}};
-
     private final int equippedX = 682;
     private final int equippedY = 280;
+
+    private int villagerPlayerIsTalkingTo = -1;
+
+    public static final int TOM_NOOK = 0;
+    public static final int ISABELLE = 1;
+    public static final int CELESTE = 2;
+    public static final int VILLAGER1 = 3;
+    public static final int VILLAGER2 = 4;
+    public static final int VILLAGER3 = 5;
+
+
 
     // Constructor
     public Player(int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
@@ -92,10 +98,10 @@ public class Player {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
             	if(j==0){
-            		items[i][j] = new Item(0, new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
+            		items[i][j] = new Item(0,"Bells", new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
             	}
                 else{
-                	items[i][j] = new Item(6, new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
+                	items[i][j] = new Item(6, "Shovel", new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
                 }
             }
         }
@@ -853,4 +859,22 @@ public class Player {
     public boolean isSelectedEquipped() {
         return selectedEquipped;
     }
+
+    public boolean isTalkingToNPC() {
+        return talkingToNPC;
+    }
+
+    public void setTalkingToNPC(Boolean b) {
+        talkingToNPC = b;
+    }
+
+    public int getVillagerPlayerIsTalkingTo() {
+        return villagerPlayerIsTalkingTo;
+    }
+
+    public void setVillagerPlayerIsTalkingTo(int n) {
+        villagerPlayerIsTalkingTo = n;
+    }
+
+
 }

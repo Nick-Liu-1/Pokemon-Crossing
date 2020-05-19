@@ -74,7 +74,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] grid;  // Current grid of the room the player is in
     private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms
 
-    private ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
+    private static ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
     private Point mouse;
     private boolean clicked = false;
@@ -185,10 +185,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player(2760, 3000, Player.FEMALE, grid, this);
-        tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)));
+        player = new Player(2460, 3300, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
+        NPC.loadDialogue();
+        tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)), player);
+        tom_nook.generateStoreItems();
     }
 
     // Read from the map and room files and loads them
@@ -290,8 +292,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             splitFile = file.split("\\\\");
             name = splitFile[splitFile.length-1];
             info = itemInfo.get(name);
-            //System.out.println(Arrays.toString(info) +" "+ name);
-            items.set(info[0], new Item(info[0], new ImageIcon(file).getImage(), info[1], info[2]));
+            name = name.substring(0, name.length()-4);
+            //System.out.println(Arrays.toString(info) +" "+ capitalizeWord(name));
+            items.set(info[0], new Item(info[0], capitalizeWord(name), new ImageIcon(file).getImage(), info[1], info[2]));
         }
 
 
@@ -397,16 +400,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setRightClickMenuOpen(true);
                 }
             }
-            else {
+            else if (!player.isTalkingToNPC()) {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
+                if (curRoom == tom_nook.getRoom() && (xTile == tom_nook.getxTile() && (yTile == tom_nook.getyTile() || yTile == tom_nook.getyTile() + 1))) {
+                    player.setTalkingToNPC(true);
+                    player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
+                    System.out.println("lolxdddd");
+                }
+
 
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
                     //System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
 
                     if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull() && isAdjacentToPlayer(xTile, yTile)) {
-                        player.addItem(new Item(droppedItem.getId(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
+                        player.addItem(new Item(droppedItem.getId(), droppedItem.getName(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
                         Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
                         temp.remove(new Point(xTile, yTile));
                         curRoom.setDroppedItems(temp);
@@ -493,8 +503,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         if (curRoom == tom_nook.getRoom()) {
-            System.out.println("lolxddddd");
-            g.drawImage(tom_nook.getImage(), tom_nook.getxTile() * tileSize - player.getX() + 480, tom_nook.getyTile() * tileSize - player.getY() + 300, null);
+            tom_nook.draw(g, player.getX(), player.getY());
         }
 
         player.draw(g);
@@ -530,6 +539,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return clicked;
     }
 
+    public static ArrayList<Item> getItems() {
+        return items;
+    }
+
+
     public static boolean contains(int n, int[] array) {
         for (int i = 0; i < array.length; i++) {
             if (array[i] == n) {
@@ -537,5 +551,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
         return false;
+    }
+
+    public static String capitalizeWord(String str){
+        String words[]=str.split("\\s");
+        String capitalizeWord="";
+        for(String w:words){
+            String first=w.substring(0,1);
+            String afterfirst=w.substring(1);
+            capitalizeWord+=first.toUpperCase()+afterfirst+" ";
+        }
+        return capitalizeWord.trim();
+    }
+
+    public static int randint(int low, int high){
+        /*
+            Returns a random integer on the interval [low, high].
+        */
+        return (int) (Math.random()*(high-low+1)+low);
     }
 }
