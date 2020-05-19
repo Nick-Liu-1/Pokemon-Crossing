@@ -1,4 +1,4 @@
-131
+147
 0 bells.png 0 1000
 1 fishing rod.png 500 125
 2 fossil.png 0 100
@@ -118,7 +118,7 @@
 116 orange.png 0 100
 117 peach.png 0 100
 118 pear.png 0 100
-119 flower seeds.png 160 25
+119 flower seeds.png 160 30
 120 pink tulip.png 0 80
 121 red rose.png 0 40
 122 red tulip.png 0 40
@@ -130,3 +130,19 @@
 128 wallpaper.png 1000 200
 129 letter.png 0 0
 130 open letter.png 0 0
+131 blue bed.png 2000 420
+132 blue bookshelf.png 2100 420
+133 cabinet.png 1900 400
+134 dining table.png 2500 650
+135 fridge.png 1200 300
+136 green bed.png 2000 420
+137 green side table.png 1500 200
+138 kitchen counter.png 2100 450
+139 orange chair.png 1200 200
+140 ranch table.png 1750 400
+141 weeping fig.png 1200 200
+142 white couch.png 2000 450
+143 white shelf.png 1750 350
+144 wooden chair.png 1200 200
+145 wooden side table.png 1200 300
+146 wooden table.png 1750 400
