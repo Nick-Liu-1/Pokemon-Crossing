@@ -111,7 +111,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Deals with all player movement
     public void move() {
-        count++;
 
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
@@ -151,6 +150,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 fadingToBlack = true;
                 fadeTimeStart = count;
             }
+        }
+
+        for (NPC temp : NPCs) {
+            if (temp.getName() == "Annie") {
+                temp.move(grid, player.getX(), player.getY(), NPCs);
+            }
+
         }
     }
 
@@ -194,6 +200,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         NPC.loadDialogue();
         tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)), player);
         tom_nook.generateStoreItems();
+        createNPCs();
     }
 
     // Read from the map and room files and loads them
@@ -318,43 +325,42 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void createNPCs() {
         File folder = new File("Assets/NPCs/Annie");
         File[] listOfFiles = folder.listFiles();
-
-        Hashtable<String, Image> images = new Hashtable<>();
+        Hashtable<String, Image> annieImages = new Hashtable<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                images.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
-                    new ImageIcon("Assets/NPCs/Annie"+listOfFiles[i].getName()).getImage());
+                annieImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
+                    new ImageIcon("Assets/NPCs/Annie/"+listOfFiles[i].getName()).getImage());
             }
         }
+        NPCs.add(new NPC("Annie", annieImages, 45, 50, "", outside));
 
-        NPCs.add(new NPC("Annie", images, 30, 30, ""));
-
-        folder = new File("Assets/Player/Bob the Builder");
+        folder = new File("Assets/NPCs/Bob the Builder");
         listOfFiles = folder.listFiles();
-        images.clear();
+        Hashtable<String, Image> bobImages = new Hashtable<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                images.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
-                    new ImageIcon("Assets/Player/Bob the Builder/"+listOfFiles[i].getName()).getImage());
+                bobImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
+                    new ImageIcon("Assets/NPCs/Bob the Builder/"+listOfFiles[i].getName()).getImage());
             }
         }
 
-        NPCs.add(new NPC("Bob the Builder", images, 30, 31, ""));
+        //NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "", outside));
 
-        folder = new File("Assets/Player/Nick");
+
+        folder = new File("Assets/NPCs/Nick");
         listOfFiles = folder.listFiles();
-        images.clear();
+        Hashtable<String, Image> nickImages = new Hashtable<>();
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                images.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
-                    new ImageIcon("Assets/Player/Nick/"+listOfFiles[i].getName()).getImage());
+                nickImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
+                    new ImageIcon("Assets/NPCs/Nick/"+listOfFiles[i].getName()).getImage());
             }
         }
 
-        NPCs.add(new NPC("Nick", images, 30, 32, ""));
+        //NPCs.add(new NPC("Nick", nickImages, 45, 52, "", outside));
     }
 
 
@@ -515,7 +521,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
         g.setColor(new Color(255, 255, 255));
         // Drawing grids
-        /*g.setColor(new Color(255, 255, 255));
+        g.setColor(new Color(255, 255, 255));
         g.drawRect(0, 0, getWidth(), getHeight());
         g.setColor(new Color(0, 0, 0));
         for (int i = 0; i < 1020; i+=tileSize) {
@@ -524,7 +530,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         for (int i = 0; i < 660; i+=tileSize) {
             g.drawLine(0, i, 1020, i);
-        }*/
+        }
 
         //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
         /*g.setColor(new Color(255,0,0));
@@ -551,7 +557,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             tom_nook.draw(g, player.getX(), player.getY());
         }
 
+        for (NPC temp : NPCs) {
+            if (temp.getRoom() == curRoom && temp.getName().equals("Annie")) {
+                temp.draw(g, player.getX(), player.getY());
 
+            }
+        }
 
 
         if (fadingToBlack) {
@@ -587,6 +598,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return items;
     }
 
+    public ArrayList<NPC> getNPCs() {
+        return NPCs;
+    }
 
     public static boolean contains(int n, int[] array) {
         for (int i = 0; i < array.length; i++) {

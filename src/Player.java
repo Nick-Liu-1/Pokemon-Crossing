@@ -254,15 +254,35 @@ public class Player {
         switch (dir) {
             case (Player.RIGHT):
                 ans = grid[xTile+1][yTile];
+                for (NPC temp : mainFrame.getNPCs()) {
+                    if (!temp.getName().equals(name) && xTile + 1 == temp.getxTile() && yTile == temp.getyTile()) {
+                        ans = 0;
+                    }
+                }
                 break;
             case (Player.UP):
                 ans = grid[xTile][yTile-1];
+                for (NPC temp : mainFrame.getNPCs()) {
+                    if (!temp.getName().equals(name) && xTile == temp.getxTile() && yTile - 1 == temp.getyTile()) {
+                        ans = 0;
+                    }
+                }
                 break;
             case (Player.LEFT):
                 ans = grid[xTile-1][yTile];
+                for (NPC temp : mainFrame.getNPCs()) {
+                    if (!temp.getName().equals(name) && xTile - 1 == temp.getxTile() && yTile == temp.getyTile()) {
+                        ans = 0;
+                    }
+                }
                 break;
             case (Player.DOWN):
                 ans = grid[xTile][yTile+1];
+                for (NPC temp : mainFrame.getNPCs()) {
+                    if (!temp.getName().equals(name) && xTile == temp.getxTile() && yTile + 1 == temp.getyTile()) {
+                        ans = 0;
+                    }
+                }
                 break;
         }
         if (ans == 4) {
