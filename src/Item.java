@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 
 public class Item {
@@ -8,7 +9,11 @@ public class Item {
     private int sellCost;
     public static final int[] canBeEquipped = new int[]{1, 5, 6};
     public static final int[] soldAtStore = new int[]{1, 5, 6, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144, 145, 146};
-	
+	public static final int FURNITURE_START = 131;
+	public static final int FURNITURE_END = 146;
+
+	public static final Image leafImage = new ImageIcon("Assets/Items/General/leaf.png").getImage();
+	public static final Image storeLeafImage = leafImage.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
 
     public Item(int id, String name, Image image, int buyCost, int sellCost) {
         this.id = id;
@@ -45,6 +50,10 @@ public class Item {
 
     public String getName() {
         return name;
+    }
+
+    public boolean isFurniture() {
+        return id >= FURNITURE_START && id <= FURNITURE_END;
     }
 }
 

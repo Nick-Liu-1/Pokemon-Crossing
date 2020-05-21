@@ -26,6 +26,7 @@ public class Player {
     private int selectedItemC = -1;
 
     // Other player info
+    private String name;
     private int gender;
     private int direction = DOWN;
     private boolean moving = false;
@@ -88,7 +89,8 @@ public class Player {
 
 
     // Constructor
-    public Player(int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
+    public Player(String name, int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
+        this.name = name;
         this.x = x;
         this.y = y;
         this.gender = gender;
@@ -529,10 +531,20 @@ public class Player {
                 for (int j = 0; j < items[0].length; j++) {
                     if (items[i][j] != null) {
                         if (!(i == selectedItemR && j == selectedItemC && mainFrame.isClicked())) {
-                            g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                            if (items[i][j].isFurniture()) {
+                                g.drawImage(Item.leafImage, 323 + i * 68, 54 + j * 68, null);
+                            }
+                            else {
+                                g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                            }
                         }
                         else if (i == selectedItemR && j == selectedItemC) {
-                            g.drawImage(items[i][j].getImage(), mainFrame.getMouse().x - offsetX - 19, mainFrame.getMouse().y - offsetY - 18, null);
+                            if (items[i][j].isFurniture()) {
+                                g.drawImage(Item.leafImage, mainFrame.getMouse().x - offsetX - 19, mainFrame.getMouse().y - offsetY - 18, null);
+                            }
+                            else {
+                                g.drawImage(items[i][j].getImage(), mainFrame.getMouse().x - offsetX - 19, mainFrame.getMouse().y - offsetY - 18, null);
+                            }
                         }
                     }
                 }
@@ -746,6 +758,10 @@ public class Player {
     }
 
     // Getters and setters
+    public String getName() {
+        return name;
+    }
+
     public int getX() {
         return x;
     }
@@ -875,6 +891,4 @@ public class Player {
     public void setVillagerPlayerIsTalkingTo(int n) {
         villagerPlayerIsTalkingTo = n;
     }
-
-
 }
