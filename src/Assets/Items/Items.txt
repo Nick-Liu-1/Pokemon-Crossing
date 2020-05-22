@@ -1,4 +1,4 @@
-147
+148
 0 bells.png 0 1000
 1 fishing rod.png 500 125
 2 fossil.png 0 100
@@ -146,3 +146,4 @@
 144 wooden chair.png 1200 200
 145 wooden side table.png 1200 300
 146 wooden table.png 1750 400
+147 flooring.png 1500 350

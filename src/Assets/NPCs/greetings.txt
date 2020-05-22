@@ -1,3 +1,4 @@
+14
 Hi, [PLAYER]! Need to chat about something, [CATCHPHRASE]?
 Hello! How can I help ya, [CATCHPHRASE]?
 Heya, [PLAYER]! Good to see ya, [CATCHPHRASE].
