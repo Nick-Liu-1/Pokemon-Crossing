@@ -86,6 +86,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
+    private final Image speechBubbleImage = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
+
 
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
@@ -153,10 +155,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         for (NPC temp : NPCs) {
-            if (temp.getName() == "Annie") {
-                temp.move(grid, player.getX(), player.getY(), NPCs);
+            if (curRoom == outside) {
+                temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
             }
-
         }
     }
 
@@ -278,7 +279,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     fileName += line[j] + " ";
                 }
                 fileName = fileName.substring(0, fileName.length()-1);
-                //System.out.println(fileName);
                 itemInfo.put(fileName, new int[] {Integer.parseInt(line[0]), Integer.parseInt(line[line.length-2]), Integer.parseInt(line[line.length-1])});
             }
 
@@ -297,13 +297,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         String name;
         String[] splitFile;
         int[] info;
-        //System.out.println(itemInfo);
         for (String file : absolutePaths) {
             splitFile = file.split("\\\\");
             name = splitFile[splitFile.length-1];
             info = itemInfo.get(name);
             name = name.substring(0, name.length()-4);
-            //System.out.println(Arrays.toString(info) +" "+ capitalizeWord(name));
             items.set(info[0], new Item(info[0], capitalizeWord(name), new ImageIcon(file).getImage(), info[1], info[2]));
         }
     }
@@ -333,7 +331,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     new ImageIcon("Assets/NPCs/Annie/"+listOfFiles[i].getName()).getImage());
             }
         }
-        NPCs.add(new NPC("Annie", annieImages, 45, 50, "", outside));
+        NPCs.add(new NPC("Annie", annieImages, 45, 50, "", outside, Player.ANNIE));
 
         folder = new File("Assets/NPCs/Bob the Builder");
         listOfFiles = folder.listFiles();
@@ -346,7 +344,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        //NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "", outside));
+        NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "", outside, Player.BOB_THE_BUILDER));
 
 
         folder = new File("Assets/NPCs/Nick");
@@ -360,13 +358,22 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        //NPCs.add(new NPC("Nick", nickImages, 45, 52, "", outside));
+        NPCs.add(new NPC("Nick", nickImages, 45, 52, "", outside, Player.NICK));
     }
 
 
     public boolean isAdjacentToPlayer(int xTile, int yTile) {
         return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() - 1) ||
             (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
+    }
+
+    public NPC npcAtPoint(int xTile, int yTile) {
+        for (NPC temp : NPCs) {
+            if (curRoom == temp.getRoom() && (xTile == temp.getxTile() && yTile == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
+                return temp;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -453,16 +460,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
+                NPC npc = npcAtPoint(xTile, yTile);
+                if (npc != null && isAdjacentToPlayer(npc.getxTile(), npc.getyTile())) {
+                    player.setTalkingToNPC(true);
+                    player.setVillagerPlayerIsTalkingTo(npc.getId());
+                    if (!npc.isMoving()) {
+                        npc.setTalking(true);
+                    }
+                    else {
+                        npc.setStopQueued(true);
+                    }
+
+                }
+
+
                 if (curRoom == tom_nook.getRoom() && (xTile == tom_nook.getxTile() && (yTile == tom_nook.getyTile() || yTile == tom_nook.getyTile() + 1))) {
                     player.setTalkingToNPC(true);
                     player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
-                    System.out.println("lolxdddd");
                 }
 
 
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
-                    //System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile() + " " + droppedItem);
 
                     if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull() && isAdjacentToPlayer(xTile, yTile)) {
                         player.addItem(new Item(droppedItem.getId(), droppedItem.getName(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
@@ -472,11 +491,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
                     }
                 }
-
             }
-
         }
-
     }
 
     @Override
@@ -558,16 +574,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         for (NPC temp : NPCs) {
-            if (temp.getRoom() == curRoom && temp.getName().equals("Annie")) {
+            if (temp.getRoom() == curRoom) {
                 temp.draw(g, player.getX(), player.getY());
 
             }
         }
 
-
         if (fadingToBlack) {
             fadingToBlack(player.isGoingToNewRoom(), g);
         }
+
+        if (player.isTalkingToNPC()) {
+            g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
+        }
+
     }
 
     public static int[][] transpose(int[][] arr) {
@@ -581,9 +601,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 out[j][i] = arr[i][j];
             }
         }
-
         return out;
-
     }
 
     public Point getMouse() {

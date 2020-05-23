@@ -82,9 +82,11 @@ public class Player {
     public static final int TOM_NOOK = 0;
     public static final int ISABELLE = 1;
     public static final int CELESTE = 2;
-    public static final int VILLAGER1 = 3;
-    public static final int VILLAGER2 = 4;
-    public static final int VILLAGER3 = 5;
+    public static final int ANNIE = 3;
+    public static final int BOB_THE_BUILDER = 4;
+    public static final int NICK = 5;
+
+    private int goingToxTile, goingToyTile;
 
 
 
@@ -96,6 +98,8 @@ public class Player {
         this.gender = gender;
         this.grid = grid;
         this.mainFrame = mainFrame;
+        goingToxTile = x / GamePanel.tileSize;
+        goingToyTile = y / GamePanel.tileSize;
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
@@ -168,7 +172,10 @@ public class Player {
                 moving = false;
                 running = false;
             }
-            
+            else {
+                changeDest();
+            }
+
             if (escapeQueued) {
                 inventoryOpen = !inventoryOpen;
                 escapeQueued = false;
@@ -204,10 +211,13 @@ public class Player {
         }
 
         // If player is stopped change direction
-        if (!moving) {
+        if (!moving && !talkingToNPC) {
             running = keys[KeyEvent.VK_SHIFT];
             direction = dir;
             moving = inDir(dir) == 1;
+            if (moving) {
+                changeDest();
+            }
 
             if (inDir(dir) == 2) {
                 goingToNewRoom = true;
@@ -255,7 +265,7 @@ public class Player {
             case (Player.RIGHT):
                 ans = grid[xTile+1][yTile];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if (!temp.getName().equals(name) && xTile + 1 == temp.getxTile() && yTile == temp.getyTile()) {
+                    if ((xTile + 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile + 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
                         ans = 0;
                     }
                 }
@@ -263,7 +273,7 @@ public class Player {
             case (Player.UP):
                 ans = grid[xTile][yTile-1];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if (!temp.getName().equals(name) && xTile == temp.getxTile() && yTile - 1 == temp.getyTile()) {
+                    if ((xTile == temp.getxTile() && yTile - 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile - 1 == temp.getGoingToyTile())) {
                         ans = 0;
                     }
                 }
@@ -271,7 +281,7 @@ public class Player {
             case (Player.LEFT):
                 ans = grid[xTile-1][yTile];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if (!temp.getName().equals(name) && xTile - 1 == temp.getxTile() && yTile == temp.getyTile()) {
+                    if ((xTile - 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile - 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
                         ans = 0;
                     }
                 }
@@ -279,7 +289,7 @@ public class Player {
             case (Player.DOWN):
                 ans = grid[xTile][yTile+1];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if (!temp.getName().equals(name) && xTile == temp.getxTile() && yTile + 1 == temp.getyTile()) {
+                    if ((xTile == temp.getxTile() && yTile + 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile + 1 == temp.getGoingToyTile())) {
                         ans = 0;
                     }
                 }
@@ -582,7 +592,6 @@ public class Player {
 
                	if (rightClickMenuOpen) {
                	    rightClickMenu.clear();
-                    System.out.println(selectedEquipped);
                	    if (!selectedEquipped) {
                         rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 140, 40));
                         if (items[selectedItemR][selectedItemC].canBeEquipped()) {
@@ -777,6 +786,27 @@ public class Player {
         }
     }
 
+    public void changeDest() {
+        switch (direction) {
+            case (Player.RIGHT):
+                goingToxTile = xTile + 1;
+                goingToyTile = yTile;
+                break;
+            case (Player.UP):
+                goingToxTile = xTile;
+                goingToyTile = yTile - 1;
+                break;
+            case (Player.LEFT):
+                goingToxTile = xTile - 1;
+                goingToyTile = yTile;
+                break;
+            case (Player.DOWN):
+                goingToxTile = xTile;
+                goingToyTile = yTile + 1;
+                break;
+        }
+    }
+
     // Getters and setters
     public String getName() {
         return name;
@@ -812,6 +842,10 @@ public class Player {
 
     public void setyTile(int yTile) {
         this.yTile = yTile;
+    }
+
+    public boolean isMoving() {
+        return moving;
     }
 
     public boolean isGoingToNewRoom() {
@@ -910,5 +944,13 @@ public class Player {
 
     public void setVillagerPlayerIsTalkingTo(int n) {
         villagerPlayerIsTalkingTo = n;
+    }
+
+    public int getGoingToxTile() {
+        return goingToxTile;
+    }
+
+    public int getGoingToyTile() {
+        return goingToyTile;
     }
 }

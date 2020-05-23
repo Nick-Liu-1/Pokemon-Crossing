@@ -1,3 +1,6 @@
+import sun.plugin2.applet.context.NoopExecutionContext;
+
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.io.*;
@@ -24,17 +27,23 @@ public class NPC {
 
     private Hashtable<String, Image> images;
 
-    private String name;
-    private String catchphrase;
+    private final String name;
+    private final String catchphrase;
 
     private int movementTick = 0;
     private int frame = 0;
 
     private Room room;
+    private int id;
+
+    private boolean talking = false;
+    private boolean stopQueued = false;
 
 
 
-    public NPC(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room) {
+
+
+    public NPC(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         this.name = name;
         this.images = images;
         this.xTile = xTile;
@@ -43,6 +52,9 @@ public class NPC {
         this.room = room;
         this.x = tileSize * xTile;
         this.y = tileSize * yTile;
+        goingToxTile = xTile;
+        goingToyTile = yTile;
+        this.id = id;
 
     }
 
@@ -146,24 +158,44 @@ public class NPC {
                     break;
             }
         }
+
+
     }
 
-    public void move(int[][] grid, int playerX, int playerY, ArrayList<NPC> npcs) {
-        if (!moving && GamePanel.randint(0, 100) == 0) {
-            if (GamePanel.randint(0, 10) == 0 || inDir(grid, direction, playerX, playerY, npcs) != 1) {
+    public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
+        if (!moving && GamePanel.randint(0, 200) == 0 && !talking) {
+            if (GamePanel.randint(0, 10) == 0 || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1) {
                 int newDir = direction;
                 int count = 0;
-                while (newDir == direction || inDir(grid, direction, playerX, playerY, npcs) != 1 && count < 5) {
+                while (newDir == direction || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1 && count < 5) {
                     newDir = GamePanel.randint(0, 3);
-                    System.out.println("hi" + " " +  count);
                     count++;
                 }
                 direction = newDir;
             }
-            if (inDir(grid, direction, playerX, playerY, npcs) == 1) {
+            if (inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) == 1) {
                 moving = true;
                 movementTick = 0;
                 frame = 0;
+
+                switch (direction) {
+                    case (RIGHT):
+                        goingToxTile = xTile + 1;
+                        goingToyTile = yTile;
+                        break;
+                    case (UP):
+                        goingToxTile = xTile;
+                        goingToyTile = yTile - 1;
+                        break;
+                    case (LEFT):
+                        goingToxTile = xTile - 1;
+                        goingToyTile = yTile;
+                        break;
+                    case (DOWN):
+                        goingToxTile = xTile;
+                        goingToyTile = yTile + 1;
+                        break;
+                }
             }
         }
 
@@ -180,6 +212,7 @@ public class NPC {
                     break;
                 case (DOWN):
                     y += speed;
+                    break;
             }
             movementTick++;
         }
@@ -192,57 +225,56 @@ public class NPC {
         }
     }
 
-    public int inDir(int[][] grid, int dir, int playerX, int playerY, ArrayList<NPC> npcs) {
+    public int inDir(int[][] grid, int dir, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
         int ans = 0;
         playerX /= GamePanel.tileSize;
         playerY /= GamePanel.tileSize;
 
-        System.out.println((xTile) + " " + (yTile+1) + playerX + " " + playerY);
         switch (dir) {
             case (Player.RIGHT):
                 ans = grid[xTile+1][yTile];
-                if (xTile + 1 == playerX && yTile == playerY) {
+                if ((xTile + 1 == playerX && yTile == playerY) || (xTile + 1 == pgX && yTile == pgY)) {
                     ans = 0;
                 }
 
                 for (NPC temp : npcs) {
-                    if (!temp.name.equals(name) && xTile + 1 == temp.xTile && yTile == temp.yTile) {
+                    if (!temp.name.equals(name) && ((xTile + 1 == temp.xTile && yTile == temp.yTile) || (xTile + 1 == temp.goingToxTile && yTile == temp.goingToyTile))) {
                         ans = 0;
                     }
                 }
                 break;
             case (Player.UP):
                 ans = grid[xTile][yTile-1];
-                if (xTile == playerX && yTile - 1 == playerY) {
+                if ((xTile == playerX && yTile - 1 == playerY) || (xTile == pgX && yTile - 1 == pgY)) {
                     ans = 0;
                 }
 
                 for (NPC temp : npcs) {
-                    if (!temp.name.equals(name) && xTile == temp.xTile && yTile - 1 == temp.yTile) {
+                    if (!temp.name.equals(name) && ((xTile == temp.xTile && yTile - 1 == temp.yTile) || (xTile == temp.goingToxTile && yTile - 1 == temp.goingToyTile))) {
                         ans = 0;
                     }
                 }
                 break;
             case (Player.LEFT):
                 ans = grid[xTile-1][yTile];
-                if (xTile - 1 == playerX && yTile == playerY) {
+                if ((xTile - 1 == playerX && yTile == playerY) || (xTile - 1 == pgX && yTile == pgY)) {
                     ans = 0;
                 }
 
                 for (NPC temp : npcs) {
-                    if (!temp.name.equals(name) && xTile - 1 == temp.xTile && yTile == temp.yTile) {
+                    if (!temp.name.equals(name) && ((xTile - 1 == temp.xTile && yTile == temp.yTile) || (xTile - 1 == temp.goingToxTile && yTile == temp.goingToyTile))) {
                         ans = 0;
                     }
                 }
                 break;
             case (Player.DOWN):
                 ans = grid[xTile][yTile+1];
-                if (xTile == playerX && yTile + 1 == playerY) {
+                if ((xTile == playerX && yTile + 1 == playerY) || (xTile == pgX && yTile + 1 == pgY)) {
                     ans = 0;
                 }
 
                 for (NPC temp : npcs) {
-                    if (temp.name != name && xTile == temp.xTile && yTile + 1 == temp.yTile) {
+                    if (!temp.name.equals(name) && ((xTile == temp.xTile && yTile + 1 == temp.yTile) || (xTile == temp.goingToxTile && yTile + 1 == temp.goingToyTile))) {
                         ans = 0;
                     }
                 }
@@ -253,7 +285,6 @@ public class NPC {
         }
         return ans;
     }
-
 
     public int getX() {
         return x;
@@ -301,5 +332,25 @@ public class NPC {
 
     public int getGoingToyTile() {
         return goingToyTile;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public boolean isTalking() {
+        return talking;
+    }
+
+    public void setTalking(Boolean b) {
+        talking = b;
+    }
+
+    public boolean isStopQueued() {
+        return stopQueued;
+    }
+
+    public void setStopQueued(Boolean b) {
+        stopQueued = b;
     }
 }
