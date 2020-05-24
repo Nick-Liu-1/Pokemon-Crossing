@@ -1,5 +1,3 @@
-import sun.plugin2.applet.context.NoopExecutionContext;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
@@ -428,8 +426,6 @@ public class NPC {
 
 class Tom_Nook extends NPC {
     private final Image image = new ImageIcon("Assets/NPCs/tom nook.png").getImage();
-    private final Image speechBubble = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
-    private final Image shopImage = new ImageIcon("Assets/Misc/shop menu.png").getImage();
 
     private Player player;
 
@@ -437,12 +433,20 @@ class Tom_Nook extends NPC {
 
     private final Image[] storeItemImages = new Image[GamePanel.getItems().size()];
 
-    private ArrayList<String> playerOptions = new ArrayList<>();
+    private ArrayList<String> playerOptions;
+
+    public static final int SHOP = 4;
+    public static final int HOUSING = 5;
+    public static final int SELL_SHOP = 6;
+
 
     public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id, Player player) {
         super(name, images, xTile, yTile, catchphrase, room, id);
         this.player = player;
 
+        playerOptions = super.getPlayerOptions();
+
+        playerOptions.clear();
         playerOptions.add("Buy.");
         playerOptions.add("Sell.");
         playerOptions.add("Never mind.");
@@ -452,21 +456,6 @@ class Tom_Nook extends NPC {
     @Override
     public void draw(Graphics g, int playerX, int playerY) {
         g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
-
-        if (player.isTalkingToNPC() && player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
-            if (player.isShopOpen()) {
-                g.drawImage(shopImage, (1020 - 825) / 2, (695 - 587) / 2, null);
-
-                for (int i = 0; i < storeItems.size(); i++) {
-                    if (storeItems.get(i).isFurniture()) {
-                        g.drawImage(Item.storeLeafImage, 200,200 + 50*i, null);
-                    }
-                    else {
-                        g.drawImage(storeItemImages[storeItems.get(i).getId()], 200,200 + 50*i, null);
-                    }
-                }
-            }
-        }
     }
 
 
@@ -482,5 +471,18 @@ class Tom_Nook extends NPC {
 
     public Image getImage() {
         return image;
+    }
+
+    @Override
+    public ArrayList<String> getPlayerOptions() {
+        return playerOptions;
+    }
+
+    public Image[] getStoreItemImages() {
+        return storeItemImages;
+    }
+
+    public ArrayList<Item> getStoreItems() {
+        return storeItems;
     }
 }

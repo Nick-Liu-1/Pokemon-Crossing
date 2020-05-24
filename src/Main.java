@@ -89,6 +89,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private final Image speechBubbleImage = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
     private Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
     private Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
+    private final Image shopImage = new ImageIcon("Assets/Misc/shop menu.png").getImage();
 
     private double selectionAngle = 0;
     private int selected = -1;
@@ -183,7 +184,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
         }
 
-        if (player.isTalkingToNPC() && dialogueDelay > 300) {
+        if (player.isTalkingToNPC() && dialogueDelay > 300 && (player.getVillagerPlayerIsTalkingTo() != Player.TOM_NOOK && tom_nook.getSpeechStage() !=Tom_Nook.SHOP)) {
             player.setTalkingToNPC(false);
             dialogueDelay = 0;
         }
@@ -227,7 +228,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadItems();
         Player.load();
         NPC.loadDialogue();
-        tom_nook = new Tom_Nook("Tom Nook", null, 8, 11, "mate", rooms.get(new Point(39, 55)),0,  player);
+        tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0,  player);
         tom_nook.generateStoreItems();
         createNPCs();
     }
@@ -419,7 +420,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
         if (keys[KeyEvent.VK_ESCAPE]) {
-            if (!player.isShopOpen()) {
+            if (!player.isShopOpen() && !player.isTalkingToNPC()) {
                 if (!player.isInventoryOpen()) {
                     player.setEscapeQueued(true);
                 }
@@ -430,7 +431,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setSelectedItemR(-1);
                 player.setSelectedItemC(-1);
             }
-            else {
+            else if (player.isShopOpen()) {
                 player.setShopOpen(false);
             }
 
@@ -473,6 +474,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 player.selectItem(mouse);
+            }
+
+            else if (player.isSellShopOpen()) {
+                player.selectSellItem(mouse);
             }
         }
 
@@ -624,7 +629,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
 
-        player.draw(g);
         if (curRoom == tom_nook.getRoom()) {
             tom_nook.draw(g, player.getX(), player.getY());
         }
@@ -636,115 +640,166 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        player.draw(g);
+
         if (fadingToBlack) {
             fadingToBlack(player.isGoingToNewRoom(), g);
         }
 
         if (player.isTalkingToNPC()) {
-            g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
+            NPC npc = null;
 
             if (player.getVillagerPlayerIsTalkingTo() >= 3) {
-                NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
-                System.out.println(npc.getSpeechStage());
-                //System.out.println(selectionAngle);
-
-                if (player.isDialogueSelectionOpen()) {
-                    if (player.isSelectionMenuClicked()) {
-                        g.drawImage(selectionMenuNoClickImage, 421, 120, null);
-                    }
-                    else {
-                        g.drawImage(selectionMenuImage, 421, 120, null);
-                    }
-                }
-
-                if (g instanceof Graphics2D) {
-                    Graphics2D g2 = (Graphics2D) g;
-                    Font finkHeavy = null;
-
-                    try {
-                        //create the font to use. Specify the size!
-                        finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(32f);
-                        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                        //register the font
-                        ge.registerFont(finkHeavy);
-                    } catch (IOException | FontFormatException e) {
-                        e.printStackTrace();
-                    }
-
-                    FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setFont(finkHeavy);
-                    g2.setColor(Color.BLACK);
-
-                    int x, y;  // x, y coordinates of text
-                    int width;  // width of text
-
-                    width = fontMetrics.stringWidth(npc.getName());
-
-                    x = 204 + (416 - 204 - width) / 2;
-                    y = 397;
-
-                    g2.drawString(npc.getName(), x, y);
-
-                    if (npc.getSpeechStage() == NPC.GREETING) {
-                        if (npc.getCurrentGreeting().equals("")) {
-                            npc.generateGreeting(player.getName());
-                        }
-
-                        g2.setColor(new Color(240, 240, 240));
-
-                        ArrayList<String> dialogue = wordWrap(npc.getCurrentGreeting(), 450);
-
-                        for (int i = 0; i < dialogue.size(); i++) {
-                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
-                        }
-                    }
-                    else if (npc.getSpeechStage() == NPC.CHAT) {
-                        if (npc.getCurrentChat().equals("")) {
-                            npc.generateChat(player.getName());
-                        }
-
-
-                        g2.setColor(new Color(240, 240, 240));
-
-                        ArrayList<String> dialogue = wordWrap(npc.getCurrentChat(), 450);
-
-                        for (int i = 0; i < dialogue.size(); i++) {
-                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
-                        }
-                    }
-                    else if (npc.getSpeechStage() == NPC.GOODBYE) {
-                        if (npc.getCurrentGoodbye().equals("")) {
-                            npc.generateGoodbye(player.getName());
-                        }
-
-                        g2.setColor(new Color(240, 240, 240));
-
-                        ArrayList<String> dialogue = wordWrap(npc.getCurrentGoodbye(), 450);
-
-                        for (int i = 0; i < dialogue.size(); i++) {
-                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
-                        }
-                    }
-
-
-                    g2.setColor(Color.BLACK);
-                    if (player.isDialogueSelectionOpen()) {
-                        if (npc.getPlayerOptions().size() == 2) {
-                            width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
-                            g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
-
-                            width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
-                            g2.drawString(npc.getPlayerOptions().get(1), (1020 - width) / 2, 250);
-                        }
-                    }
-                }
+                npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
             }
             else if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+                npc = tom_nook;
+            }
 
+            assert npc != null;
+            if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP)) {
+                g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
+            }
+
+
+            if (player.isDialogueSelectionOpen()) {
+                if (player.isSelectionMenuClicked()) {
+                    g.drawImage(selectionMenuNoClickImage, 421, 120, null);
+                }
+                else {
+                    g.drawImage(selectionMenuImage, 421, 120, null);
+                }
+            }
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+                Font finkHeavy = null;
+
+                try {
+                    //create the font to use. Specify the size!
+                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(32f);
+                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                    //register the font
+                    ge.registerFont(finkHeavy);
+                } catch (IOException | FontFormatException e) {
+                    e.printStackTrace();
+                }
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(finkHeavy);
+                g2.setColor(Color.BLACK);
+
+                int x, y;  // x, y coordinates of text
+                int width;  // width of text
+
+                width = fontMetrics.stringWidth(npc.getName());
+
+                x = 204 + (416 - 204 - width) / 2;
+                y = 397;
+
+
+                if (!(npc == tom_nook && (npc.getSpeechStage() == Tom_Nook.SHOP || npc.getSpeechStage() == Tom_Nook.SELL_SHOP))) {
+                    g2.drawString(npc.getName(), x, y);
+                }
+
+
+                if (npc.getSpeechStage() == NPC.GREETING) {
+                    if (npc.getCurrentGreeting().equals("")) {
+                        npc.generateGreeting(player.getName());
+                    }
+
+                    g2.setColor(new Color(240, 240, 240));
+
+                    ArrayList<String> dialogue = wordWrap(npc.getCurrentGreeting(), 450);
+
+                    for (int i = 0; i < dialogue.size(); i++) {
+                        g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                    }
+                }
+
+                else if (npc.getSpeechStage() == NPC.CHAT) {
+                    if (npc.getCurrentChat().equals("")) {
+                        npc.generateChat(player.getName());
+                    }
+
+
+                    g2.setColor(new Color(240, 240, 240));
+
+                    ArrayList<String> dialogue = wordWrap(npc.getCurrentChat(), 450);
+
+                    for (int i = 0; i < dialogue.size(); i++) {
+                        g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                    }
+                }
+
+                else if (npc.getSpeechStage() == NPC.GOODBYE) {
+                    if (npc.getCurrentGoodbye().equals("")) {
+                        npc.generateGoodbye(player.getName());
+                    }
+
+                    g2.setColor(new Color(240, 240, 240));
+
+                    ArrayList<String> dialogue = wordWrap(npc.getCurrentGoodbye(), 450);
+
+                    for (int i = 0; i < dialogue.size(); i++) {
+                        g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                    }
+                }
+
+
+                g2.setColor(Color.BLACK);
+                if (player.isDialogueSelectionOpen()) {
+                    if (npc.getPlayerOptions().size() == 2) {
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
+                        g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
+                        g2.drawString(npc.getPlayerOptions().get(1), (1020 - width) / 2, 250);
+                    }
+
+                    else if (npc.getPlayerOptions().size() == 3) {
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
+                        g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
+                        g2.drawString(npc.getPlayerOptions().get(1), 570, 195);
+
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(2));
+                        g2.drawString(npc.getPlayerOptions().get(2), (1020 - width) / 2, 250);
+                    }
+
+                    else if (npc.getPlayerOptions().size() == 4) {
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
+                        g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
+                        g2.drawString(npc.getPlayerOptions().get(1), 570, 195);
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(2));
+                        g2.drawString(npc.getPlayerOptions().get(2), (1020 - width) / 2, 250);
+
+                        width = fontMetrics.stringWidth(npc.getPlayerOptions().get(3));
+                        g2.drawString(npc.getPlayerOptions().get(3), 450 - width, 195);
+                    }
+                }
             }
         }
+        if (player.isTalkingToNPC() && player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+            if (player.isShopOpen()) {
+                g.drawImage(shopImage, (1020 - 825) / 2, (695 - 587) / 2, null);
 
+                for (int i = 0; i < tom_nook.getStoreItems().size(); i++) {
+                    if (tom_nook.getStoreItems().get(i).isFurniture()) {
+                        g.drawImage(Item.storeLeafImage, 200,200 + 50*i, null);
+                    }
+                    else {
+                        g.drawImage(tom_nook.getStoreItemImages()[tom_nook.getStoreItems().get(i).getId()], 200,200 + 50*i, null);
+                    }
+                }
+            }
+        }
     }
 
     public static int[][] transpose(int[][] arr) {
@@ -824,6 +879,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 else {
                     npc.setSpeechStage(NPC.GOODBYE);
                 }
+            }
+        }
+
+        if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {
+                player.setDialogueSelectionOpen(false);
+                player.setSellShopOpen(true);
+                player.setSellAmount(0);
+                player.setSelectedItems(new boolean[6][3]);
+                tom_nook.setSpeechStage(Tom_Nook.SELL_SHOP);
+
+            }
+            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {
+                player.setDialogueSelectionOpen(false);
+                player.setShopOpen(true);
+                tom_nook.setSpeechStage(Tom_Nook.SHOP);
+            }
+            else if (selectionAngle > (3.0/4.0) * Math.PI && selectionAngle <= 5.0/4.0 * Math.PI) {
+
+            }
+            else {
+                tom_nook.setSpeechStage(NPC.GOODBYE);
             }
         }
 

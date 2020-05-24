@@ -61,6 +61,7 @@ public class Player {
     private boolean selectedEquipped = false;
     private boolean talkingToNPC = false;
     private boolean shopOpen = false;
+    private boolean sellShopOpen = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
     private Image rightClickImage;
@@ -93,6 +94,9 @@ public class Player {
     private boolean selectionMenuClicked = false;
 
 
+    private boolean[][] selectedItems = new boolean [6][3];
+    private int sellAmount = 0;
+
 
 
     // Constructor
@@ -109,10 +113,10 @@ public class Player {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 2; j++) {
             	if(j==0){
-            		items[i][j] = new Item(0,"Bells", new ImageIcon("Assets/Items/General/bells.png").getImage(), 0, 0);
+            		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
             	}
                 else{
-                	items[i][j] = new Item(6, "Shovel", new ImageIcon("Assets/Items/General/shovel.png").getImage(), 0, 0);
+                	items[i][j] = new Item(6, "Shovel", new ImageIcon("Assets/Items/General/shovel.png").getImage(), 500, 125);
                 }
             }
         }
@@ -644,7 +648,6 @@ public class Player {
                 int x, y;  // x, y coordinates of text
                 int width;  // width of text
 
-                // Score text
                 g2.drawString(String.valueOf(bells), 360 ,293);
 
                 if (rightClickMenuOpen) {
@@ -664,6 +667,54 @@ public class Player {
                         g2.drawString("Unequip",663 + offsetX + (140 - width) / 2, 262 + offsetY + 68);
                     }
                 }
+            }
+        }
+
+        if (sellShopOpen) {
+            updateSellAmount();
+
+            g.drawImage(inventoryImage, 288, 20, null);
+            for (int i = 0; i < items.length; i++) {
+                for (int j = 0; j < items[0].length; j++) {
+                    if (items[i][j] != null) {
+                        if (!(i == selectedItemR && j == selectedItemC && mainFrame.isClicked())) {
+                            if (items[i][j].isFurniture()) {
+                                g.drawImage(Item.leafImage, 323 + i * 68, 54 + j * 68, null);
+                            }
+                            else {
+                                g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                            }
+                        }
+
+                        if (selectedItems[i][j]) {
+                            g.setColor(Color.GREEN);
+                            g.drawOval(323 + i * 68, 54 + j * 68, 38, 38);
+                        }
+                    }
+                }
+            }
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+                Font finkHeavy = null;
+
+                try {
+                    //create the font to use. Specify the size!
+                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
+                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                    //register the font
+                    ge.registerFont(finkHeavy);
+                } catch (IOException | FontFormatException e) {
+                    e.printStackTrace();
+                }
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(finkHeavy);
+                g2.setColor(new Color(0, 0, 0));
+
+
+                g2.drawString(String.valueOf(sellAmount), 360, 293);
             }
         }
 
@@ -726,6 +777,17 @@ public class Player {
 			selectedItemR = -1;
         	selectedItemC = -1;
 		}
+    }
+
+    public void selectSellItem(Point mouse){
+        for (int i = 0; i < items.length; i++) {
+            for (int j = 0; j < items[0].length; j++) {
+                if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
+                    selectedItems[i][j] = !selectedItems[i][j];
+                    break;
+                }
+            }
+        }
     }
     
     public void moveItem(Point mouse){
@@ -811,6 +873,17 @@ public class Player {
                 goingToxTile = xTile;
                 goingToyTile = yTile + 1;
                 break;
+        }
+    }
+
+    public void updateSellAmount() {
+        sellAmount = 0;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (selectedItems[i][j]) {
+                    sellAmount += items[i][j].getSellCost();
+                }
+            }
         }
     }
 
@@ -983,5 +1056,29 @@ public class Player {
 
     public void setSelectionMenuClicked(boolean b) {
         selectionMenuClicked = b;
+    }
+
+    public boolean isSellShopOpen() {
+        return sellShopOpen;
+    }
+
+    public void setSellShopOpen(Boolean b) {
+        sellShopOpen = b;
+    }
+
+    public boolean[][] getSelectedItems() {
+        return selectedItems;
+    }
+
+    public void setSelectedItems(boolean[][] b) {
+        this.selectedItems = b;
+    }
+
+    public int getSellAmount() {
+        return sellAmount;
+    }
+
+    public void setSellAmount(int sellAmount) {
+        this.sellAmount = sellAmount;
     }
 }
