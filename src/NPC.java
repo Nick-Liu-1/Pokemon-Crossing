@@ -39,6 +39,17 @@ public class NPC {
     private boolean talking = false;
     private boolean stopQueued = false;
 
+    private String currentGreeting = "";
+    private String currentChat = "";
+    private String currentGoodbye = "";
+
+    private ArrayList<String> playerOptions = new ArrayList<>();
+
+    private int speechStage = 0;
+    public static final int GREETING = 0;
+    public static final int CHAT = 1;
+    public static final int GOODBYE = 2;
+    public static final int QUEST = 3;
 
 
 
@@ -55,6 +66,9 @@ public class NPC {
         goingToxTile = xTile;
         goingToyTile = yTile;
         this.id = id;
+
+        playerOptions.add("Let's chat!");
+        playerOptions.add("Never mind.");
 
     }
 
@@ -306,6 +320,10 @@ public class NPC {
         return direction;
     }
 
+    public void setDirection(int dir) {
+        direction = dir;
+    }
+
     public boolean isMoving() {
         return moving;
     }
@@ -352,5 +370,117 @@ public class NPC {
 
     public void setStopQueued(Boolean b) {
         stopQueued = b;
+    }
+
+    public void generateGreeting(String name) {
+        String greeting = greetings.get(GamePanel.randint(0, greetings.size() - 1));
+        greeting = greeting.replace("[PLAYER]", name);
+        greeting = greeting.replace("[CATCHPHRASE]", catchphrase);
+
+        currentGreeting = greeting;
+    }
+
+    public String getCurrentGreeting() {
+        return currentGreeting;
+    }
+
+    public void setCurrentGreeting(String s) {
+        currentGreeting = s;
+    }
+
+    public void generateChat(String name) {
+        String chat = chats.get(GamePanel.randint(0, chats.size() - 1));
+        chat = chat.replace("[PLAYER]", name);
+        chat = chat.replace("[CATCHPHRASE]", catchphrase);
+
+        currentChat = chat;
+    }
+
+    public String getCurrentChat() {
+        return currentChat;
+    }
+
+    public void generateGoodbye(String name) {
+        String goodbye = goodbyes.get(GamePanel.randint(0, goodbyes.size() - 1));
+        goodbye = goodbye.replace("[PLAYER]", name);
+        goodbye = goodbye.replace("[CATCHPHRASE]", catchphrase);
+
+        currentGoodbye = goodbye;
+    }
+
+    public String getCurrentGoodbye() {
+        return currentGoodbye;
+    }
+
+    public ArrayList<String> getPlayerOptions() {
+        return playerOptions;
+    }
+
+    public int getSpeechStage() {
+        return speechStage;
+    }
+
+    public void setSpeechStage(int n) {
+        speechStage = n;
+    }
+}
+
+
+class Tom_Nook extends NPC {
+    private final Image image = new ImageIcon("Assets/NPCs/tom nook.png").getImage();
+    private final Image speechBubble = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
+    private final Image shopImage = new ImageIcon("Assets/Misc/shop menu.png").getImage();
+
+    private Player player;
+
+    private ArrayList<Item> storeItems = new ArrayList<>();
+
+    private final Image[] storeItemImages = new Image[GamePanel.getItems().size()];
+
+    private ArrayList<String> playerOptions = new ArrayList<>();
+
+    public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id, Player player) {
+        super(name, images, xTile, yTile, catchphrase, room, id);
+        this.player = player;
+
+        playerOptions.add("Buy.");
+        playerOptions.add("Sell.");
+        playerOptions.add("Never mind.");
+        playerOptions.add("Housing.");
+    }
+
+    @Override
+    public void draw(Graphics g, int playerX, int playerY) {
+        g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
+
+        if (player.isTalkingToNPC() && player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+            if (player.isShopOpen()) {
+                g.drawImage(shopImage, (1020 - 825) / 2, (695 - 587) / 2, null);
+
+                for (int i = 0; i < storeItems.size(); i++) {
+                    if (storeItems.get(i).isFurniture()) {
+                        g.drawImage(Item.storeLeafImage, 200,200 + 50*i, null);
+                    }
+                    else {
+                        g.drawImage(storeItemImages[storeItems.get(i).getId()], 200,200 + 50*i, null);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public void generateStoreItems() {
+        for (int i = 0; i < 4; i++) {
+            storeItems.add(GamePanel.getItems().get(Item.soldAtStore[GamePanel.randint(0, Item.soldAtStore.length - 1)]));
+        }
+
+        for (int i : Item.soldAtStore) {
+            storeItemImages[i] = GamePanel.getItems().get(i).getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+        }
+    }
+
+    public Image getImage() {
+        return image;
     }
 }

@@ -88,6 +88,11 @@ public class Player {
 
     private int goingToxTile, goingToyTile;
 
+    private boolean dialogueSelectionOpen = false;
+
+    private boolean selectionMenuClicked = false;
+
+
 
 
     // Constructor
@@ -630,7 +635,7 @@ public class Player {
                 } catch (IOException | FontFormatException e) {
                     e.printStackTrace();
                 }
-               
+
                 FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setFont(finkHeavy);
@@ -661,6 +666,8 @@ public class Player {
                 }
             }
         }
+
+
     }
 
     public boolean isInventoryFull() {
@@ -952,5 +959,29 @@ public class Player {
 
     public int getGoingToyTile() {
         return goingToyTile;
+    }
+
+    public boolean isDialogueSelectionOpen() {
+        return dialogueSelectionOpen;
+    }
+
+    public void setDialogueSelectionOpen(boolean dialogueSelectionOpen) {
+        this.dialogueSelectionOpen = dialogueSelectionOpen;
+    }
+
+    public int getDirection() {
+        return direction;
+    }
+
+    public void setDirection(int dir) {
+        direction = dir;
+    }
+
+    public boolean isSelectionMenuClicked() {
+        return selectionMenuClicked;
+    }
+
+    public void setSelectionMenuClicked(boolean b) {
+        selectionMenuClicked = b;
     }
 }

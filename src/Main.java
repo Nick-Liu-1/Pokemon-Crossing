@@ -87,6 +87,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
     private final Image speechBubbleImage = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
+    private Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
+    private Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
+
+    private double selectionAngle = 0;
+    private int selected = -1;
+
+    private int dialogueDelay = 0;
 
 
     public GamePanel(Main m) {
@@ -101,7 +108,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         addMouseListener(this);
 
         init();
-
     }
 
     // Requests focus of game panel
@@ -117,9 +123,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
+        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
         //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
+
+        if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
+            dialogueDelay++;
+        }
+
 
         // Move player in different directions if WASD is pressed and the inventory is not open
         if (!player.isInventoryOpen() && !fadingToBlack) {
@@ -158,6 +170,22 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             if (curRoom == outside) {
                 temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
             }
+        }
+
+        if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) <= 34 && clicked) {
+            player.setSelectionMenuClicked(true);
+        }
+        else if (!clicked) {
+            player.setSelectionMenuClicked(false);
+        }
+
+        if (player.isDialogueSelectionOpen()) {
+            selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
+        }
+
+        if (player.isTalkingToNPC() && dialogueDelay > 300) {
+            player.setTalkingToNPC(false);
+            dialogueDelay = 0;
         }
     }
 
@@ -199,7 +227,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadItems();
         Player.load();
         NPC.loadDialogue();
-        tom_nook = new Tom_Nook(rooms.get(new Point(39, 55)), player);
+        tom_nook = new Tom_Nook("Tom Nook", null, 8, 11, "mate", rooms.get(new Point(39, 55)),0,  player);
         tom_nook.generateStoreItems();
         createNPCs();
     }
@@ -302,6 +330,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             name = splitFile[splitFile.length-1];
             info = itemInfo.get(name);
             name = name.substring(0, name.length()-4);
+            //System.out.println(name);
             items.set(info[0], new Item(info[0], capitalizeWord(name), new ImageIcon(file).getImage(), info[1], info[2]));
         }
     }
@@ -331,7 +360,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     new ImageIcon("Assets/NPCs/Annie/"+listOfFiles[i].getName()).getImage());
             }
         }
-        NPCs.add(new NPC("Annie", annieImages, 45, 50, "", outside, Player.ANNIE));
+        NPCs.add(new NPC("Annie", annieImages, 45, 50, "my guy", outside, Player.ANNIE));
 
         folder = new File("Assets/NPCs/Bob the Builder");
         listOfFiles = folder.listFiles();
@@ -344,7 +373,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "", outside, Player.BOB_THE_BUILDER));
+        NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "pthhpth", outside, Player.BOB_THE_BUILDER));
 
 
         folder = new File("Assets/NPCs/Nick");
@@ -358,12 +387,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        NPCs.add(new NPC("Nick", nickImages, 45, 52, "", outside, Player.NICK));
+        NPCs.add(new NPC("Nick", nickImages, 45, 52, "kid", outside, Player.NICK));
     }
 
 
     public boolean isAdjacentToPlayer(int xTile, int yTile) {
-        return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() - 1) ||
+        return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() + 1) ||
             (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
     }
 
@@ -389,7 +418,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
-        if (keys[KeyEvent.VK_Q]) {
+        if (keys[KeyEvent.VK_ESCAPE]) {
             if (!player.isShopOpen()) {
                 if (!player.isInventoryOpen()) {
                     player.setEscapeQueued(true);
@@ -463,19 +492,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 NPC npc = npcAtPoint(xTile, yTile);
                 if (npc != null && isAdjacentToPlayer(npc.getxTile(), npc.getyTile())) {
                     player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(npc.getId());
                     if (!npc.isMoving()) {
                         npc.setTalking(true);
+                        npc.setSpeechStage(NPC.GREETING);
                     }
                     else {
                         npc.setStopQueued(true);
                     }
+
+                    int playerDir;
+
+                    if (npc.getxTile() == player.getxTile() + 1) {
+                        playerDir = Player.RIGHT;
+                    }
+                    else if (npc.getyTile() == player.getyTile() - 1) {
+                        playerDir = Player.UP;
+                    }
+                    else if (npc.getxTile() == player.getxTile() - 1) {
+                        playerDir = Player.LEFT;
+                    }
+                    else {
+                        playerDir = Player.DOWN;
+                    }
+
+                    player.setDirection(playerDir);
+                    npc.setDirection((playerDir + 2) % 4);
 
                 }
 
 
                 if (curRoom == tom_nook.getRoom() && (xTile == tom_nook.getxTile() && (yTile == tom_nook.getyTile() || yTile == tom_nook.getyTile() + 1))) {
                     player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
                 }
 
@@ -497,12 +547,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        if (e.getButton() ==  MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = false;
             if (player.isInventoryOpen()) {
                 player.moveItem(mouse);
             }
+
+            if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) > 34) {
+                player.setSelectionMenuClicked(false);
+                selectDialogue();
+            }
         }
+
 
     }
 
@@ -586,6 +642,107 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (player.isTalkingToNPC()) {
             g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
+
+            if (player.getVillagerPlayerIsTalkingTo() >= 3) {
+                NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
+                System.out.println(npc.getSpeechStage());
+                //System.out.println(selectionAngle);
+
+                if (player.isDialogueSelectionOpen()) {
+                    if (player.isSelectionMenuClicked()) {
+                        g.drawImage(selectionMenuNoClickImage, 421, 120, null);
+                    }
+                    else {
+                        g.drawImage(selectionMenuImage, 421, 120, null);
+                    }
+                }
+
+                if (g instanceof Graphics2D) {
+                    Graphics2D g2 = (Graphics2D) g;
+                    Font finkHeavy = null;
+
+                    try {
+                        //create the font to use. Specify the size!
+                        finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(32f);
+                        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+                        //register the font
+                        ge.registerFont(finkHeavy);
+                    } catch (IOException | FontFormatException e) {
+                        e.printStackTrace();
+                    }
+
+                    FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setFont(finkHeavy);
+                    g2.setColor(Color.BLACK);
+
+                    int x, y;  // x, y coordinates of text
+                    int width;  // width of text
+
+                    width = fontMetrics.stringWidth(npc.getName());
+
+                    x = 204 + (416 - 204 - width) / 2;
+                    y = 397;
+
+                    g2.drawString(npc.getName(), x, y);
+
+                    if (npc.getSpeechStage() == NPC.GREETING) {
+                        if (npc.getCurrentGreeting().equals("")) {
+                            npc.generateGreeting(player.getName());
+                        }
+
+                        g2.setColor(new Color(240, 240, 240));
+
+                        ArrayList<String> dialogue = wordWrap(npc.getCurrentGreeting(), 450);
+
+                        for (int i = 0; i < dialogue.size(); i++) {
+                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                        }
+                    }
+                    else if (npc.getSpeechStage() == NPC.CHAT) {
+                        if (npc.getCurrentChat().equals("")) {
+                            npc.generateChat(player.getName());
+                        }
+
+
+                        g2.setColor(new Color(240, 240, 240));
+
+                        ArrayList<String> dialogue = wordWrap(npc.getCurrentChat(), 450);
+
+                        for (int i = 0; i < dialogue.size(); i++) {
+                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                        }
+                    }
+                    else if (npc.getSpeechStage() == NPC.GOODBYE) {
+                        if (npc.getCurrentGoodbye().equals("")) {
+                            npc.generateGoodbye(player.getName());
+                        }
+
+                        g2.setColor(new Color(240, 240, 240));
+
+                        ArrayList<String> dialogue = wordWrap(npc.getCurrentGoodbye(), 450);
+
+                        for (int i = 0; i < dialogue.size(); i++) {
+                            g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                        }
+                    }
+
+
+                    g2.setColor(Color.BLACK);
+                    if (player.isDialogueSelectionOpen()) {
+                        if (npc.getPlayerOptions().size() == 2) {
+                            width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
+                            g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
+
+                            width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
+                            g2.drawString(npc.getPlayerOptions().get(1), (1020 - width) / 2, 250);
+                        }
+                    }
+                }
+            }
+            else if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+
+            }
         }
 
     }
@@ -602,6 +759,74 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
         return out;
+    }
+
+    public static ArrayList<String> wordWrap(String str, int width) {
+        Font finkHeavy = null;
+
+        try {
+            //create the font to use. Specify the size!
+            finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            //register the font
+            ge.registerFont(finkHeavy);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+
+        ArrayList<String> ans = new ArrayList<>();
+        String[] wordsArray = str.split(" ");
+        ArrayList<String> words = new ArrayList<>();
+        words.addAll(Arrays.asList(wordsArray));
+        Collections.reverse(words);
+
+        String word = "";
+        String string;
+
+        while (words.size() > 0) {
+            string = "";
+            while (words.size() > 0) {
+                if (word.equals("")) {
+                    word = words.get(words.size() - 1);
+                    words.remove(words.size() - 1);
+                }
+
+                if (fontMetrics.stringWidth(string) + fontMetrics.stringWidth(" " + word) <= width) {
+                    string += " " + word;
+                    word = "";
+                }
+                else {
+                    break;
+                }
+            }
+            ans.add(string.substring(1));
+        }
+
+        return ans;
+    }
+
+    public void selectDialogue() {
+        NPC npc;
+        player.setDialogueSelectionOpen(false);
+        dialogueDelay = 0;
+
+        if (player.getVillagerPlayerIsTalkingTo() >= 3) {
+            npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
+
+            if (npc.getPlayerOptions().size() == 2) {
+                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                    if (npc.getSpeechStage() == NPC.GREETING) {
+                        npc.setSpeechStage(NPC.CHAT);
+                    }
+                }
+                else {
+                    npc.setSpeechStage(NPC.GOODBYE);
+                }
+            }
+        }
+
     }
 
     public Point getMouse() {

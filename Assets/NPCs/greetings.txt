@@ -12,4 +12,4 @@ Hi, [PLAYER]! What's popping, [CATCHPHRASE]?
 Nothing like a chat with [PLAYER] to brighten your day, huh?
 You again, [PLAYER]? How goes it?
 Good to see you, [PLAYER]. Need something, [CATCHPHRASE]?
-If it isnt't [PLAYER]! What's shaking, [CATCHPHRASE]?
+If it isn;t [PLAYER]! What's shaking, [CATCHPHRASE]?
