@@ -439,6 +439,10 @@ class Tom_Nook extends NPC {
     public static final int HOUSING = 5;
     public static final int SELL_SHOP = 6;
 
+    private final Rectangle buyRect = new Rectangle(353, 575,140, 40);
+    private final Rectangle cancelRect = new Rectangle(533, 575,140, 40);
+    private final ArrayList<Rectangle> itemRects = new ArrayList<>();
+
 
     public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id, Player player) {
         super(name, images, xTile, yTile, catchphrase, room, id);
@@ -451,6 +455,10 @@ class Tom_Nook extends NPC {
         playerOptions.add("Sell.");
         playerOptions.add("Never mind.");
         playerOptions.add("Housing.");
+
+        for (int i = 0; i < 5; i++) {
+            itemRects.add(new Rectangle(332, 64 + 110*i, 360, 56));
+        }
     }
 
     @Override
@@ -460,7 +468,7 @@ class Tom_Nook extends NPC {
 
 
     public void generateStoreItems() {
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 5; i++) {
             storeItems.add(GamePanel.getItems().get(Item.soldAtStore[GamePanel.randint(0, Item.soldAtStore.length - 1)]));
         }
 
@@ -484,5 +492,40 @@ class Tom_Nook extends NPC {
 
     public ArrayList<Item> getStoreItems() {
         return storeItems;
+    }
+
+    public Rectangle getBuyRect() {
+        return buyRect;
+    }
+
+    public Rectangle getCancelRect() {
+        return cancelRect;
+    }
+
+    public ArrayList<Rectangle> getItemRects() {
+        return itemRects;
+    }
+}
+
+class Boat_Operator extends NPC {
+    private ArrayList<String> playerOptions;
+
+    public Boat_Operator(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
+        super(name, images, xTile, yTile, catchphrase, room, id);
+        playerOptions = getPlayerOptions();
+        playerOptions.clear();
+        if (id == 6) {
+            playerOptions.add("Go to Minigame Island.");
+        }
+        else {
+            playerOptions.add("Return to Main Island.");
+        }
+        playerOptions.add("Never mind.");
+    }
+
+
+    @Override
+    public void draw(Graphics g, int playerX, int playerY) {
+
     }
 }

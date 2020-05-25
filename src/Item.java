@@ -8,7 +8,7 @@ public class Item {
     private int buyCost;
     private int sellCost;
     public static final int[] canBeEquipped = new int[]{1, 5, 6};
-    public static final int[] soldAtStore = new int[]{1, 5, 6, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144, 145, 146};
+    public static final int[] soldAtStore = new int[]{1, 5, 6, 130, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144, 145, 146};
 	public static final int FURNITURE_START = 131;
 	public static final int FURNITURE_END = 146;
 

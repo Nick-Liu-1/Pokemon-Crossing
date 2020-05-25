@@ -86,6 +86,8 @@ public class Player {
     public static final int ANNIE = 3;
     public static final int BOB_THE_BUILDER = 4;
     public static final int NICK = 5;
+    public static final int BOAT_OPERATOR = 6;
+    public static final int BOAT_OPERATOR_ON_ISLAND = 7;
 
     private int goingToxTile, goingToyTile;
 
@@ -97,6 +99,10 @@ public class Player {
     private boolean[][] selectedItems = new boolean [6][3];
     private int sellAmount = 0;
 
+    private Rectangle sellRect = new Rectangle(750, 40, 140, 40);
+    private Rectangle cancelRect = new Rectangle(750, 90, 140, 40);
+
+    public int selectedItemInShop = -1;
 
 
     // Constructor
@@ -628,21 +634,10 @@ public class Player {
 
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
-                Font finkHeavy = null;
 
-                try {
-                    //create the font to use. Specify the size!
-                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
-                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    //register the font
-                    ge.registerFont(finkHeavy);
-                } catch (IOException | FontFormatException e) {
-                    e.printStackTrace();
-                }
-
-                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setFont(finkHeavy);
+                g2.setFont(GamePanel.finkheavy30);
                 g2.setColor(new Color(0,0,0));
 
                 int x, y;  // x, y coordinates of text
@@ -694,27 +689,30 @@ public class Player {
                 }
             }
 
+            g.setColor(Color.WHITE);
+            g.fillRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
+            g.fillRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
+            g.drawRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
+
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
-                Font finkHeavy = null;
 
-                try {
-                    //create the font to use. Specify the size!
-                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
-                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    //register the font
-                    ge.registerFont(finkHeavy);
-                } catch (IOException | FontFormatException e) {
-                    e.printStackTrace();
-                }
-
-                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setFont(finkHeavy);
+                g2.setFont(GamePanel.finkheavy30);
                 g2.setColor(new Color(0, 0, 0));
 
 
                 g2.drawString(String.valueOf(sellAmount), 360, 293);
+
+                int width = fontMetrics.stringWidth("Sell");
+                g2.drawString("Sell", 750 + (140 - width) / 2, 40 + 32);
+
+                width = fontMetrics.stringWidth("Cancel");
+                g2.drawString("Cancel", 750 + (140 - width) / 2, 90 + 32);
             }
         }
 
@@ -885,6 +883,18 @@ public class Player {
                 }
             }
         }
+    }
+
+    public void sellItems() {
+        bells += sellAmount;
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (selectedItems[i][j]) {
+                    items[i][j] = null;
+                }
+            }
+        }
+
     }
 
     // Getters and setters
@@ -1080,5 +1090,29 @@ public class Player {
 
     public void setSellAmount(int sellAmount) {
         this.sellAmount = sellAmount;
+    }
+
+    public Rectangle getSellRect() {
+        return sellRect;
+    }
+
+    public Rectangle getCancelRect() {
+        return cancelRect;
+    }
+
+    public int getBells() {
+        return bells;
+    }
+
+    public void setBells(int n) {
+        bells = n;
+    }
+
+    public int getSelectedItemInShop() {
+        return selectedItemInShop;
+    }
+
+    public void setSelectedItemInShop(int n) {
+        selectedItemInShop = n;
     }
 }

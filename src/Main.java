@@ -5,6 +5,8 @@
     Main class implementing the game
  */
 
+import org.w3c.dom.css.Rect;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -74,6 +76,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] grid;  // Current grid of the room the player is in
     private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms
 
+    private Room minigameIsland;
+    private int[][] minigameIslandGrid;
+
     private static ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
     private Point mouse;
@@ -83,6 +88,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int fadeTimeStart = 0;
 
     private Tom_Nook tom_nook;
+    private Boat_Operator boat_operator;
+    private Boat_Operator boat_operator_on_island;
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
@@ -95,6 +102,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int selected = -1;
 
     private int dialogueDelay = 0;
+    public static Font finkheavy15 = null;
+    public static Font finkheavy30 = null;
+    public static Font finkheavy32 = null;
+    public static Font finkheavy36 = null;
 
 
     public GamePanel(Main m) {
@@ -107,6 +118,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         // Adding action listeners
         addKeyListener(this);
         addMouseListener(this);
+        GamePanel.loadFonts();
 
         init();
     }
@@ -124,7 +136,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
+        System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
         //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
@@ -184,9 +196,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
         }
 
-        if (player.isTalkingToNPC() && dialogueDelay > 300 && (player.getVillagerPlayerIsTalkingTo() != Player.TOM_NOOK && tom_nook.getSpeechStage() !=Tom_Nook.SHOP)) {
-            player.setTalkingToNPC(false);
-            dialogueDelay = 0;
+        if (player.isTalkingToNPC() && dialogueDelay >= 300) {
+            if (!(player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK && tom_nook.getSpeechStage() != Tom_Nook.GOODBYE)) {
+                player.setTalkingToNPC(false);
+                dialogueDelay = 0;
+            }
+
         }
     }
 
@@ -214,7 +229,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player.setY(curRoom.getEntryY() * tileSize);
 
         // Set curRoom and grid to be the outside
-        curRoom = outside;
+        if (curRoom.getEntryX() == 24) {
+            curRoom = minigameIsland;
+        }
+        else {
+            curRoom = outside;
+        }
+
         grid = curRoom.getGrid();
 
         player.setExitingRoom(false);
@@ -230,7 +251,48 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         NPC.loadDialogue();
         tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0,  player);
         tom_nook.generateStoreItems();
+        boat_operator = new Boat_Operator("Boat Operator", null,30, 75, "dude", outside, 6);
+        boat_operator_on_island = new Boat_Operator("Boat Operator", null,22, 36, "dude", minigameIsland, 7);
+
         createNPCs();
+    }
+
+    public static void loadFonts() {
+        try {
+            finkheavy15 = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(15f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            //register the font
+            ge.registerFont(finkheavy15);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+        try {
+            finkheavy30 = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            //register the font
+            ge.registerFont(finkheavy30);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            finkheavy32 = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(32f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            //register the font
+            ge.registerFont(finkheavy32);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            //create the font to use. Specify the size!
+            finkheavy36 = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(36f);
+            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+            //register the font
+            ge.registerFont(finkheavy36);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     // Read from the map and room files and loads them
@@ -252,6 +314,25 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
         // Creating the outside room
         outside = new Room(mapGrid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0, 0 ,0, 0, 0);
+
+        int[][] minigameIslandMapGrid = new int[49][46];
+
+        // Reading from the map grid
+        try{
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island map.txt")));
+            for (int i = 0; i < 46; i++) {
+                String[] s = stdin.nextLine().split(" ");
+                for (int j = 0; j < 49; j++) {
+                    minigameIslandMapGrid[j][i] = Integer.parseInt(s[j]);
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("error loading minigame island map");
+        }
+
+        minigameIsland = new Room(minigameIslandMapGrid, new ImageIcon("Assets/Map/Minigame Island.png").getImage(), 31, 75, 23, 36,0, 0);
+        rooms.put(new Point(31, 75), minigameIsland);
 
         // Reading from the room file
         try{
@@ -469,15 +550,51 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         else {
                             player.unequipItem();
                         }
-
                     }
                 }
 
                 player.selectItem(mouse);
             }
+            else if (player.isShopOpen()) {
+                for (int i = 0; i < 5; i++) {
+                    if (tom_nook.getItemRects().get(i).contains(mouse)) {
+                        player.setSelectedItemInShop(i);
+                    }
+                }
+
+                if (tom_nook.getBuyRect().contains(mouse)) {
+                    Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
+                    if (player.getBells() >= item.getBuyCost()) {
+                        player.addItem(item);
+                        player.setBells(player.getBells() - item.getBuyCost());
+                        tom_nook.getStoreItems().remove(item);
+                    }
+
+                    player.setShopOpen(false);
+                    player.setDialogueSelectionOpen(true);
+                    tom_nook.setSpeechStage(NPC.GREETING);
+                }
+
+                else if (tom_nook.getCancelRect().contains(mouse)) {
+                    player.setShopOpen(false);
+                    player.setDialogueSelectionOpen(true);
+                    tom_nook.setSpeechStage(NPC.GREETING);
+                }
+            }
 
             else if (player.isSellShopOpen()) {
                 player.selectSellItem(mouse);
+                if (player.getSellRect().contains(mouse)) {
+                    player.sellItems();
+                    player.setSellShopOpen(false);
+                    player.setDialogueSelectionOpen(true);
+                    tom_nook.setSpeechStage(NPC.GREETING);
+                }
+                else if (player.getCancelRect().contains(mouse)) {
+                    player.setSellShopOpen(false);
+                    player.setDialogueSelectionOpen(true);
+                    tom_nook.setSpeechStage(NPC.GREETING);
+                }
             }
         }
 
@@ -534,6 +651,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
                 }
 
+                if (curRoom == boat_operator.getRoom() && (xTile == boat_operator.getxTile()) && (yTile == boat_operator.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
+                    player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
+                    player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR);
+                }
+
+                if (curRoom == boat_operator_on_island.getRoom() && (xTile == boat_operator_on_island.getxTile()) && (yTile == boat_operator_on_island.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
+                    player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
+                    player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR_ON_ISLAND);
+                }
 
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
@@ -558,7 +686,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.moveItem(mouse);
             }
 
-            if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) > 34) {
+            if (player.isDialogueSelectionOpen() && player.isSelectionMenuClicked() && Math.hypot(510 - mouse.x, 186 - mouse.y) > 34) {
                 player.setSelectionMenuClicked(false);
                 selectDialogue();
             }
@@ -596,38 +724,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
-        g.setColor(new Color(255, 255, 255));
-        // Drawing grids
-        g.setColor(new Color(255, 255, 255));
-        g.drawRect(0, 0, getWidth(), getHeight());
-        g.setColor(new Color(0, 0, 0));
-        for (int i = 0; i < 1020; i+=tileSize) {
-            g.drawLine(i, 0, i, 660);
-        }
 
-        for (int i = 0; i < 660; i+=tileSize) {
-            g.drawLine(0, i, 1020, i);
-        }
+        drawGrids(g);
+        drawXs(g);
 
-        //System.out.println((player.getxTile()+1) + " " + (player.getyTile()+1));
-        /*g.setColor(new Color(255,0,0));
-        for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
-            for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
-                int a = i - Math.max(0, player.getxTile()-8);
-                int b = j - Math.max(0, player.getyTile()-5);
-
-                if (grid[i][j] == 0) {
-                    g.drawLine(a*60, b*60, a*60 + 60, b*60 + 60);
-                    g.drawLine(a*60, b*60+60, a*60+60, b*60);
-                }
-            }
-        }*/
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
             DroppedItem item = pair.getValue();
             g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
         }
-
 
         if (curRoom == tom_nook.getRoom()) {
             tom_nook.draw(g, player.getX(), player.getY());
@@ -646,15 +751,58 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             fadingToBlack(player.isGoingToNewRoom(), g);
         }
 
+        drawTalkingToGeneralNPC(g);
+        drawTalkingToTomNook(g);
+
+    }
+
+    public void drawGrids(Graphics g) {
+        g.setColor(new Color(255, 255, 255));
+        // Drawing grids
+        g.setColor(new Color(255, 255, 255));
+        g.drawRect(0, 0, getWidth(), getHeight());
+        g.setColor(new Color(0, 0, 0));
+        for (int i = 0; i < 1020; i+=tileSize) {
+            g.drawLine(i, 0, i, 660);
+        }
+
+        for (int i = 0; i < 660; i+=tileSize) {
+            g.drawLine(0, i, 1020, i);
+        }
+    }
+
+    public void drawXs(Graphics g) {
+        g.setColor(new Color(255,0,0));
+        for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
+            for (int j = Math.max(0, player.getyTile()-5); j < Math.min(85, player.getyTile() + 5); j++) {
+                int a = i - Math.max(0, player.getxTile()-8);
+                int b = j - Math.max(0, player.getyTile()-5);
+
+                if (grid[i][j] == 0) {
+                    g.drawLine(a*60, b*60, a*60 + 60, b*60 + 60);
+                    g.drawLine(a*60, b*60+60, a*60+60, b*60);
+                }
+            }
+        }
+    }
+
+    public void drawTalkingToGeneralNPC(Graphics g) {
         if (player.isTalkingToNPC()) {
             NPC npc = null;
 
-            if (player.getVillagerPlayerIsTalkingTo() >= 3) {
+            if (player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6) {
                 npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
             }
             else if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
                 npc = tom_nook;
             }
+            else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR) {
+                npc = boat_operator;
+            }
+            else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR_ON_ISLAND) {
+                npc = boat_operator_on_island;
+            }
+
 
             assert npc != null;
             if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP)) {
@@ -673,21 +821,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
-                Font finkHeavy = null;
 
-                try {
-                    //create the font to use. Specify the size!
-                    finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(32f);
-                    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-                    //register the font
-                    ge.registerFont(finkHeavy);
-                } catch (IOException | FontFormatException e) {
-                    e.printStackTrace();
-                }
-
-                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkheavy32);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setFont(finkHeavy);
+                g2.setFont(finkheavy32);
                 g2.setColor(Color.BLACK);
 
                 int x, y;  // x, y coordinates of text
@@ -699,7 +836,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 y = 397;
 
 
-                if (!(npc == tom_nook && (npc.getSpeechStage() == Tom_Nook.SHOP || npc.getSpeechStage() == Tom_Nook.SELL_SHOP))) {
+                if (!(npc == tom_nook && (npc.getSpeechStage() == Tom_Nook.SHOP))) {
                     g2.drawString(npc.getName(), x, y);
                 }
 
@@ -722,7 +859,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     if (npc.getCurrentChat().equals("")) {
                         npc.generateChat(player.getName());
                     }
-
 
                     g2.setColor(new Color(240, 240, 240));
 
@@ -747,6 +883,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                if (npc == tom_nook && tom_nook.getSpeechStage() == Tom_Nook.SELL_SHOP) {
+                    g2.setColor(new Color(240, 240, 240));
+
+                    ArrayList<String> dialogue = wordWrap("Select which items to sell.", 450);
+                    for (int i = 0; i < dialogue.size(); i++) {
+                        g2.drawString(dialogue.get(i), 270, 470 + 40 * i);
+                    }
+                }
 
                 g2.setColor(Color.BLACK);
                 if (player.isDialogueSelectionOpen()) {
@@ -786,17 +930,62 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
         }
+    }
+
+    public void drawTalkingToTomNook(Graphics g) {
         if (player.isTalkingToNPC() && player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
             if (player.isShopOpen()) {
-                g.drawImage(shopImage, (1020 - 825) / 2, (695 - 587) / 2, null);
+                g.drawImage(shopImage, (1020 - 390) / 2,  10, null);
+
+                Rectangle br = tom_nook.getBuyRect();
+                Rectangle cr = tom_nook.getCancelRect();
+
+                System.out.println(br);
+                g.setColor(Color.WHITE);
+                g.fillRect(br.x, br.y, br.width, br.height);
+                g.fillRect(cr.x, cr.y, cr.width, cr.height);
+
+                g.setColor(Color.BLACK);
+                g.drawRect(br.x, br.y, br.width, br.height);
+                g.drawRect(cr.x, cr.y, cr.width, cr.height);
+
+                if (player.selectedItemInShop != -1) {
+                    Rectangle temp = tom_nook.getItemRects().get(player.getSelectedItemInShop());
+
+                    g.setColor(Color.GREEN);
+                    g.drawRect(temp.x, temp.y, temp.width, temp.height);
+
+
+                }
+
+                g.setColor(Color.BLACK);
 
                 for (int i = 0; i < tom_nook.getStoreItems().size(); i++) {
                     if (tom_nook.getStoreItems().get(i).isFurniture()) {
-                        g.drawImage(Item.storeLeafImage, 200,200 + 50*i, null);
+                        g.drawImage(Item.storeLeafImage, 330,63 + 110*i, null);
                     }
                     else {
-                        g.drawImage(tom_nook.getStoreItemImages()[tom_nook.getStoreItems().get(i).getId()], 200,200 + 50*i, null);
+                        g.drawImage(tom_nook.getStoreItemImages()[tom_nook.getStoreItems().get(i).getId()], 330,63 + 110*i, null);
                     }
+
+                    if (g instanceof Graphics2D) {
+                        Graphics2D g2 = (Graphics2D) g;
+                        g2.drawString(tom_nook.getStoreItems().get(i).getName(), 375, 101 + 110*i);
+                        g2.drawString(String.valueOf(tom_nook.getStoreItems().get(i).getBuyCost()), 630, 101 + 110*i);
+
+                        FontMetrics fontMetrics = new JLabel().getFontMetrics(finkheavy30);
+
+                        int width = fontMetrics.stringWidth("Buy");
+                        g2.drawString("Buy", 353 + (140 - width) / 2, 575 + 32);
+
+                        width = fontMetrics.stringWidth("Cancel");
+                        g2.drawString("Cancel", 533 + (140 - width) / 2, 575 + 32);
+                    }
+
+                }
+                if (g instanceof Graphics2D) {
+                    Graphics2D g2 = (Graphics2D) g;
+                    g2.drawString(String.valueOf(player.getBells()), 400, 48);
                 }
             }
         }
@@ -817,19 +1006,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public static ArrayList<String> wordWrap(String str, int width) {
-        Font finkHeavy = null;
-
-        try {
-            //create the font to use. Specify the size!
-            finkHeavy = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(30f);
-            GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-            //register the font
-            ge.registerFont(finkHeavy);
-        } catch (IOException | FontFormatException e) {
-            e.printStackTrace();
-        }
-
-        FontMetrics fontMetrics = new JLabel().getFontMetrics(finkHeavy);
+        FontMetrics fontMetrics = new JLabel().getFontMetrics(finkheavy30);
 
         ArrayList<String> ans = new ArrayList<>();
         String[] wordsArray = str.split(" ");
@@ -867,7 +1044,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player.setDialogueSelectionOpen(false);
         dialogueDelay = 0;
 
-        if (player.getVillagerPlayerIsTalkingTo() >= 3) {
+        if (player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6) {
             npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
 
             if (npc.getPlayerOptions().size() == 2) {
@@ -895,12 +1072,45 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setDialogueSelectionOpen(false);
                 player.setShopOpen(true);
                 tom_nook.setSpeechStage(Tom_Nook.SHOP);
+                player.setSelectedItemInShop(-1);
             }
             else if (selectionAngle > (3.0/4.0) * Math.PI && selectionAngle <= 5.0/4.0 * Math.PI) {
 
             }
             else {
                 tom_nook.setSpeechStage(NPC.GOODBYE);
+            }
+        }
+
+        else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR) {
+            npc = boat_operator;
+
+            if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                player.setDialogueSelectionOpen(false);
+                player.setTalkingToNPC(false);
+
+                npc.setTalking(false);
+
+                player.setGoingToNewRoom(true);
+            }
+            else {
+                npc.setSpeechStage(NPC.GOODBYE);
+            }
+        }
+
+        else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR_ON_ISLAND) {
+            npc = boat_operator_on_island;
+
+            if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                player.setDialogueSelectionOpen(false);
+                player.setTalkingToNPC(false);
+
+                npc.setTalking(false);
+
+                player.setExitingRoom(true);
+            }
+            else {
+                npc.setSpeechStage(NPC.GOODBYE);
             }
         }
 
