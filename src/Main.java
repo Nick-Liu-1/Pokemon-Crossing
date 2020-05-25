@@ -5,8 +5,6 @@
     Main class implementing the game
  */
 
-import org.w3c.dom.css.Rect;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
