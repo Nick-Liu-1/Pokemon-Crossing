@@ -77,7 +77,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms
 
     private Room minigameIsland;
-    private int[][] minigameIslandGrid;
 
     private static ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
@@ -90,6 +89,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Tom_Nook tom_nook;
     private Boat_Operator boat_operator;
     private Boat_Operator boat_operator_on_island;
+    private Celeste celeste;
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
@@ -136,8 +136,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        //System.out.println(player.getxTile()+ " "+ player.getyTile());
+        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
+        System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -245,14 +245,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",2460, 3300, Player.FEMALE, grid, this);
+        player = new Player("NAME",3840, 2940, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
         NPC.loadDialogue();
-        tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0,  player);
+        tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0);
         tom_nook.generateStoreItems();
         boat_operator = new Boat_Operator("Boat Operator", null,30, 75, "dude", outside, 6);
         boat_operator_on_island = new Boat_Operator("Boat Operator", null,22, 36, "dude", minigameIsland, 7);
+        celeste = new Celeste("Celeste", null, 16, 11, "my guy", rooms.get(new Point(64, 48)),2);
 
         createNPCs();
     }
@@ -663,6 +664,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR_ON_ISLAND);
                 }
 
+                if (curRoom == celeste.getRoom() && (xTile == celeste.getxTile()) && (yTile == celeste.getyTile())) {
+                    player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
+                    player.setVillagerPlayerIsTalkingTo(Player.CELESTE);
+                }
+
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
 
@@ -725,8 +732,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
 
-        drawGrids(g);
-        drawXs(g);
+        //drawGrids(g);
+        //drawXs(g);
 
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
@@ -736,6 +743,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (curRoom == tom_nook.getRoom()) {
             tom_nook.draw(g, player.getX(), player.getY());
+        }
+        if (curRoom == celeste.getRoom()) {
+            celeste.draw(g, player.getX(), player.getY());
         }
 
         for (NPC temp : NPCs) {
@@ -801,6 +811,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
             else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR_ON_ISLAND) {
                 npc = boat_operator_on_island;
+            }
+            else if (player.getVillagerPlayerIsTalkingTo() == Player.CELESTE) {
+                npc = celeste;
             }
 
 
@@ -940,7 +953,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 Rectangle br = tom_nook.getBuyRect();
                 Rectangle cr = tom_nook.getCancelRect();
 
-                System.out.println(br);
                 g.setColor(Color.WHITE);
                 g.fillRect(br.x, br.y, br.width, br.height);
                 g.fillRect(cr.x, cr.y, cr.width, cr.height);
@@ -989,6 +1001,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
         }
+    }
+
+    public void drawTalkingToCeleste(Graphics g) {
+
     }
 
     public static int[][] transpose(int[][] arr) {

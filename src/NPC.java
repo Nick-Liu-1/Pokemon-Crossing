@@ -427,8 +427,6 @@ public class NPC {
 class Tom_Nook extends NPC {
     private final Image image = new ImageIcon("Assets/NPCs/tom nook.png").getImage();
 
-    private Player player;
-
     private ArrayList<Item> storeItems = new ArrayList<>();
 
     private final Image[] storeItemImages = new Image[GamePanel.getItems().size()];
@@ -444,9 +442,8 @@ class Tom_Nook extends NPC {
     private final ArrayList<Rectangle> itemRects = new ArrayList<>();
 
 
-    public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id, Player player) {
+    public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         super(name, images, xTile, yTile, catchphrase, room, id);
-        this.player = player;
 
         playerOptions = super.getPlayerOptions();
 
@@ -527,5 +524,26 @@ class Boat_Operator extends NPC {
     @Override
     public void draw(Graphics g, int playerX, int playerY) {
 
+    }
+
+}
+
+class Celeste extends NPC {
+    private ArrayList<String> playerOptions;
+    private final Image image = new ImageIcon("Assets/NPCs/celeste.png").getImage();
+
+    public Celeste(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
+        super(name, images, xTile, yTile, catchphrase, room, id);
+        playerOptions = getPlayerOptions();
+        playerOptions.clear();
+
+        playerOptions.add("View museum.");
+        playerOptions.add("Donate.");
+        playerOptions.add("Never mind.");
+    }
+
+    @Override
+    public void draw(Graphics g, int playerX, int playerY) {
+        g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
     }
 }
