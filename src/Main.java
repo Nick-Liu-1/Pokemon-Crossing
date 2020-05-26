@@ -731,7 +731,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
 
         //drawGrids(g);
-        //drawXs(g);
+        drawXs(g);
 
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
