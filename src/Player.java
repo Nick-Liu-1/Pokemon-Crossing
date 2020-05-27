@@ -65,6 +65,7 @@ public class Player {
     private boolean dialogueSelectionOpen = false;
     private boolean selectionMenuClicked = false;
     private boolean fishing = false;
+    private boolean museumOpen = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
     private Image rightClickImage;
@@ -1124,5 +1125,13 @@ public class Player {
 
     public void setFishing(boolean b) {
         fishing = b;
+    }
+
+    public boolean isMuseumOpen() {
+        return museumOpen;
+    }
+
+    public void setMuseumOpen(boolean b) {
+        museumOpen = b;
     }
 }

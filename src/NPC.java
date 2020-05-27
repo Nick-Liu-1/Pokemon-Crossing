@@ -548,6 +548,21 @@ class Celeste extends NPC {
     private ArrayList<String> playerOptions;
     private final Image image = new ImageIcon("Assets/NPCs/celeste.png").getImage();
 
+    public static final int MUSEUM = 4;
+    public static final int DONATION = 5;
+
+    private ArrayList<Item> fish = new ArrayList<>();
+    private ArrayList<Item> bugs = new ArrayList<>();
+    private ArrayList<Item> fossils = new ArrayList<>();
+
+    private int fossilStart = 0;
+    private int bugStart = 0;
+    private int fishStart = 0;
+
+    public static final int BUG_PAGE = 0;
+    public static final int FISH_PAGE = 1;
+    public static final int FOSSIL_PAGE = 2;
+
     public Celeste(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         super(name, images, xTile, yTile, catchphrase, room, id);
         playerOptions = getPlayerOptions();
@@ -566,6 +581,56 @@ class Celeste extends NPC {
     @Override
     public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
 
+    }
+
+    public ArrayList<Item> getFish() {
+        return fish;
+    }
+
+    public ArrayList<Item> getBugs() {
+        return bugs;
+    }
+
+    public ArrayList<Item> getFossils() {
+        return fossils;
+    }
+
+    public int getFossilStart() {
+        return fossilStart;
+    }
+
+    public int getBugStart() {
+        return bugStart;
+    }
+
+    public int getFishStart() {
+        return fishStart;
+    }
+
+    public void addBug(Item item) {
+        if (item.getName().compareTo(bugs.get(0).getName()) < 0) {
+            bugs.add(0, item);
+        }
+        else {
+            for (int i = 0; i < bugs.size(); i++) {
+                if (item.getName().compareTo(bugs.get(i).getName()) >= 0) {
+                    bugs.add(i+1, item);
+                }
+            }
+        }
+    }
+
+    public void addFish(Item item) {
+        if (item.getName().compareTo(fish.get(0).getName()) < 0) {
+            fish.add(0, item);
+        }
+        else {
+            for (int i = 0; i < fish.size(); i++) {
+                if (item.getName().compareTo(fish.get(i).getName()) >= 0) {
+                    fish.add(i+1, item);
+                }
+            }
+        }
     }
 }
 

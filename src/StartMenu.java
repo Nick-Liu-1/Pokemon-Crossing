@@ -51,10 +51,10 @@ public class StartMenu extends JFrame{
 		optionsBtn.setOpaque(false);
 		
 		JButton tempBtn = new JButton();	
-		tempBtn.addActionListener(new ActionListener(){
+		tempBtn.addActionListener(new ActionListener()){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Rocketate PokemonCrossing = new Rocketate();
+    			//Rocketate PokemonCrossing = new Rocketate();
     			setVisible(false);
     		}
 		});

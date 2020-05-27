@@ -93,10 +93,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
     private final Image speechBubbleImage = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
-    private Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
-    private Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
+    private final Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
+    private final Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
     private final Image shopImage = new ImageIcon("Assets/Misc/shop menu.png").getImage();
     private final Image rightClickImage = new ImageIcon("Assets/Misc/right click.png").getImage();
+    private final Image museumMenuImage = new ImageIcon("Assets/Misc/Museum Menu.png").getImage();
+    private final Image exitButtonImage = new ImageIcon("Assets/Misc/exit button.png").getImage();
+
 
     private double selectionAngle = 0;
     private int selected = -1;
@@ -134,7 +137,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",3780, 2220, Player.FEMALE, grid, this);
+        player = new Player("NAME",3840, 2880, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
         NPC.loadDialogue();
@@ -320,6 +323,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             //System.out.println(name);
             items.set(info[0], new Item(info[0], capitalizeWord(name), new ImageIcon(file).getImage(), info[1], info[2]));
         }
+
+        Item.loadFossils();
     }
 
     public void search(String pattern, File folder, ArrayList<String> result) {
@@ -610,6 +615,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     tom_nook.setSpeechStage(NPC.GREETING);
                 }
             }
+
+            else if (player.isMuseumOpen()) {
+                if (Math.hypot(950 - mouse.x, 140 - mouse.y) < 20) {
+                    player.setMuseumOpen(false);
+                    player.setDialogueSelectionOpen(true);
+                    celeste.setSpeechStage(NPC.GREETING);
+                }
+            }
         }
 
         player.setRightClickMenuOpen(false);
@@ -796,6 +809,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         drawTalkingToGeneralNPC(g);
         drawTalkingToTomNook(g);
+        drawTalkingToCeleste(g);
 
         if (!player.isTalkingToNPC() && !player.isInventoryOpen()) {
             drawHoverText(g);
@@ -838,7 +852,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
             assert npc != null;
-            if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP)) {
+            if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP) && !(npc == celeste && npc.getSpeechStage() == Celeste.MUSEUM)) {
                 g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
             }
 
@@ -921,7 +935,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
                     if (player.isSelectionMenuClicked()) {
-                        g.drawImage(selectionMenuNoClickImage, 421, 120, null);
+                        g.drawImage(selectionMenuNoClickImage, 421, 118, null);
                     }
                     else {
                         g.drawImage(selectionMenuImage, 421, 120, null);
@@ -942,7 +956,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                         width = fontMetrics.stringWidth(npc.getPlayerOptions().get(1));
                         g2.drawString(npc.getPlayerOptions().get(1), 570, 195);
-
 
                         width = fontMetrics.stringWidth(npc.getPlayerOptions().get(2));
                         g2.drawString(npc.getPlayerOptions().get(2), (1020 - width) / 2, 250);
@@ -1025,7 +1038,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void drawTalkingToCeleste(Graphics g) {
-
+         if (player.isMuseumOpen()) {
+            g.drawImage(museumMenuImage, 50, 120, null);
+            g.drawImage(exitButtonImage, 930, 120, null);
+         }
     }
 
     public static int[][] transpose(int[][] arr) {
@@ -1098,7 +1114,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             draw = true;
         }
 
-        else if (grid[xTile][yTile] == 4) {
+        else if (xTile < grid.length && yTile < grid[0].length && grid[xTile][yTile] == 4) {
             msg = "Pick up item.";
             draw = true;
         }
@@ -1192,7 +1208,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         else if (npc == boat_operator_on_island) {
-
             if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                 player.setDialogueSelectionOpen(false);
                 player.setTalkingToNPC(false);
@@ -1202,6 +1217,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setExitingRoom(true);
             }
             else {
+                npc.setSpeechStage(NPC.GOODBYE);
+            }
+        }
+
+        else if (npc == celeste) {
+            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {
+                player.setDialogueSelectionOpen(false);
+
+            }
+            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {
+                player.setMuseumOpen(true);
+                player.setDialogueSelectionOpen(false);
+            }
+
+            else if (selectionAngle > 5.0/4.0 * Math.PI && selectionAngle < 7.0/4.0 * Math.PI) {
                 npc.setSpeechStage(NPC.GOODBYE);
             }
         }
@@ -1233,13 +1263,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
-    public static String capitalizeWord(String str){
-        String words[]=str.split("\\s");
-        String capitalizeWord="";
-        for(String w:words){
-            String first=w.substring(0,1);
-            String afterfirst=w.substring(1);
-            capitalizeWord+=first.toUpperCase()+afterfirst+" ";
+    public static String capitalizeWord(String str) {
+        String[] words = str.split("\\s");
+        String capitalizeWord = "";
+        for (String w:words) {
+            String first = w.substring(0,1);
+            String afterFirst = w.substring(1);
+            capitalizeWord += first.toUpperCase() + afterFirst + " ";
         }
         return capitalizeWord.trim();
     }

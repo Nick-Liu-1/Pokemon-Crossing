@@ -9,7 +9,7 @@ public class LoadFile extends JFrame{
 		super("Pokemon Crossing");
 		setSize(1020,695);
 
-		ImageIcon background = new ImageIcon("Assets/Misc/"Game Files Screen.png");
+		ImageIcon background = new ImageIcon("Assets/Misc/Game Files Screen.png");
 		//ImageIcon background = new ImageIcon("Game Files Screen.png");
 		JLabel back = new JLabel(background);		
 		back.setBounds(0, 0, 1020, 695);
