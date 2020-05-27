@@ -10,7 +10,6 @@ public class StartMenu extends JFrame{
 		setSize(1020,695);
 
 		ImageIcon background = new ImageIcon("Assets/Misc/Title Screen.png");
-		//ImageIcon background = new ImageIcon("Title Screen.png");
 		JLabel back = new JLabel(background);		
 		back.setBounds(0, 0, 1020, 695);
 		layeredPane.add(back,2);

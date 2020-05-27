@@ -1,5 +1,9 @@
 import javax.swing.*;
 import java.awt.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Item {
     private int id;
@@ -14,6 +18,8 @@ public class Item {
 
 	public static final Image leafImage = new ImageIcon("Assets/Items/General/leaf.png").getImage();
 	public static final Image storeLeafImage = leafImage.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+
+	public static ArrayList<String> fossilNames;
 
     public Item(int id, String name, Image image, int buyCost, int sellCost) {
         this.id = id;
@@ -55,6 +61,38 @@ public class Item {
     public boolean isFurniture() {
         return id >= FURNITURE_START && id <= FURNITURE_END;
     }
+
+    public static void loadFossils() {
+        try {
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
+
+            int n = Integer.parseInt(stdin.nextLine());
+            for (int i = 0; i < n; i++) {
+                fossilNames.add(stdin.nextLine());
+            }
+        }
+        catch (Exception e) {
+            System.out.println("error loading fossil names");
+        }
+
+    }
+
+    public static boolean isItemBug(int n) {
+        return n >= 7 && n <= 37;
+    }
+
+    public static boolean isItemOceanFish(int n) {
+        return n >= 38 && n <= 69;
+    }
+
+    public static boolean isItemRiverFish(int n) {
+        return n >= 75 && n <= 108;
+    }
+
+    public static boolean isItemPondFish(int n) {
+        return n >= 70 && n <= 74;
+    }
+
 }
 
 class DroppedItem extends Item {
