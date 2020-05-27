@@ -54,7 +54,7 @@ public class StartMenu extends JFrame{
 		tempBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Rocketate PokemonCrossing = new Rocketate();
+    			Main PokemonCrossing = new Main();
     			setVisible(false);
     		}
 		});
