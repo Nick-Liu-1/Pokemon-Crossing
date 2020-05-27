@@ -78,7 +78,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private static ArrayList<Item> items = new ArrayList<>();  // ArrayList of all items
 
-    private Point mouse;
+    private Point mouse = new Point(0, 0);
     private boolean clicked = false;
 
     private boolean fadingToBlack = false;
@@ -88,6 +88,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Boat_Operator boat_operator;
     private Boat_Operator boat_operator_on_island;
     private Celeste celeste;
+    private Isabelle isabelle;
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
@@ -95,6 +96,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
     private Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
     private final Image shopImage = new ImageIcon("Assets/Misc/shop menu.png").getImage();
+    private final Image rightClickImage = new ImageIcon("Assets/Misc/right click.png").getImage();
 
     private double selectionAngle = 0;
     private int selected = -1;
@@ -128,130 +130,34 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         mainFrame.start();
     }
 
-    // Deals with all player movement
-    public void move() {
-
-        Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
-        Point offset = getLocationOnScreen();  // Get window position
-        mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        System.out.println(player.getxTile()+ " "+ player.getyTile());
-
-        count++;
-
-        if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
-            dialogueDelay++;
-        }
-
-
-        // Move player in different directions if WASD is pressed and the inventory is not open
-        if (!player.isInventoryOpen() && !fadingToBlack) {
-            if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
-                player.move(Player.RIGHT, keys, grid);
-            }
-
-            if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {
-                player.move(Player.UP, keys, grid);
-            }
-
-            if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {
-                player.move(Player.LEFT, keys, grid);
-            }
-
-            if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {
-                player.move(Player.DOWN, keys, grid);
-            }
-
-            player.move();
-
-            // Deal with going to new room
-            if (player.isGoingToNewRoom() && !fadingToBlack) {
-                fadingToBlack = true;
-                fadeTimeStart = count;
-            }
-
-            // Deal with exiting room
-            else if (player.isExitingRoom() && !fadingToBlack) {
-                fadingToBlack = true;
-                fadeTimeStart = count;
-            }
-        }
-
-        for (NPC temp : NPCs) {
-            if (curRoom == outside) {
-                temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
-            }
-        }
-
-        if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) <= 34 && clicked) {
-            player.setSelectionMenuClicked(true);
-        }
-        else if (!clicked) {
-            player.setSelectionMenuClicked(false);
-        }
-
-        if (player.isDialogueSelectionOpen()) {
-            selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
-        }
-
-        if (player.isTalkingToNPC() && dialogueDelay >= 300) {
-            if (!(player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK && tom_nook.getSpeechStage() != Tom_Nook.GOODBYE)) {
-                player.setTalkingToNPC(false);
-                dialogueDelay = 0;
-            }
-
-        }
-    }
-
-    public void goToNewRoom() {
-        curRoom.setGrid(grid);
-        System.out.println(player.getxTile() + " " + player.getyTile());
-        curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
-        grid = curRoom.getGrid();  // Set grid
-
-        // Set player pos
-        player.setxTile(curRoom.getExitX());
-        player.setyTile(curRoom.getExitY());
-        player.setX(curRoom.getExitX() * tileSize);
-        player.setY(curRoom.getExitY() * tileSize);
-
-        player.setGoingToNewRoom(false);
-    }
-
-    public void exitRoom() {
-        curRoom.setGrid(grid);
-        // Set player pos
-        player.setxTile(curRoom.getEntryX());
-        player.setyTile(curRoom.getEntryY());
-        player.setX(curRoom.getEntryX() * tileSize);
-        player.setY(curRoom.getEntryY() * tileSize);
-
-        // Set curRoom and grid to be the outside
-        if (curRoom.getEntryX() == 24) {
-            curRoom = minigameIsland;
-        }
-        else {
-            curRoom = outside;
-        }
-
-        grid = curRoom.getGrid();
-
-        player.setExitingRoom(false);
-    }
-
     public void init() {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",3840, 2940, Player.FEMALE, grid, this);
+        player = new Player("NAME",3780, 2220, Player.FEMALE, grid, this);
         loadItems();
         Player.load();
         NPC.loadDialogue();
+
+        for (int i = 0; i < 8; i++) {
+            NPCs.add(null);
+        }
+
         tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0);
         tom_nook.generateStoreItems();
+        NPCs.set(0, tom_nook);
+
         boat_operator = new Boat_Operator("Boat Operator", null,30, 75, "dude", outside, 6);
+        NPCs.set(6, boat_operator);
+
         boat_operator_on_island = new Boat_Operator("Boat Operator", null,22, 36, "dude", minigameIsland, 7);
+        NPCs.set(7, boat_operator_on_island);
+
         celeste = new Celeste("Celeste", null, 16, 11, "my guy", rooms.get(new Point(64, 48)),2);
+        NPCs.set(2, celeste);
+
+        isabelle = new Isabelle("Isabelle", null, 15, 8, "my guy", rooms.get(new Point(63, 35)), 1);
+        NPCs.set(1, isabelle);
 
         createNPCs();
     }
@@ -441,7 +347,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     new ImageIcon("Assets/NPCs/Annie/"+listOfFiles[i].getName()).getImage());
             }
         }
-        NPCs.add(new NPC("Annie", annieImages, 45, 50, "my guy", outside, Player.ANNIE));
+        NPCs.set(3, new NPC("Annie", annieImages, 45, 50, "my guy", outside, Player.ANNIE));
 
         folder = new File("Assets/NPCs/Bob the Builder");
         listOfFiles = folder.listFiles();
@@ -454,7 +360,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        NPCs.add(new NPC("Bob the Builder", bobImages, 45, 51, "pthhpth", outside, Player.BOB_THE_BUILDER));
+        NPCs.set(4, new NPC("Bob the Builder", bobImages, 45, 51, "pthhpth", outside, Player.BOB_THE_BUILDER));
 
 
         folder = new File("Assets/NPCs/Nick");
@@ -468,9 +374,118 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        NPCs.add(new NPC("Nick", nickImages, 45, 52, "kid", outside, Player.NICK));
+        NPCs.set(5, new NPC("Nick", nickImages, 45, 52, "kid", outside, Player.NICK));
     }
 
+    // Deals with all player movement
+    public void move() {
+
+        Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
+        Point offset = getLocationOnScreen();  // Get window position
+        mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
+        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
+
+        count++;
+
+        if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
+            dialogueDelay++;
+        }
+
+
+        // Move player in different directions if WASD is pressed and the inventory is not open
+        if (!player.isInventoryOpen() && !fadingToBlack) {
+            if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
+                player.move(Player.RIGHT, keys, grid);
+            }
+
+            if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {
+                player.move(Player.UP, keys, grid);
+            }
+
+            if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {
+                player.move(Player.LEFT, keys, grid);
+            }
+
+            if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {
+                player.move(Player.DOWN, keys, grid);
+            }
+
+            player.move();
+
+            // Deal with going to new room
+            if (player.isGoingToNewRoom() && !fadingToBlack) {
+                fadingToBlack = true;
+                fadeTimeStart = count;
+            }
+
+            // Deal with exiting room
+            else if (player.isExitingRoom() && !fadingToBlack) {
+                fadingToBlack = true;
+                fadeTimeStart = count;
+            }
+        }
+
+        for (NPC temp : NPCs) {
+            if (curRoom == outside) {
+                temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
+            }
+        }
+
+        if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) <= 34 && clicked) {
+            player.setSelectionMenuClicked(true);
+        }
+        else if (!clicked) {
+            player.setSelectionMenuClicked(false);
+        }
+
+        if (player.isDialogueSelectionOpen()) {
+            selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
+        }
+
+        if (player.isTalkingToNPC() && dialogueDelay >= 300) {
+            if (!(player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK && tom_nook.getSpeechStage() != Tom_Nook.GOODBYE)) {
+                player.setTalkingToNPC(false);
+                dialogueDelay = 0;
+                NPCs.get(player.getVillagerPlayerIsTalkingTo()).setTalking(false);
+            }
+        }
+    }
+
+    public void goToNewRoom() {
+        curRoom.setGrid(grid);
+        curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
+        grid = curRoom.getGrid();  // Set grid
+
+        // Set player pos
+        player.setxTile(curRoom.getExitX());
+        player.setyTile(curRoom.getExitY());
+        player.setX(curRoom.getExitX() * tileSize);
+        player.setY(curRoom.getExitY() * tileSize);
+
+        player.setGoingToNewRoom(false);
+    }
+
+    public void exitRoom() {
+        curRoom.setGrid(grid);
+        // Set player pos
+        player.setxTile(curRoom.getEntryX());
+        player.setyTile(curRoom.getEntryY());
+        player.setX(curRoom.getEntryX() * tileSize);
+        player.setY(curRoom.getEntryY() * tileSize);
+
+        // Set curRoom and grid to be the outside
+        if (curRoom.getEntryX() == 24) {
+            curRoom = minigameIsland;
+        }
+        else {
+            curRoom = outside;
+        }
+
+        grid = curRoom.getGrid();
+
+        player.setExitingRoom(false);
+    }
 
     public boolean isAdjacentToPlayer(int xTile, int yTile) {
         return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() + 1) ||
@@ -479,7 +494,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public NPC npcAtPoint(int xTile, int yTile) {
         for (NPC temp : NPCs) {
-            if (curRoom == temp.getRoom() && (xTile == temp.getxTile() && yTile == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
+            if ((curRoom == temp.getRoom()) && ((xTile == temp.getxTile() && yTile == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile == temp.getGoingToyTile()))) {
                 return temp;
             }
         }
@@ -648,24 +663,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
+                    tom_nook.setSpeechStage(NPC.GREETING);
+                    tom_nook.resetDialogue();
                 }
 
                 if (curRoom == boat_operator.getRoom() && (xTile == boat_operator.getxTile()) && (yTile == boat_operator.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR);
+                    boat_operator.setSpeechStage(NPC.GREETING);
+                    boat_operator.resetDialogue();
                 }
 
                 if (curRoom == boat_operator_on_island.getRoom() && (xTile == boat_operator_on_island.getxTile()) && (yTile == boat_operator_on_island.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR_ON_ISLAND);
+                    boat_operator_on_island.setSpeechStage(NPC.GREETING);
+                    boat_operator_on_island.resetDialogue();
                 }
 
                 if (curRoom == celeste.getRoom() && (xTile == celeste.getxTile()) && (yTile == celeste.getyTile())) {
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.CELESTE);
+                    celeste.setSpeechStage(NPC.GREETING);
+                    celeste.resetDialogue();
+                }
+
+                if (curRoom == isabelle.getRoom() && (xTile == isabelle.getxTile()) && (yTile == isabelle.getyTile())) {
+                    player.setTalkingToNPC(true);
+                    player.setDialogueSelectionOpen(true);
+                    player.setVillagerPlayerIsTalkingTo(Player.ISABELLE);
+                    isabelle.setSpeechStage(NPC.GREETING);
+                    isabelle.resetDialogue();
                 }
 
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
@@ -731,7 +762,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
 
         //drawGrids(g);
-        drawXs(g);
+        //drawXs(g);
 
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
@@ -745,6 +776,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (curRoom == celeste.getRoom()) {
             celeste.draw(g, player.getX(), player.getY());
         }
+        if (curRoom == isabelle.getRoom()) {
+            isabelle.draw(g, player.getX(), player.getY());
+        }
+
 
         for (NPC temp : NPCs) {
             if (temp.getRoom() == curRoom) {
@@ -762,6 +797,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         drawTalkingToGeneralNPC(g);
         drawTalkingToTomNook(g);
 
+        if (!player.isTalkingToNPC() && !player.isInventoryOpen()) {
+            drawHoverText(g);
+        }
     }
 
     public void drawGrids(Graphics g) {
@@ -796,38 +834,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void drawTalkingToGeneralNPC(Graphics g) {
         if (player.isTalkingToNPC()) {
-            NPC npc = null;
-
-            if (player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6) {
-                npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
-            }
-            else if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
-                npc = tom_nook;
-            }
-            else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR) {
-                npc = boat_operator;
-            }
-            else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR_ON_ISLAND) {
-                npc = boat_operator_on_island;
-            }
-            else if (player.getVillagerPlayerIsTalkingTo() == Player.CELESTE) {
-                npc = celeste;
-            }
+            NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo());
 
 
             assert npc != null;
             if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP)) {
                 g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
-            }
-
-
-            if (player.isDialogueSelectionOpen()) {
-                if (player.isSelectionMenuClicked()) {
-                    g.drawImage(selectionMenuNoClickImage, 421, 120, null);
-                }
-                else {
-                    g.drawImage(selectionMenuImage, 421, 120, null);
-                }
             }
 
             if (g instanceof Graphics2D) {
@@ -850,7 +862,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 if (!(npc == tom_nook && (npc.getSpeechStage() == Tom_Nook.SHOP))) {
                     g2.drawString(npc.getName(), x, y);
                 }
-
 
                 if (npc.getSpeechStage() == NPC.GREETING) {
                     if (npc.getCurrentGreeting().equals("")) {
@@ -903,8 +914,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-                g2.setColor(Color.BLACK);
+
                 if (player.isDialogueSelectionOpen()) {
+                    g.setColor(new Color(255, 255, 255, 100));
+                    g.fillRect(310, 86, 400, 200);
+
+
+                    if (player.isSelectionMenuClicked()) {
+                        g.drawImage(selectionMenuNoClickImage, 421, 120, null);
+                    }
+                    else {
+                        g.drawImage(selectionMenuImage, 421, 120, null);
+                    }
+                    g2.setColor(Color.BLACK);
+
                     if (npc.getPlayerOptions().size() == 2) {
                         width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
                         g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
@@ -1053,14 +1076,59 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return ans;
     }
 
+    public void drawHoverText(Graphics g) {
+        int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
+        int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
+        int width;
+        int height = 30;
+        int x = mouse.x + 20;
+        int y = mouse.y - 15;
+
+
+        String msg = "";
+        boolean draw = false;
+
+        if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1) {
+
+        }
+
+        else if (npcAtPoint(xTile, yTile) != null) {
+            msg = "Talk to villager.";
+            draw = true;
+        }
+
+        else if (grid[xTile][yTile] == 4) {
+            msg = "Pick up item.";
+            draw = true;
+        }
+
+
+        if (draw) {
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(finkheavy15);
+                width = fontMetrics.stringWidth(msg) + 40;
+
+                g.setColor(new Color(255, 255, 255, 100));
+                g.fillRect(x, y, width, height);
+                g.drawImage(rightClickImage, x - 18, y - 15, null);
+
+                g2.setFont(finkheavy15);
+                g2.setColor(Color.BLACK);
+                g2.drawString(msg, x + 25, y + 20);
+
+            }
+        }
+    }
+
     public void selectDialogue() {
-        NPC npc;
+        NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo());
         player.setDialogueSelectionOpen(false);
         dialogueDelay = 0;
 
-        if (player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6) {
-            npc = NPCs.get(player.getVillagerPlayerIsTalkingTo() - 3);
-
+        if ((player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6)) {
             if (npc.getPlayerOptions().size() == 2) {
                 if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                     if (npc.getSpeechStage() == NPC.GREETING) {
@@ -1073,7 +1141,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        if (player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
+        if (npc == isabelle) {
+            if (npc.getPlayerOptions().size() == 2) {
+                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                    if (npc.getSpeechStage() == NPC.GREETING) {
+                        npc.setSpeechStage(NPC.CHAT);
+                    }
+                }
+                else {
+                    npc.setSpeechStage(NPC.GOODBYE);
+                }
+            }
+        }
+
+        if (npc == tom_nook) {
             if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {
                 player.setDialogueSelectionOpen(false);
                 player.setSellShopOpen(true);
@@ -1096,9 +1177,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR) {
-            npc = boat_operator;
-
+        else if (npc == boat_operator) {
             if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                 player.setDialogueSelectionOpen(false);
                 player.setTalkingToNPC(false);
@@ -1112,8 +1191,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        else if (player.getVillagerPlayerIsTalkingTo() == Player.BOAT_OPERATOR_ON_ISLAND) {
-            npc = boat_operator_on_island;
+        else if (npc == boat_operator_on_island) {
 
             if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                 player.setDialogueSelectionOpen(false);

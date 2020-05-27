@@ -421,6 +421,12 @@ public class NPC {
     public void setSpeechStage(int n) {
         speechStage = n;
     }
+
+    public void resetDialogue() {
+        currentGreeting = "";
+        currentChat = "";
+        currentGoodbye = "";
+    }
 }
 
 
@@ -461,6 +467,11 @@ class Tom_Nook extends NPC {
     @Override
     public void draw(Graphics g, int playerX, int playerY) {
         g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
+    }
+
+    @Override
+    public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
+
     }
 
 
@@ -526,6 +537,11 @@ class Boat_Operator extends NPC {
 
     }
 
+    @Override
+    public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
+
+    }
+
 }
 
 class Celeste extends NPC {
@@ -545,5 +561,29 @@ class Celeste extends NPC {
     @Override
     public void draw(Graphics g, int playerX, int playerY) {
         g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
+    }
+
+    @Override
+    public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
+
+    }
+}
+
+class Isabelle extends NPC {
+    private ArrayList<String> playerOptions;
+    private final Image image = new ImageIcon("Assets/NPCs/isabelle.png").getImage();
+
+    public Isabelle(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
+        super(name, images, xTile, yTile, catchphrase, room, id);
+    }
+
+    @Override
+    public void draw(Graphics g, int playerX, int playerY) {
+        g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300 - 50, null);
+    }
+
+    @Override
+    public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
+
     }
 }

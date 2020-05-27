@@ -62,6 +62,9 @@ public class Player {
     private boolean talkingToNPC = false;
     private boolean shopOpen = false;
     private boolean sellShopOpen = false;
+    private boolean dialogueSelectionOpen = false;
+    private boolean selectionMenuClicked = false;
+    private boolean fishing = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
     private Image rightClickImage;
@@ -90,11 +93,6 @@ public class Player {
     public static final int BOAT_OPERATOR_ON_ISLAND = 7;
 
     private int goingToxTile, goingToyTile;
-
-    private boolean dialogueSelectionOpen = false;
-
-    private boolean selectionMenuClicked = false;
-
 
     private boolean[][] selectedItems = new boolean [6][3];
     private int sellAmount = 0;
@@ -1114,5 +1112,17 @@ public class Player {
 
     public void setSelectedItemInShop(int n) {
         selectedItemInShop = n;
+    }
+
+    public Item getEquippedItem() {
+        return equippedItem;
+    }
+
+    public boolean isFishing() {
+        return fishing;
+    }
+
+    public void setFishing(boolean b) {
+        fishing = b;
     }
 }
