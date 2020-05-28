@@ -400,8 +400,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        System.out.println(player.getxTile()+ " "+ player.getyTile());
+        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -630,6 +630,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
 
             else if (player.isMuseumOpen()) {
+                Rectangle upRect = new Rectangle(483, 223, 62, 20);
+                Rectangle downRect = new Rectangle(483, 512, 62, 20);
+
                 if (Math.hypot(950 - mouse.x, 140 - mouse.y) < 20) {
                     player.setMuseumOpen(false);
                     player.setDialogueSelectionOpen(true);
@@ -643,6 +646,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
                 else if (celeste.getFossilRect().contains(mouse)) {
                     celeste.setPage(Celeste.FOSSIL_PAGE);
+                }
+                else if (upRect.contains(mouse)) {
+                    if (celeste.getPage() == Celeste.BUG_PAGE) {
+                        if (celeste.getBugStart() - 5 >= 0) {
+                            celeste.setBugStart(celeste.getBugStart() - 5);
+                        }
+                    }
+                    else if (celeste.getPage() == Celeste.FISH_PAGE) {
+                        if (celeste.getFishStart() - 5 >= 0) {
+                            celeste.setFishStart(celeste.getFishStart() - 5);
+                        }
+                    }
+                    else {
+                        if (celeste.getFossilStart() - 5 >= 0) {
+                            celeste.setFossilStart(celeste.getFossilStart() - 5);
+                        }
+                    }
+                }
+                else if (downRect.contains(mouse)) {
+                    if (celeste.getPage() == Celeste.BUG_PAGE) {
+                        if (celeste.getBugStart() + 5 <= celeste.getBugs().size() - 1) {
+                            celeste.setBugStart(celeste.getBugStart() + 5);
+                        }
+                    }
+                    else if (celeste.getPage() == Celeste.FISH_PAGE) {
+                        if (celeste.getFishStart() + 5 <= celeste.getFish().size() - 1) {
+                            celeste.setFishStart(celeste.getFishStart() + 5);
+                        }
+                    }
+                    else {
+                        if (celeste.getFossilStart() + 5 <= celeste.getBugs().size() - 1) {
+                            celeste.setFossilStart(celeste.getFossilStart() + 5);
+                        }
+                    }
                 }
             }
             else if (player.isDonateMenuOpen()) {
@@ -1154,9 +1191,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void drawTalkingToCeleste(Graphics g) {
-        Rectangle upRect = new Rectangle(483, 240, 62, 37);
-        Rectangle downRect = new Rectangle(483, 515, 62, 37);
-
          if (player.isMuseumOpen()) {
              if (g instanceof Graphics2D) {
                  Graphics2D g2 = (Graphics2D) g;
@@ -1178,17 +1212,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
                  for (int i = 0; i < 5; i++) {
-                     if (celeste.getPage() == Celeste.BUG_PAGE && i < celeste.getBugs().size()) {
-                         g.drawImage(celeste.getBugs().get(i).getImage(), 764, 260 + 49 * i, null);
-                         g2.drawString(celeste.getBugs().get(i).getName(), 220, 290 + 49 * i);
+                     if (celeste.getPage() == Celeste.BUG_PAGE && i + celeste.getBugStart() < celeste.getBugs().size()) {
+                         g.drawImage(celeste.getBugs().get(i + celeste.getBugStart()).getImage(), 764, 260 + 49 * i, null);
+                         g2.drawString(celeste.getBugs().get(i + celeste.getBugStart()).getName(), 220, 290 + 49 * i);
                      }
-                     else if (celeste.getPage() == Celeste.FISH_PAGE && i < celeste.getFish().size()) {
-                         g.drawImage(celeste.getFish().get(i).getImage(), 764, 260 + 49 * i, null);
-                         g2.drawString(celeste.getFish().get(i).getName(), 220, 290 + 49 * i);
+                     else if (celeste.getPage() == Celeste.FISH_PAGE && i + celeste.getFishStart() < celeste.getFish().size()) {
+                         g.drawImage(celeste.getFish().get(i + celeste.getFishStart()).getImage(), 764, 260 + 49 * i, null);
+                         g2.drawString(celeste.getFish().get(i + celeste.getFishStart()).getName(), 220, 290 + 49 * i);
                      }
-                     else if (celeste.getPage() == Celeste.FOSSIL_PAGE && i < celeste.getFossils().size()){
-                         g.drawImage(celeste.getFossils().get(i).getImage(), 764, 260 + 49 * i, null);
-                         g2.drawString(celeste.getFossils().get(i).getName(), 220, 290 + 49 * i);
+                     else if (celeste.getPage() == Celeste.FOSSIL_PAGE && i + celeste.getFossilStart() < celeste.getFossils().size()){
+                         g.drawImage(celeste.getFossils().get(i + celeste.getFossilStart()).getImage(), 764, 260 + 49 * i, null);
+                         g2.drawString(celeste.getFossils().get(i + celeste.getFossilStart()).getName(), 220, 290 + 49 * i);
                      }
                  }
              }

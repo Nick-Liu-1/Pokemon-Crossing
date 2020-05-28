@@ -612,6 +612,18 @@ class Celeste extends NPC {
         return fishStart;
     }
 
+    public void setFossilStart(int n) {
+        fossilStart = n;
+    }
+
+    public void setBugStart(int n) {
+        bugStart = n;
+    }
+
+    public void setFishStart(int n) {
+        fishStart = n;
+    }
+
     public int getPage() {
         return page;
     }
@@ -633,6 +645,11 @@ class Celeste extends NPC {
     }
 
     public void addBug(Item item) {
+        if (bugs.contains(item)) {
+
+            return;
+        }
+
         if (bugs.size() == 0) {
             bugs.add(item);
         }
@@ -640,9 +657,12 @@ class Celeste extends NPC {
             if (item.getName().compareTo(bugs.get(0).getName()) < 0) {
                 bugs.add(0, item);
             }
+            else if (item.getName().compareTo((bugs.get(bugs.size() - 1).getName())) > 0) {
+                bugs.add(item);
+            }
             else {
-                for (int i = 0; i < bugs.size(); i++) {
-                    if (item.getName().compareTo(bugs.get(i).getName()) > 0) {
+                for (int i = 0; i < bugs.size() - 2; i++) {
+                    if (item.getName().compareTo(bugs.get(i).getName()) > 0 && item.getName().compareTo(bugs.get(i+1).getName()) < 0) {
                         bugs.add(i+1, item);
                         break;
                     }
@@ -652,10 +672,13 @@ class Celeste extends NPC {
                 }
             }
         }
-
     }
 
     public void addFish(Item item) {
+        if (fish.contains(item)) {
+            return;
+        }
+
         if (fish.size() == 0) {
             fish.add(item);
         }
@@ -663,13 +686,15 @@ class Celeste extends NPC {
             if (item.getName().compareTo(fish.get(0).getName()) < 0) {
                 fish.add(0, item);
             }
+            else if (item.getName().compareTo((fish.get(fish.size() - 1).getName())) > 0) {
+                fish.add(item);
+            }
             else {
-                for (int i = 0; i < fish.size(); i++) {
-                    if (item.getName().compareTo(fish.get(i).getName()) >= 0) {
+                for (int i = 0; i < fish.size() - 2; i++) {
+                    if (item.getName().compareTo(fish.get(i).getName()) > 0 && item.getName().compareTo(fish.get(i+1).getName()) < 0) {
                         fish.add(i+1, item);
                         break;
                     }
-
                     else if (item.getName().compareTo(fish.get(i).getName()) == 0) {
                         return;
                     }
@@ -679,6 +704,10 @@ class Celeste extends NPC {
     }
 
     public void addFossil(Item item) {
+        if (fossils.contains(item)) {
+            return;
+        }
+
         if (fossils.size() == 0) {
             fossils.add(item);
         }
@@ -686,13 +715,15 @@ class Celeste extends NPC {
             if (item.getName().compareTo(fossils.get(0).getName()) < 0) {
                 fossils.add(0, item);
             }
+            else if (item.getName().compareTo((fossils.get(fossils.size() - 1).getName())) > 0) {
+                fossils.add(item);
+            }
             else {
-                for (int i = 0; i < fossils.size(); i++) {
-                    if (item.getName().compareTo(fossils.get(i).getName()) >= 0) {
+                for (int i = 0; i < fossils.size() - 2; i++) {
+                    if (item.getName().compareTo(fossils.get(i).getName()) > 0 && item.getName().compareTo(fossils.get(i+1).getName()) < 0) {
                         fossils.add(i+1, item);
                         break;
                     }
-
                     else if (item.getName().compareTo(fossils.get(i).getName()) == 0) {
                         return;
                     }

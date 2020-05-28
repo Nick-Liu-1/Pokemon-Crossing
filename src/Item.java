@@ -98,6 +98,10 @@ public class Item {
         return id == 2;
     }
 
+    public String toString() {
+        return name;
+    }
+
 }
 
 class DroppedItem extends Item {
