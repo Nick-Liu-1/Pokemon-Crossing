@@ -42,7 +42,8 @@ public class StartMenu extends JFrame{
 		optionsBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			System.out.println("options");
+    			Options frame = new Options();
+    			setVisible(false);
     		}
 		});
 		optionsBtn.setBounds(653, 384, 219, 64);

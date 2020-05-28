@@ -13,9 +13,9 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 myClock = time.Clock()
-pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\TownHallMask.png")
+pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Rooms\\arcadeMask.png")
 
-grid = [[None for i in range(32)] for j in range(23)]
+grid = [[None for i in range(33)] for j in range(24)]
 
 running = True
 while running:
@@ -25,8 +25,8 @@ while running:
 
     screen.blit(pic, (0,0))
     
-    for i in range(32):
-        for j in range(23):
+    for i in range(33):
+        for j in range(24):
             if screen.get_at((i*60+30, j*60+30)) == (240, 248, 240):
                 grid[j][i] = "1"
             else:
@@ -45,7 +45,7 @@ while running:
 
 file = open("temp.txt", "w")
 
-for i in range(23):
+for i in range(24):
     file.write(" ".join(grid[i])+"\n")
 file.close()
 

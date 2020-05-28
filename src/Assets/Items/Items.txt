@@ -126,10 +126,10 @@
 124 white tulip.png 0 40
 125 yellow cosmos.png 0 40
 126 yellow rose.png 0 40
-127 medicine.png 400 100
+127 open letter.png 0 0
 128 wallpaper.png 1000 200
 129 letter.png 0 0
-130 open letter.png 0 0
+130 medicine.png 400 100
 131 blue bed.png 2000 420
 132 blue bookshelf.png 2100 420
 133 cabinet.png 1900 400
