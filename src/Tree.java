@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.applet.Applet;
 import java.awt.*;
 import java.io.File;
 import java.util.*;
@@ -34,7 +35,17 @@ public class Tree {
         }
     }
 
-    public void draw(Graphics g) {
-
+    public void draw(Graphics g, int playerX, int playerY) {
+       switch (fruit) {
+           case (APPLE):
+               g.drawImage(fruitImages.get("apples" + String.valueOf()))
+               break;
+           case (ORANGE):
+               break;
+           case (PEACH):
+               break;
+           case(PEAR):
+               break;
+       }
     }
 }

@@ -771,8 +771,6 @@ public class Player {
                 g2.drawString("Cancel", 750 + (140 - width) / 2, 90 + 32);
             }
         }
-
-
     }
 
     public boolean isInventoryFull() {

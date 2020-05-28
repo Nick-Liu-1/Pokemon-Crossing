@@ -1294,6 +1294,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         }
 
+        else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6 && (curRoom == outside || curRoom == minigameIsland)) {
+            msg = "Dig";
+        }
+
         else if (npcAtPoint(xTile, yTile) != null) {
             msg = "Talk to villager.";
             draw = true;
