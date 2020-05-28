@@ -66,9 +66,9 @@ public class Player {
     private boolean selectionMenuClicked = false;
     private boolean fishing = false;
     private boolean museumOpen = false;
+    private boolean donateMenuOpen = false;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
-    private Image rightClickImage;
 
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
 
@@ -96,6 +96,7 @@ public class Player {
     private int goingToxTile, goingToyTile;
 
     private boolean[][] selectedItems = new boolean [6][3];
+    private boolean[][] canBeDonatedItems = new boolean[6][3];
     private int sellAmount = 0;
 
     private Rectangle sellRect = new Rectangle(750, 40, 140, 40);
@@ -116,12 +117,15 @@ public class Player {
         goingToyTile = y / GamePanel.tileSize;
 
         for (int i = 0; i < 6; i++) {
-            for (int j = 0; j < 2; j++) {
+            for (int j = 0; j < 3; j++) {
             	if(j==0){
             		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
             	}
-                else{
+                else if (j == 1){
                 	items[i][j] = new Item(6, "Shovel", new ImageIcon("Assets/Items/General/shovel.png").getImage(), 500, 125);
+                }
+                else {
+                    items[i][j] = new Item(7, "Bell Cricket", new ImageIcon("Assets/Items/Bugs/Ground/bell cricket.png").getImage(),0, 430);
                 }
             }
         }
@@ -715,6 +719,59 @@ public class Player {
             }
         }
 
+        else if (donateMenuOpen) {
+            g.drawImage(inventoryImage, 288, 20, null);
+            for (int i = 0; i < items.length; i++) {
+                for (int j = 0; j < items[0].length; j++) {
+                    if (items[i][j] != null) {
+                        if (!(i == selectedItemR && j == selectedItemC && mainFrame.isClicked())) {
+                            if (items[i][j].isFurniture()) {
+                                g.drawImage(Item.leafImage, 323 + i * 68, 54 + j * 68, null);
+                            }
+                            else {
+                                g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
+                            }
+                        }
+
+                        if (selectedItems[i][j]) {
+                            g.setColor(Color.GREEN);
+                            g.drawOval(323 + i * 68, 54 + j * 68, 38, 38);
+                        }
+                        else if (canBeDonatedItems[i][j]) {
+                            g.setColor(Color.ORANGE);
+                            g.drawOval(323 + i * 68, 54 + j * 68, 38, 38);
+                        }
+                    }
+                }
+            }
+
+            g.setColor(Color.WHITE);
+            g.fillRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
+            g.fillRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
+            g.drawRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy30);
+                g2.setColor(new Color(0, 0, 0));
+
+
+                g2.drawString(String.valueOf(sellAmount), 360, 293);
+
+                int width = fontMetrics.stringWidth("Donate");
+                g2.drawString("Donate", 750 + (140 - width) / 2, 40 + 32);
+
+                width = fontMetrics.stringWidth("Cancel");
+                g2.drawString("Cancel", 750 + (140 - width) / 2, 90 + 32);
+            }
+        }
+
 
     }
 
@@ -779,9 +836,35 @@ public class Player {
     public void selectSellItem(Point mouse){
         for (int i = 0; i < items.length; i++) {
             for (int j = 0; j < items[0].length; j++) {
-                if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
+                if ((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
                     selectedItems[i][j] = !selectedItems[i][j];
                     break;
+                }
+            }
+        }
+    }
+
+    public void selectDonateItem(Point mouse) {
+        int x = -1;
+        int y = -1;
+
+        for (int i = 0; i < items.length; i++) {
+            for (int j = 0; j < items[0].length; j++) {
+                if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j] != null && (canBeDonatedItems[i][j] || selectedItems[i][j])){
+                    selectedItems[i][j] = !selectedItems[i][j];
+                    x = i;
+                    y = j;
+                    break;
+                }
+            }
+        }
+
+        for (int i = 0; i < items.length; i++) {
+            for (int j = 0; j < items[0].length; j++) {
+                if (x != -1 && y != -1) {
+                    if (items[i][j] != null && items[i][j].getName().equals(items[x][y].getName())) {
+                        canBeDonatedItems[i][j] = !selectedItems[x][y];
+                    }
                 }
             }
         }
@@ -893,7 +976,6 @@ public class Player {
                 }
             }
         }
-
     }
 
     // Getters and setters
@@ -1134,4 +1216,37 @@ public class Player {
     public void setMuseumOpen(boolean b) {
         museumOpen = b;
     }
+
+    public boolean isDonateMenuOpen() {
+        return donateMenuOpen;
+    }
+
+    public void setDonateMenuOpen(boolean donateMenuOpen) {
+        this.donateMenuOpen = donateMenuOpen;
+    }
+
+    public boolean[][] getCanBeDonatedItems() {
+        return canBeDonatedItems;
+    }
+
+    public void setCanBeDonatedItems(boolean[][] b) {
+        canBeDonatedItems = b;
+    }
+
+    public Item[][] getItems() {
+        return items;
+    }
+
+    public boolean hasItemToDonate() {
+        for (int i = 0; i < 6; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (canBeDonatedItems[i][j] || selectedItems[i][j]) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+
 }

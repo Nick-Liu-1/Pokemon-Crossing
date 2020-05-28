@@ -457,7 +457,6 @@ class Tom_Nook extends NPC {
         playerOptions.add("Buy.");
         playerOptions.add("Sell.");
         playerOptions.add("Never mind.");
-        playerOptions.add("Housing.");
 
         for (int i = 0; i < 5; i++) {
             itemRects.add(new Rectangle(332, 64 + 110*i, 360, 56));
@@ -563,6 +562,12 @@ class Celeste extends NPC {
     public static final int FISH_PAGE = 1;
     public static final int FOSSIL_PAGE = 2;
 
+    private Rectangle bugRect = new Rectangle(367, 120, 307, 95);
+    private Rectangle fishRect = new Rectangle(50, 120, 307, 95);
+    private Rectangle fossilRect = new Rectangle(614, 120, 307, 95);
+
+    private int page = 0;
+
     public Celeste(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         super(name, images, xTile, yTile, catchphrase, room, id);
         playerOptions = getPlayerOptions();
@@ -607,27 +612,90 @@ class Celeste extends NPC {
         return fishStart;
     }
 
+    public int getPage() {
+        return page;
+    }
+
+    public void setPage(int page) {
+        this.page = page;
+    }
+
+    public Rectangle getBugRect() {
+        return bugRect;
+    }
+
+    public Rectangle getFishRect() {
+        return fishRect;
+    }
+
+    public Rectangle getFossilRect() {
+        return fossilRect;
+    }
+
     public void addBug(Item item) {
-        if (item.getName().compareTo(bugs.get(0).getName()) < 0) {
-            bugs.add(0, item);
+        if (bugs.size() == 0) {
+            bugs.add(item);
         }
         else {
-            for (int i = 0; i < bugs.size(); i++) {
-                if (item.getName().compareTo(bugs.get(i).getName()) >= 0) {
-                    bugs.add(i+1, item);
+            if (item.getName().compareTo(bugs.get(0).getName()) < 0) {
+                bugs.add(0, item);
+            }
+            else {
+                for (int i = 0; i < bugs.size(); i++) {
+                    if (item.getName().compareTo(bugs.get(i).getName()) > 0) {
+                        bugs.add(i+1, item);
+                        break;
+                    }
+                    else if (item.getName().compareTo(bugs.get(i).getName()) == 0) {
+                        return;
+                    }
+                }
+            }
+        }
+
+    }
+
+    public void addFish(Item item) {
+        if (fish.size() == 0) {
+            fish.add(item);
+        }
+        else {
+            if (item.getName().compareTo(fish.get(0).getName()) < 0) {
+                fish.add(0, item);
+            }
+            else {
+                for (int i = 0; i < fish.size(); i++) {
+                    if (item.getName().compareTo(fish.get(i).getName()) >= 0) {
+                        fish.add(i+1, item);
+                        break;
+                    }
+
+                    else if (item.getName().compareTo(fish.get(i).getName()) == 0) {
+                        return;
+                    }
                 }
             }
         }
     }
 
-    public void addFish(Item item) {
-        if (item.getName().compareTo(fish.get(0).getName()) < 0) {
-            fish.add(0, item);
+    public void addFossil(Item item) {
+        if (fossils.size() == 0) {
+            fossils.add(item);
         }
         else {
-            for (int i = 0; i < fish.size(); i++) {
-                if (item.getName().compareTo(fish.get(i).getName()) >= 0) {
-                    fish.add(i+1, item);
+            if (item.getName().compareTo(fossils.get(0).getName()) < 0) {
+                fossils.add(0, item);
+            }
+            else {
+                for (int i = 0; i < fossils.size(); i++) {
+                    if (item.getName().compareTo(fossils.get(i).getName()) >= 0) {
+                        fossils.add(i+1, item);
+                        break;
+                    }
+
+                    else if (item.getName().compareTo(fossils.get(i).getName()) == 0) {
+                        return;
+                    }
                 }
             }
         }
