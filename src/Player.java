@@ -67,6 +67,14 @@ public class Player {
     private boolean fishing = false;
     private boolean museumOpen = false;
     private boolean donateMenuOpen = false;
+    private boolean actionProgressOpen = false;
+    private boolean inventoryFullPromptOpen = false;
+    private boolean bugCaughtPrompt = false;
+    private boolean fishCaughtPrompt = false;
+    private boolean fossilFoundPrompt = false;
+
+    private int actionProgress = 0;
+    private String actionMessage = "";
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
 
@@ -116,7 +124,7 @@ public class Player {
         goingToxTile = x / GamePanel.tileSize;
         goingToyTile = y / GamePanel.tileSize;
 
-        for (int i = 0; i < 6; i++) {
+        for (int i = 0; i < 1; i++) {
             for (int j = 0; j < 3; j++) {
             	if(j==0){
             		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
@@ -129,6 +137,7 @@ public class Player {
                 }
             }
         }
+        items[3][2] = new Item(5, "Net", new ImageIcon("Assets/Items/General/net.png").getImage(), 500, 125);
     }
 
     // Load boy and girl images
@@ -573,6 +582,32 @@ public class Player {
                 }
             }
         }
+        if (actionProgressOpen) {
+            actionProgress++;
+            Rectangle infoRect = new Rectangle(820, 545, 200, 150);
+            g.setColor(new Color(251, 255, 164));
+            g.fillRect(infoRect.x, infoRect.y, infoRect.width, infoRect.height);
+
+            g.setColor(Color.GREEN);
+            g.fillRect( 840, 600, actionProgress, 40);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(840, 600, 160, 40);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy30);
+                g2.setColor(new Color(0, 0, 0));
+
+                g2.drawString(actionMessage, 820 + (200 - fontMetrics.stringWidth(actionMessage)) /2, 580);
+
+            }
+
+        }
+
         if (inventoryOpen) {
             g.drawImage(inventoryImage, 288, 20, null);
             for (int i = 0; i < items.length; i++) {
@@ -954,6 +989,23 @@ public class Player {
         }
     }
 
+    public void castLine(int xTile, int yTile) {
+        if (xTile < this.xTile) {
+            direction = LEFT;
+        }
+        else if (xTile > this.xTile) {
+            direction = RIGHT;
+        }
+        else if (yTile < this.yTile) {
+            direction = UP;
+        }
+        else {
+            direction = DOWN;
+        }
+
+        fishing = true;
+    }
+
     public void updateSellAmount() {
         sellAmount = 0;
         for (int i = 0; i < 6; i++) {
@@ -1246,5 +1298,59 @@ public class Player {
         return false;
     }
 
+    public boolean isActionProgressOpen() {
+        return actionProgressOpen;
+    }
 
+    public void setActionProgressOpen(boolean b) {
+        actionProgressOpen = b;
+    }
+
+    public int getActionProgress() {
+        return actionProgress;
+    }
+
+    public void setActionProgress(int n) {
+        actionProgress = n;
+    }
+
+    public String getActionMessage() {
+        return actionMessage;
+    }
+
+    public void setActionMessage(String actionMessage) {
+        this.actionMessage = actionMessage;
+    }
+
+    public boolean isInventoryFullPromptOpen() {
+        return inventoryFullPromptOpen;
+    }
+
+    public void setInventoryFullPromptOpen(boolean inventoryFullPromptOpen) {
+        this.inventoryFullPromptOpen = inventoryFullPromptOpen;
+    }
+
+    public boolean isBugCaughtPrompt() {
+        return bugCaughtPrompt;
+    }
+
+    public void setBugCaughtPrompt(boolean bugCaughtPrompt) {
+        this.bugCaughtPrompt = bugCaughtPrompt;
+    }
+
+    public boolean isFishCaughtPrompt() {
+        return fishCaughtPrompt;
+    }
+
+    public void setFishCaughtPrompt(boolean fishCaughtPrompt) {
+        this.fishCaughtPrompt = fishCaughtPrompt;
+    }
+
+    public boolean isFossilFoundPrompt() {
+        return fossilFoundPrompt;
+    }
+
+    public void setFossilFoundPrompt(boolean fossilFoundPrompt) {
+        this.fossilFoundPrompt = fossilFoundPrompt;
+    }
 }
