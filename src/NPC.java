@@ -292,7 +292,7 @@ public class NPC {
                 }
                 break;
         }
-        if (ans == 4) {
+        if (ans == 4 || ans == 6) {
             ans = 1;
         }
         return ans;

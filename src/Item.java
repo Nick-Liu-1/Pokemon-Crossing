@@ -22,6 +22,10 @@ public class Item {
 
 	public static ArrayList<String> fossilNames = new ArrayList<>();
 
+    public static final ArrayList<Image> foundItemImages = new ArrayList<>();
+
+
+
     public Item(int id, String name, Image image, int buyCost, int sellCost) {
         this.id = id;
         this.name = name;
@@ -78,6 +82,12 @@ public class Item {
 
     }
 
+    public static void loadFoundImages() {
+        for (int i = 0; i < GamePanel.getItems().size(); i++) {
+            foundItemImages.add(GamePanel.getItems().get(i).getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH));
+        }
+    }
+
     public boolean isBug() {
         return id >= 7 && id <= 37;
     }
@@ -100,6 +110,10 @@ public class Item {
 
     public String toString() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
 }

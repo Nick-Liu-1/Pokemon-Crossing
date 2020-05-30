@@ -69,16 +69,24 @@ public class Player {
     private boolean donateMenuOpen = false;
     private boolean actionProgressOpen = false;
     private boolean inventoryFullPromptOpen = false;
-    private boolean bugCaughtPrompt = false;
-    private boolean fishCaughtPrompt = false;
-    private boolean fossilFoundPrompt = false;
+    private boolean itemFoundPrompt = false;
+
 
     private int actionProgress = 0;
     private String actionMessage = "";
+    private int action;
+
+    private Item caughtItem = null;
+
+    public static final int DIGGING = 0;
+    public static final int DIGGING_FOSSIL = 1;
+    public static final int BUG_CATCHING = 2;
+    public static final int FISHING = 3;
 
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
 
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
+    private final Image frownyFaceImage = new ImageIcon("Assets/Misc/frowny face.png").getImage();
 
     // How many bells player has
     private int bells = 69420;
@@ -124,7 +132,7 @@ public class Player {
         goingToxTile = x / GamePanel.tileSize;
         goingToyTile = y / GamePanel.tileSize;
 
-        for (int i = 0; i < 1; i++) {
+        for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 3; j++) {
             	if(j==0){
             		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
@@ -322,7 +330,7 @@ public class Player {
                 }
                 break;
         }
-        if (ans == 4) {
+        if (ans == 4 | ans == 6) {
             ans = 1;
         }
         return ans;
@@ -332,19 +340,63 @@ public class Player {
     public void draw(Graphics g) {
         if (gender == Player.MALE) {
             if (!moving) {
-                switch (direction) {
-                    case (RIGHT):
-                        g.drawImage(boyImages.get("right"), 410, 248, null);
-                        break;
-                    case (UP):
-                        g.drawImage(boyImages.get("back"), 410, 248, null);
-                        break;
-                    case (LEFT):
-                        g.drawImage(boyImages.get("left"), 410, 248, null);
-                        break;
-                    case (DOWN):
-                        g.drawImage(boyImages.get("front"), 410, 248, null);
-                        break;
+                if (!fishing) {
+                    switch (direction) {
+                        case (RIGHT):
+                            g.drawImage(boyImages.get("right"), 410, 248, null);
+                            break;
+                        case (UP):
+                            g.drawImage(boyImages.get("back"), 410, 248, null);
+                            break;
+                        case (LEFT):
+                            g.drawImage(boyImages.get("left"), 410, 248, null);
+                            break;
+                        case (DOWN):
+                            g.drawImage(boyImages.get("front"), 410, 248, null);
+                            break;
+                    }
+                }
+                else {
+                    String dir;
+                    String frame;
+                    switch (direction) {
+                        case (RIGHT):
+                            dir = "rightfish";
+                            break;
+                        case (UP):
+                            dir = "backfish";
+                            break;
+                        case (LEFT):
+                            dir = "leftfish";
+                            break;
+                        case (DOWN):
+                            dir = "frontfish";
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + direction);
+                    }
+                    if (actionProgress >= 0 && actionProgress < 10) {
+                        frame = "1";
+                    }
+                    else if (actionProgress >= 10 && actionProgress < 20) {
+                        frame = "2";
+                    }
+                    else if (actionProgress >= 20 && actionProgress < 30) {
+                        frame = "3";
+                    }
+                    else if (actionProgress >= 30 && actionProgress < 130) {
+                        frame = "";
+                    }
+                    else if (actionProgress >= 130 && actionProgress < 140) {
+                        frame = "3";
+                    }
+                    else if (actionProgress >= 140 && actionProgress < 150) {
+                        frame = "2";
+                    }
+                    else {
+                        frame = "1";
+                    }
+                    g.drawImage(boyImages.get(dir+frame), 410, 248, null);
                 }
             }
             else {
@@ -458,20 +510,65 @@ public class Player {
         }
         else {
             if (!moving) {
-                switch (direction) {
-                    case (RIGHT):
-                        g.drawImage(girlImages.get("right"), 410, 248, null);
-                        break;
-                    case (UP):
-                        g.drawImage(girlImages.get("back"), 410, 248, null);
-                        break;
-                    case (LEFT):
-                        g.drawImage(girlImages.get("left"), 410, 248, null);
-                        break;
-                    case (DOWN):
-                        g.drawImage(girlImages.get("front"), 410, 248, null);
-                        break;
+                if (!fishing) {
+                    switch (direction) {
+                        case (RIGHT):
+                            g.drawImage(girlImages.get("right"), 410, 248, null);
+                            break;
+                        case (UP):
+                            g.drawImage(girlImages.get("back"), 410, 248, null);
+                            break;
+                        case (LEFT):
+                            g.drawImage(girlImages.get("left"), 410, 248, null);
+                            break;
+                        case (DOWN):
+                            g.drawImage(girlImages.get("front"), 410, 248, null);
+                            break;
+                    }
                 }
+                else {
+                    String dir;
+                    String frame;
+                    switch (direction) {
+                        case (RIGHT):
+                            dir = "rightfish";
+                            break;
+                        case (UP):
+                            dir = "backfish";
+                            break;
+                        case (LEFT):
+                            dir = "leftfish";
+                            break;
+                        case (DOWN):
+                            dir = "frontfish";
+                            break;
+                        default:
+                            throw new IllegalStateException("Unexpected value: " + direction);
+                    }
+                    if (actionProgress >= 0 && actionProgress < 10) {
+                        frame = "1";
+                    }
+                    else if (actionProgress >= 10 && actionProgress < 20) {
+                        frame = "2";
+                    }
+                    else if (actionProgress >= 20 && actionProgress < 30) {
+                        frame = "3";
+                    }
+                    else if (actionProgress >= 30 && actionProgress < 130) {
+                        frame = "";
+                    }
+                    else if (actionProgress >= 130 && actionProgress < 140) {
+                        frame = "3";
+                    }
+                    else if (actionProgress >= 140 && actionProgress < 150) {
+                        frame = "2";
+                    }
+                    else {
+                        frame = "1";
+                    }
+                    g.drawImage(girlImages.get(dir+frame), 410, 248, null);
+                }
+
             }
             else {
                 if (movementTick % 15 == 0) {
@@ -632,6 +729,11 @@ public class Player {
                     }
                 }
             }
+            if (equippedItem != null) {
+                g.drawImage(equippedItem.getImage(), 663,262, null);
+            }
+
+
             //System.out.println(selectedItemR + " " + selectedItemC);
             if ((selectedItemR != -1 && selectedItemC != -1) || selectedEquipped){
             	g.setColor(new Color(0,255,0));
@@ -664,10 +766,6 @@ public class Player {
                         g.drawRect(r.x, r.y, r.width, r.height);
                     }
                 }
-            }
-
-            if (equippedItem != null) {
-                g.drawImage(equippedItem.getImage(), 663,262, null);
             }
 
             if (g instanceof Graphics2D) {
@@ -806,19 +904,87 @@ public class Player {
                 g2.drawString("Cancel", 750 + (140 - width) / 2, 90 + 32);
             }
         }
+
+        if (itemFoundPrompt) {
+            g.setColor(new Color(251, 255, 164));
+            g.fillRect(200, 50, 620, 500);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy32);
+                g2.setColor(new Color(0, 0, 0));
+
+                g.setColor(Color.WHITE);
+                g.fillRect(440, 500, 140, 40);
+
+                g.setColor(Color.BLACK);
+                g.drawRect(440, 500, 140, 40);
+
+                g.drawImage(Item.foundItemImages.get(caughtItem.getId()), 300, 100, null);
+
+                if (action == BUG_CATCHING) {
+                    int width = fontMetrics.stringWidth("You caught a " + caughtItem.getName() + "!");
+                    g2.drawString("You caught a " + caughtItem.getName() + "!", 200 + (620 - width) / 2, 100);
+
+                }
+
+                else if (action == DIGGING_FOSSIL) {
+                    int width = fontMetrics.stringWidth("You found a " + caughtItem.getName() + "!");
+                    g2.drawString("You found a " + caughtItem.getName() + "!", 200 + (620 - width) / 2, 100);
+                }
+
+                else if (action == FISHING) {
+                    int width = fontMetrics.stringWidth("You caught a " + caughtItem.getName() + "!");
+                    g2.drawString("You caught a " + caughtItem.getName() + "!", 200 + (620 - width) / 2, 100);
+                }
+
+                int width = fontMetrics.stringWidth("Ok");
+                g2.drawString("Ok", 200 + (620 - width) / 2, 532);
+            }
+        }
+
+        if (inventoryFullPromptOpen) {
+            g.setColor(new Color(251, 255, 164));
+            g.fillRect(200, 50, 620, 500);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy32);
+                g2.setColor(new Color(0, 0, 0));
+
+                g.setColor(Color.WHITE);
+                g.fillRect(440, 500, 140, 40);
+
+                g.setColor(Color.BLACK);
+                g.drawRect(440, 500, 140, 40);
+
+                int width = fontMetrics.stringWidth("Your inventory is full.");
+                g2.drawString("Your inventory is full.", 200 + (620 - width) / 2, 100);
+
+                width = fontMetrics.stringWidth("Ok");
+                g2.drawString("Ok", 200 + (620 - width) / 2, 532);
+
+                g.drawImage(frownyFaceImage, 335, 130, null);
+            }
+        }
+
     }
 
-    public boolean isInventoryFull() {
-        boolean ans = true;
+    public boolean inventoryHasSpace() {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
                 if (items[i][j] == null) {
-                    ans = false;
-                    break;
+                    return true;
                 }
             }
         }
-        return ans;
+        return false;
     }
     
     public void addItem(Item item){
@@ -962,7 +1128,7 @@ public class Player {
     }
 
     public void unequipItem() {
-        if (!isInventoryFull()) {
+        if (inventoryHasSpace()) {
             addItem(equippedItem);
             equippedItem = null;
         }
@@ -1330,27 +1496,27 @@ public class Player {
         this.inventoryFullPromptOpen = inventoryFullPromptOpen;
     }
 
-    public boolean isBugCaughtPrompt() {
-        return bugCaughtPrompt;
+    public boolean isItemFoundPrompt() {
+        return itemFoundPrompt;
     }
 
-    public void setBugCaughtPrompt(boolean bugCaughtPrompt) {
-        this.bugCaughtPrompt = bugCaughtPrompt;
+    public void setItemFoundPrompt(boolean bugCaughtPrompt) {
+        this.itemFoundPrompt = bugCaughtPrompt;
     }
 
-    public boolean isFishCaughtPrompt() {
-        return fishCaughtPrompt;
+    public int getAction() {
+        return action;
     }
 
-    public void setFishCaughtPrompt(boolean fishCaughtPrompt) {
-        this.fishCaughtPrompt = fishCaughtPrompt;
+    public void setAction(int n) {
+        action = n;
     }
 
-    public boolean isFossilFoundPrompt() {
-        return fossilFoundPrompt;
+    public Item getCaughtItem() {
+        return caughtItem;
     }
 
-    public void setFossilFoundPrompt(boolean fossilFoundPrompt) {
-        this.fossilFoundPrompt = fossilFoundPrompt;
+    public void setCaughtItem(Item item) {
+        caughtItem = item;
     }
 }

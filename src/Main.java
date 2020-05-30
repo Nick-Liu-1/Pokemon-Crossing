@@ -102,6 +102,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private final Image museumBugsImage = new ImageIcon("Assets/Misc/bugs.png").getImage();
     private final Image museumFishImage = new ImageIcon("Assets/Misc/fish.png").getImage();
     private final Image museumFossilImage = new ImageIcon("Assets/Misc/fossils.png").getImage();
+    private final Image holeImage = new ImageIcon("Assets/Misc/hole.png").getImage();
+    private final Image buriedObjectImage = new ImageIcon("Assets/Misc/buried object.png").getImage();
 
     private int[][] diggableTiles = new int[94][85];
     private int[][] minigameIslandDiggable = new int[49][46];
@@ -149,6 +151,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         grid = curRoom.getGrid();
         player = new Player("NAME",3840, 2880, Player.FEMALE, grid, this);
         loadItems();
+        Item.loadFoundImages();
         Player.load();
         NPC.loadDialogue();
 
@@ -175,11 +178,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         createNPCs();
         Tree.loadFruits();
 
+
+
         for (int i = 0; i < 20; i++) {
             celeste.addBug(items.get(randint(7, 37)));
             celeste.addFish(items.get(randint(38, 108)));
             celeste.addFossil(new Item(2, Item.fossilNames.get(randint(0, 66)), new ImageIcon("Assets/Items/General/Fossil.png").getImage(), 0, 100));
         }
+
+        grid[68][48] = 6;
 
     }
 
@@ -485,7 +492,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
         // Move player in different directions if WASD is pressed and the inventory is not open
-        if (!player.isInventoryOpen() && !fadingToBlack && !player.isActionProgressOpen()) {
+        if (!player.isInventoryOpen() && !fadingToBlack && !player.isActionProgressOpen() && !player.isItemFoundPrompt()) {
             if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
                 player.move(Player.RIGHT, keys, grid);
             }
@@ -546,6 +553,33 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (player.isActionProgressOpen() && player.getActionProgress() >= 160) {
             player.setActionProgress(0);
             player.setActionProgressOpen(false);
+
+            if (player.getAction() == Player.BUG_CATCHING) {
+                if (randint(1, 10) <= 3) {
+                    Item item = items.get(randint(7, 31));
+                    player.addItem(item);
+                    player.setItemFoundPrompt(true);
+                    player.setCaughtItem(item);
+                }
+            }
+
+            if (player.getAction() == Player.DIGGING_FOSSIL) {
+                Item item = items.get(3);
+                item.setName(Item.fossilNames.get(randint(0, Item.fossilNames.size() - 1)));
+                player.setItemFoundPrompt(true);
+                player.setCaughtItem(item);
+                player.addItem(item);
+            }
+
+            if (player.getAction() == Player.FISHING) {
+                if (randint(1, 10) <= 3) {
+                    Item item = items.get(randint(38, 105));
+                    player.setItemFoundPrompt(true);
+                    player.setCaughtItem(item);
+                    player.addItem(item);
+                }
+                player.setFishing(false);
+            }
         }
     }
 
@@ -612,7 +646,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
         if (keys[KeyEvent.VK_ESCAPE]) {
-            if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen()) {
+            if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt()) {
                 if (!player.isInventoryOpen()) {
                     player.setEscapeQueued(true);
                 }
@@ -674,16 +708,22 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 if (tom_nook.getBuyRect().contains(mouse)) {
-                    Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
-                    if (player.getBells() >= item.getBuyCost()) {
-                        player.addItem(item);
-                        player.setBells(player.getBells() - item.getBuyCost());
-                        tom_nook.getStoreItems().remove(item);
+                    if (player.inventoryHasSpace()) {
+                        Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
+                        if (player.getBells() >= item.getBuyCost()) {
+                            player.addItem(item);
+                            player.setBells(player.getBells() - item.getBuyCost());
+                            tom_nook.getStoreItems().remove(item);
+                        }
+
+                        player.setShopOpen(false);
+                        player.setDialogueSelectionOpen(true);
+                        tom_nook.setSpeechStage(NPC.GREETING);
+                    }
+                    else {
+                        player.setInventoryFullPromptOpen(true);
                     }
 
-                    player.setShopOpen(false);
-                    player.setDialogueSelectionOpen(true);
-                    tom_nook.setSpeechStage(NPC.GREETING);
                 }
 
                 else if (tom_nook.getCancelRect().contains(mouse)) {
@@ -775,6 +815,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     celeste.setSpeechStage(NPC.GREETING);
                 }
             }
+
+            else if (player.isItemFoundPrompt()) {
+                Rectangle okRect = new Rectangle(440, 500, 140, 40);
+                if (okRect.contains(mouse)) {
+                    player.setItemFoundPrompt(false);
+                }
+            }
+
+            else if (player.isInventoryFullPromptOpen()) {
+                Rectangle okRect = new Rectangle(440, 500, 140, 40);
+                if (okRect.contains(mouse)) {
+                    player.setInventoryFullPromptOpen(false);
+                }
+            }
         }
 
         player.setRightClickMenuOpen(false);
@@ -786,9 +840,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setRightClickMenuOpen(true);
                 }
             }
-            else if (!player.isTalkingToNPC() && !player.isActionProgressOpen()) {
+            else if (!player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() &&!player.isMoving()) {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
 
                 NPC npc = npcAtPoint(xTile, yTile);
                 if (npc != null && isAdjacentToPlayer(npc.getxTile(), npc.getyTile())) {
@@ -864,48 +919,124 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     isabelle.resetDialogue();
                 }
 
-                else if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
+                System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile());
+
+                if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
 
-                    if (grid[xTile][yTile] == 4 && droppedItem != null && !player.isInventoryFull() && isAdjacentToPlayer(xTile, yTile)) {
-                        player.addItem(new Item(droppedItem.getId(), droppedItem.getName(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
-                        Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
-                        temp.remove(new Point(xTile, yTile));
-                        curRoom.setDroppedItems(temp);
-                        grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
+                    if (grid[xTile][yTile] == 4 && droppedItem != null && isAdjacentToPlayer(xTile, yTile)) {
+                        if (player.inventoryHasSpace()) {
+                            player.addItem(new Item(droppedItem.getId(), droppedItem.getName(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
+                            Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
+                            temp.remove(new Point(xTile, yTile));
+                            curRoom.setDroppedItems(temp);
+                            grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
+                        }
+                        else {
+                            player.setInventoryFullPromptOpen(true);
+                        }
                     }
                 }
 
-                else if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).getNumFruit() > 0 &&
-                    !player.isInventoryFull() && treeAtTile(xTile, yTile).isTileAdjacent(player.getxTile(), player.getyTile())
+                if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).getNumFruit() > 0
+                    && treeAtTile(xTile, yTile).isTileAdjacent(player.getxTile(), player.getyTile())
                 && !(player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
-                    Tree tree = treeAtTile(xTile, yTile);
-                    tree.pickFruit();
+                    if (player.inventoryHasSpace()) {
+                        Tree tree = treeAtTile(xTile, yTile);
+                        tree.pickFruit();
 
-                    switch (tree.getFruit()) {
-                        case (Tree.APPLE):
-                            player.addItem(items.get(112));
-                            break;
-                        case (Tree.ORANGE):
-                            player.addItem(items.get(113));
-                            break;
-                        case (Tree.PEACH):
-                            player.addItem(items.get(114));
-                            break;
-                        case (Tree.PEAR):
-                            player.addItem(items.get(115));
-                            break;
+                        switch (tree.getFruit()) {
+                            case (Tree.APPLE):
+                                player.addItem(items.get(112));
+                                break;
+                            case (Tree.ORANGE):
+                                player.addItem(items.get(113));
+                                break;
+                            case (Tree.PEACH):
+                                player.addItem(items.get(114));
+                                break;
+                            case (Tree.PEAR):
+                                player.addItem(items.get(115));
+                                break;
+                        }
+                    }
+                    else {
+                        player.setInventoryFullPromptOpen(true);
                     }
                 }
 
                 else if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).isTileAdjacent(player.getxTile(), player.getyTile())
                     && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
-                    if (!player.isInventoryFull()) {
+                    if (player.inventoryHasSpace()) {
                         player.setActionProgressOpen(true);
                         player.setActionMessage("Catching bugs");
-                        if (randint(1, 10) <= 2) {
-                            player.addItem(items.get(randint(7, 31)));
+                        player.setAction(Player.BUG_CATCHING);
+                    }
+
+                    else {
+                        player.setInventoryFullPromptOpen(true);
+                    }
+                }
+
+                else if (curRoom == outside && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] != 4) && isAdjacentToPlayer(xTile, yTile)) {
+                    if (player.inventoryHasSpace()) {
+                        player.setActionProgressOpen(true);
+                        player.setAction(Player.DIGGING);
+
+                        if (diggableTiles[xTile][yTile] == 1) {
+                            diggableTiles[xTile][yTile] = 0;
+                            if (grid[xTile][yTile] == 6) {
+                                player.setAction(Player.DIGGING_FOSSIL);
+                            }
+
+                            grid[xTile][yTile] = 5;
+                            player.setActionMessage("Digging");
                         }
+                        else if (grid[xTile][yTile] == 5) {
+                            diggableTiles[xTile][yTile] = 1;
+                            if (grid[xTile][yTile] == 6) {
+                                player.setAction(Player.DIGGING_FOSSIL);
+                            }
+
+                            grid[xTile][yTile] = 1;
+                            player.setActionMessage("Filling up hole");
+                        }
+                    }
+                   else {
+                       player.setInventoryFullPromptOpen(true);
+                    }
+                }
+
+                else if (curRoom == minigameIsland && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] == 1 || grid[xTile][yTile] == 5) && isAdjacentToPlayer(xTile, yTile)) {
+                    if (player.inventoryHasSpace()) {
+                        player.setActionProgressOpen(true);
+                        player.setAction(Player.DIGGING);
+
+                        if (minigameIslandDiggable[xTile][yTile] == 1) {
+                            minigameIslandDiggable[xTile][yTile] = 0;
+                            grid[xTile][yTile] = 5;
+                            player.setActionMessage("Digging");
+                        }
+                        else if (grid[xTile][yTile] == 5) {
+                            minigameIslandDiggable[xTile][yTile] = 1;
+                            grid[xTile][yTile] = 1;
+                            player.setActionMessage("Filling up hole");
+                        }
+                    }
+                    else {
+                        player.setInventoryFullPromptOpen(true);
+                    }
+                }
+
+                else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1 && validFishingTile(xTile, yTile)) {
+                    if (player.inventoryHasSpace()) {
+                        player.setActionProgressOpen(true);
+                        player.setAction(Player.FISHING);
+                        player.setActionMessage("Casting line");
+                        player.setFishing(true);
+                    }
+                    else {
+                        player.setInventoryFullPromptOpen(true);
                     }
                 }
             }
@@ -1034,8 +1165,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
 
-        //drawGrids(g);
+        drawGrids(g);
         //drawXs(g);
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                if (grid[i][j] == 5) {
+                    g.drawImage(holeImage, i*tileSize - player.getX() + 480, j*tileSize - player.getY() + 300, null);
+                }
+                else if (grid[i][j] == 6) {
+                    g.drawImage(buriedObjectImage, i*tileSize - player.getX() + 480, j*tileSize - player.getY() + 300, null);
+                }
+            }
+        }
 
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
@@ -1077,7 +1218,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         drawTalkingToTomNook(g);
         drawTalkingToCeleste(g);
 
-        if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen()) {
+        if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !player.isInventoryFullPromptOpen()) {
             drawHoverText(g);
         }
     }
@@ -1418,29 +1559,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
 
-
         if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1 && (curRoom == outside || curRoom == minigameIsland)) {
             if (validFishingTile(xTile, yTile)) {
                 msg = "Cast line.";
                 draw = true;
             }
-        }
-
-        else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6 && (curRoom == outside || curRoom == minigameIsland)) {
-            if (curRoom == outside && diggableTiles[xTile][yTile] == 1) {
-                msg = "Dig";
-                draw = true;
-            }
-            else if (curRoom == minigameIsland && minigameIslandDiggable[xTile][yTile] == 1) {
-                msg = "Dig";
-                draw = true;
-            }
-
-        }
-
-        else if (npcAtPoint(xTile, yTile) != null) {
-            msg = "Talk to villager.";
-            draw = true;
         }
 
         else if (xTile < grid.length && yTile < grid[0].length && grid[xTile][yTile] == 4) {
@@ -1453,6 +1576,31 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             msg = "Pick fruit";
             draw = true;
         }
+
+        else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6 && (curRoom == outside || curRoom == minigameIsland)) {
+            if (curRoom == outside && diggableTiles[xTile][yTile] == 1) {
+                msg = "Dig";
+                draw = true;
+            }
+            else if (curRoom == minigameIsland && minigameIslandDiggable[xTile][yTile] == 1) {
+                msg = "Dig";
+                draw = true;
+            }
+            else if (curRoom == outside && grid[xTile][yTile] == 5) {
+                msg = "Fill";
+                draw = true;
+            }
+            else if (curRoom == minigameIsland && grid[xTile][yTile] == 5) {
+                msg = "Fill";
+                draw = true;
+            }
+        }
+
+        else if (npcAtPoint(xTile, yTile) != null) {
+            msg = "Talk to villager.";
+            draw = true;
+        }
+
         else if (treeAtTile(xTile, yTile) != null && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
             msg = "Catch bugs";
             draw = true;
