@@ -1,4 +1,4 @@
-148
+145
 0 bells.png 0 1000
 1 fishing rod.png 500 125
 2 fossil.png 0 100
@@ -80,70 +80,67 @@
 78 bitterling.png 0 900
 79 black bass.png 0 300
 80 bluegill.png 0 120
-81 boot.png 0 0
-82 can.png 0 0
-83 carp.png 0 300
-84 catfish.png 0 800
-85 crucian carp.png 0 120
-86 dace.png 0 200
-87 dorado.png 0 15000
-88 eel.png 0 2000
-89 freshwater goby.png 0 300
-90 gar.png 0 6000
-91 giant snakehead.png 0 5500
-92 guppy.png 0 1300
-93 king salmon.png 0 1800
-94 koi.png 0 4000
-95 loach.png 0 300
-96 mitten crab.png 0 2000
-97 neon tetra.png 0 500
-98 pale chub.png 0 200
-99 pike.png 0 1800
-100 piranha.png 0 2500
-101 pond smelt.png 0 300
-102 popeyed goldfish.png 0 1300
-103 salmon.png 0 700
-104 soft-shelled turtle.png 0 3750
-105 stringfish.png 0 15000
-106 sweetfish.png 0 900
-107 tire.png 0 0
-108 yellow perch.png 0 240
-109 conch.png 0 350
-110 coral.png 0 250
-111 cowrie shell.png 0 30
-112 giant clam.png 0 450
-113 sand dollar.png 0 60
-114 scallop.png 0 600
-115 apple.png 0 100
-116 orange.png 0 100
-117 peach.png 0 100
-118 pear.png 0 100
-119 flower seeds.png 160 30
-120 pink tulip.png 0 80
-121 red rose.png 0 40
-122 red tulip.png 0 40
-123 white cosmos.png 0 40
-124 white tulip.png 0 40
-125 yellow cosmos.png 0 40
-126 yellow rose.png 0 40
-127 open letter.png 0 0
-128 wallpaper.png 1000 200
-129 letter.png 0 0
-130 medicine.png 400 100
-131 blue bed.png 2000 420
-132 blue bookshelf.png 2100 420
-133 cabinet.png 1900 400
-134 dining table.png 2500 650
-135 fridge.png 1200 300
-136 green bed.png 2000 420
-137 green side table.png 1500 200
-138 kitchen counter.png 2100 450
-139 orange chair.png 1200 200
-140 ranch table.png 1750 400
-141 weeping fig.png 1200 200
-142 white couch.png 2000 450
-143 white shelf.png 1750 350
-144 wooden chair.png 1200 200
-145 wooden side table.png 1200 300
-146 wooden table.png 1750 400
-147 flooring.png 1500 350
+81 carp.png 0 300
+82 catfish.png 0 800
+83 crucian carp.png 0 120
+84 dace.png 0 200
+85 dorado.png 0 15000
+86 eel.png 0 2000
+87 freshwater goby.png 0 300
+88 gar.png 0 6000
+89 giant snakehead.png 0 5500
+90 guppy.png 0 1300
+91 king salmon.png 0 1800
+92 koi.png 0 4000
+93 loach.png 0 300
+94 mitten crab.png 0 2000
+95 neon tetra.png 0 500
+96 pale chub.png 0 200
+97 pike.png 0 1800
+98 piranha.png 0 2500
+99 pond smelt.png 0 300
+100 popeyed goldfish.png 0 1300
+101 salmon.png 0 700
+102 soft-shelled turtle.png 0 3750
+103 stringfish.png 0 15000
+104 sweetfish.png 0 900
+105 yellow perch.png 0 240
+106 conch.png 0 350
+107 coral.png 0 250
+108 cowrie shell.png 0 30
+109 giant clam.png 0 450
+110 sand dollar.png 0 60
+111 scallop.png 0 600
+112 apple.png 0 100
+113 orange.png 0 100
+114 peach.png 0 100
+115 pear.png 0 100
+116 flower seeds.png 160 30
+117 pink tulip.png 0 80
+118 red rose.png 0 40
+119 red tulip.png 0 40
+120 white cosmos.png 0 40
+121 white tulip.png 0 40
+122 yellow cosmos.png 0 40
+123 yellow rose.png 0 40
+124 open letter.png 0 0
+125 wallpaper.png 1000 200
+126 letter.png 0 0
+127 medicine.png 400 100
+128 blue bed.png 2000 420
+129 blue bookshelf.png 2100 420
+130 cabinet.png 1900 400
+131 dining table.png 2500 650
+132 fridge.png 1200 300
+133 green bed.png 2000 420
+134 green side table.png 1500 200
+135 kitchen counter.png 2100 450
+136 orange chair.png 1200 200
+137 ranch table.png 1750 400
+138 weeping fig.png 1200 200
+139 white couch.png 2000 450
+140 white shelf.png 1750 350
+141 wooden chair.png 1200 200
+142 wooden side table.png 1200 300
+143 wooden table.png 1750 400
+144 flooring.png 1500 350

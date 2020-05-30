@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -12,14 +13,14 @@ public class Item {
     private int buyCost;
     private int sellCost;
     public static final int[] canBeEquipped = new int[]{1, 5, 6};
-    public static final int[] soldAtStore = new int[]{1, 5, 6, 130, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144, 145, 146};
-	public static final int FURNITURE_START = 131;
-	public static final int FURNITURE_END = 146;
+    public static final int[] soldAtStore = new int[]{1, 5, 6, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144};
+	public static final int FURNITURE_START = 128;
+	public static final int FURNITURE_END = 144;
 
 	public static final Image leafImage = new ImageIcon("Assets/Items/General/leaf.png").getImage();
 	public static final Image storeLeafImage = leafImage.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
 
-	public static ArrayList<String> fossilNames;
+	public static ArrayList<String> fossilNames = new ArrayList<>();
 
     public Item(int id, String name, Image image, int buyCost, int sellCost) {
         this.id = id;
@@ -64,33 +65,41 @@ public class Item {
 
     public static void loadFossils() {
         try {
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Fossils.txt")));
 
             int n = Integer.parseInt(stdin.nextLine());
             for (int i = 0; i < n; i++) {
                 fossilNames.add(stdin.nextLine());
             }
         }
-        catch (Exception e) {
+        catch (FileNotFoundException e) {
             System.out.println("error loading fossil names");
         }
 
     }
 
-    public static boolean isItemBug(int n) {
-        return n >= 7 && n <= 37;
+    public boolean isBug() {
+        return id >= 7 && id <= 37;
     }
 
-    public static boolean isItemOceanFish(int n) {
-        return n >= 38 && n <= 69;
+    public boolean isOceanFish() {
+        return id >= 38 && id <= 69;
     }
 
-    public static boolean isItemRiverFish(int n) {
-        return n >= 75 && n <= 108;
+    public boolean isRiverFish() {
+        return id >= 75 && id <= 105;
     }
 
-    public static boolean isItemPondFish(int n) {
-        return n >= 70 && n <= 74;
+    public boolean isPondFish() {
+        return id >= 70 && id <= 74;
+    }
+
+    public boolean isFossil() {
+        return id == 2;
+    }
+
+    public String toString() {
+        return name;
     }
 
 }
