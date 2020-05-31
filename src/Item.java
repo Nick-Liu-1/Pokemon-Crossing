@@ -15,7 +15,7 @@ public class Item {
     public static final int[] canBeEquipped = new int[]{1, 5, 6};
     public static final int[] soldAtStore = new int[]{1, 5, 6, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 130, 140, 141, 142, 143, 144};
 	public static final int FURNITURE_START = 128;
-	public static final int FURNITURE_END = 144;
+	public static final int FURNITURE_END = 143;
 
 	public static final Image leafImage = new ImageIcon("Assets/Items/General/leaf.png").getImage();
 	public static final Image storeLeafImage = leafImage.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
@@ -114,6 +114,14 @@ public class Item {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isWallpaper() {
+        return id == 125;
+    }
+
+    public boolean isFloor() {
+        return id == 144;
     }
 
 }

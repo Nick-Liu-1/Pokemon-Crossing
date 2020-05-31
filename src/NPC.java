@@ -476,7 +476,16 @@ class Tom_Nook extends NPC {
 
     public void generateStoreItems() {
         for (int i = 0; i < 5; i++) {
-            storeItems.add(GamePanel.getItems().get(Item.soldAtStore[GamePanel.randint(0, Item.soldAtStore.length - 1)]));
+            storeItems.clear();
+            Item item = GamePanel.getItems().get(Item.soldAtStore[GamePanel.randint(0, Item.soldAtStore.length - 1)]);
+            if (item.isFloor()) {
+                item.setName(Furniture.floorNames[GamePanel.randint(0, Furniture.floorNames.length - 1)]);
+            }
+            else if (item.isWallpaper()) {
+                item.setName(Furniture.wallpaperNames[GamePanel.randint(0, Furniture.wallpaperNames.length - 1)]);
+            }
+            storeItems.add(item);
+
         }
 
         for (int i : Item.soldAtStore) {

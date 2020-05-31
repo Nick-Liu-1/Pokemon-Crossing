@@ -149,7 +149,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",3840, 2880, Player.FEMALE, grid, this);
+        player = new Player("NAME",1800, 2160, Player.FEMALE, grid, this);
         loadItems();
         Item.loadFoundImages();
         Player.load();
@@ -177,7 +177,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         createNPCs();
         Tree.loadFruits();
-
+        Furniture.loadImages();
+        Furniture.loadFurnitureSizes();
 
 
         for (int i = 0; i < 20; i++) {
@@ -581,6 +582,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setFishing(false);
             }
         }
+
+        if (curRoom != rooms.get(new Point(30, 35))) {
+            player.setPlacingFurniture(false);
+        }
     }
 
     public void goToNewRoom() {
@@ -646,6 +651,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
         if (keys[KeyEvent.VK_ESCAPE]) {
+            player.setPlacingFurniture(false);
             if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt()) {
                 if (!player.isInventoryOpen()) {
                     player.setEscapeQueued(true);
@@ -689,7 +695,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         player.dropSelectedItem();
                     }
                     else if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
-                        if (!player.isSelectedEquipped()) {
+                        Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
+                        if (item.isFloor()) {
+                            String temp = player.getSelectedFloor();
+                            player.setSelectedFloor(item.getName());
+                            player.removeItem(item);
+                            player.addItem(new Item(144, temp, new ImageIcon("Assets/Items/General/flooring.png").getImage(), 1500, 350));
+                        }
+                        else if (item.isWallpaper()) {
+                            String temp = player.getSelectedWallpaper();
+                            player.setSelectedWallpaper(item.getName());
+                            player.removeItem(item);
+                            player.addItem(new Item(125, temp, new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 1000, 200));
+                        }
+                        else if (item.isFurniture()) {
+                            player.setPlacingFurniture(true);
+                            player.setInventoryOpen(false);
+                        }
+                        else if (!player.isSelectedEquipped()) {
                             player.equipItem();
                         }
                         else {
@@ -697,8 +720,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         }
                     }
                 }
-
-                player.selectItem(mouse);
+                else {
+                    player.selectItem(mouse);
+                }
             }
             else if (player.isShopOpen()) {
                 for (int i = 0; i < 5; i++) {
@@ -828,6 +852,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 if (okRect.contains(mouse)) {
                     player.setInventoryFullPromptOpen(false);
                 }
+            }
+
+            else if (player.isPlacingFurniture()) {
+                Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
+                int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
+                int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
+                int length = Furniture.furnitureSizes.get(item.getName()).getKey();
+                int width = Furniture.furnitureSizes.get(item.getName()).getValue();
+
+                if (validFurniturePlacement(xTile, yTile, length, width)) {
+                    placeFurniture(xTile, yTile, length, width, item);
+                    player.setPlacingFurniture(false);
+                }
+
             }
         }
 
@@ -1055,6 +1094,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         for (int k = 0; k < celeste.getBugs().size(); k++) {
                             if (temp.getName().equals(celeste.getBugs().get(k).getName())) {
                                 canBeDonated = false;
+                                break;
                             }
                         }
                     }
@@ -1062,6 +1102,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         for (int k = 0; k < celeste.getFish().size(); k++) {
                             if (temp.getName().equals(celeste.getFish().get(k).getName())) {
                                 canBeDonated = false;
+                                break;
                             }
                         }
                     }
@@ -1069,6 +1110,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         for (int k = 0; k < celeste.getFossils().size(); k++) {
                             if (temp.getName().equals(celeste.getFossils().get(k).getName())) {
                                 canBeDonated = false;
+                                break;
                             }
                         }
                     }
@@ -1164,8 +1206,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
+        if (curRoom == rooms.get(new Point(30, 35))) {
+            drawPlayerRoom(g);
+        }
 
-        drawGrids(g);
+        //drawGrids(g);
         //drawXs(g);
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
@@ -1181,7 +1226,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
             DroppedItem item = pair.getValue();
-            g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
+            if (item.isFurniture()) {
+                g.drawImage(Item.leafImage, (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
+            }
+            else {
+                g.drawImage(item.getImage(), (item.getxTile()+8)*tileSize - player.getX()+13, (item.getyTile()+5)*tileSize - player.getY()+13, null);
+            }
         }
 
         for (Tree tree : trees) {
@@ -1220,6 +1270,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !player.isInventoryFullPromptOpen()) {
             drawHoverText(g);
+        }
+
+        if (player.isPlacingFurniture()) {
+            drawPlacingFurniture(g);
         }
     }
 
@@ -1497,6 +1551,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
          }
     }
 
+    public void drawPlayerRoom(Graphics g) {
+        g.drawImage(Furniture.wallpaperImages.get(player.getSelectedWallpaper()), 9 * tileSize - player.getX() + 480,  6 * tileSize - player.getY() + 300, null);
+        g.drawImage(Furniture.floorImages.get(player.getSelectedFloor()), 9 * tileSize - player.getX() + 480, 8 * tileSize - player.getY() + 300, null);
+
+        for (Furniture temp : player.getFurniture()) {
+            temp.draw(g, player.getX(), player.getY());
+        }
+    }
+
     public static int[][] transpose(int[][] arr) {
         /*  Takes an axb array and transposes it to a bxa array such that arr[a][b] == out[b][a]
          */
@@ -1729,7 +1792,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 npc.resetDialogue();
             }
         }
-
     }
 
     public boolean validFishingTile(int xTile, int yTile) {
@@ -1756,6 +1818,51 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
         return false;
+    }
+
+    public boolean validFurniturePlacement(int xTile, int yTile, int length, int width) {
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < width; j++) {
+                if (xTile + i > 31 || yTile + j > 22) {
+                    return false;
+                }
+                if (grid[xTile + i][yTile+ j] != 1 || (xTile + i == player.getxTile() && yTile + j == player.getyTile())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public void drawPlacingFurniture(Graphics g) {
+        if (player.getSelectedItemR() != -1 && player.getSelectedItemC() != -1) {
+            Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
+            int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
+            int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
+
+            System.out.println(Furniture.furnitureSizes);
+            int length = Furniture.furnitureSizes.get(item.getName()).getKey();
+            int width = Furniture.furnitureSizes.get(item.getName()).getValue();
+
+
+            for (int i = 0; i < length; i++) {
+                for (int j = 0; j < width; j++) {
+                    if (xTile + i <= 31 && yTile + j <= 22) {
+                        if (validFurniturePlacement(xTile, yTile, length, width)) {
+                            g.setColor(new Color(0, 255, 0, 100));
+                        }
+                        else {
+                            g.setColor(new Color(255, 0, 0, 100));
+                        }
+
+                        g.fillRect(tileSize * (xTile + i) - player.getX() + 480, GamePanel.tileSize * (yTile + j) - player.getY() + 300, tileSize, tileSize);
+                    }
+                }
+            }
+
+            Furniture display = new Furniture(xTile, yTile, length, width, item.getId(), Furniture.furnitureImages.get(item.getName()));
+            display.draw(g, player.getX(), player.getY());
+        }
     }
 
     public Point getMouse() {
@@ -1799,5 +1906,25 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             Returns a random integer on the interval [low, high].
         */
         return (int) (Math.random()*(high-low+1)+low);
+    }
+
+    public Room getCurRoom() {
+        return curRoom;
+    }
+
+    public Room getPlayerRoom() {
+        return rooms.get(new Point(30, 35));
+    }
+
+    public void placeFurniture(int xTile, int yTile, int length, int width, Item item) {
+        player.getFurniture().add(new Furniture(xTile, yTile, length, width, item.getId(), Furniture.furnitureImages.get(item.getName())));
+
+        player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()] = null;
+
+        for (int i = 0; i < length; i++) {
+            for (int j = 0; j < width; j++) {
+                grid[xTile+i][yTile+j] = 0;
+            }
+        }
     }
 }

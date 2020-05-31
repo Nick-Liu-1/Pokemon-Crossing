@@ -70,7 +70,7 @@ public class Player {
     private boolean actionProgressOpen = false;
     private boolean inventoryFullPromptOpen = false;
     private boolean itemFoundPrompt = false;
-
+    private boolean placingFurniture = false;
 
     private int actionProgress = 0;
     private String actionMessage = "";
@@ -120,6 +120,10 @@ public class Player {
 
     public int selectedItemInShop = -1;
 
+    private ArrayList<Furniture> furniture = new ArrayList<>();
+    private String selectedWallpaper = "orange";
+    private String selectedFloor = "yellow";
+
 
     // Constructor
     public Player(String name, int x, int y, int gender, int[][] grid, GamePanel mainFrame) {
@@ -132,7 +136,7 @@ public class Player {
         goingToxTile = x / GamePanel.tileSize;
         goingToyTile = y / GamePanel.tileSize;
 
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 1; i++) {
             for (int j = 0; j < 3; j++) {
             	if(j==0){
             		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
@@ -146,6 +150,11 @@ public class Player {
             }
         }
         items[3][2] = new Item(5, "Net", new ImageIcon("Assets/Items/General/net.png").getImage(), 500, 125);
+        items[4][2] = new Item(144, "blue carpet", new ImageIcon("Assets/Items/General/flooring.png").getImage(), 0, 0);
+        items[5][2] = new Item(125, "simple", new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 0, 0);
+        items[5][1] = new Item(128, "blue bed", new ImageIcon("Assets/Items/General/blue bed.png").getImage(),2000, 420);
+        items[4][1] = new Item(143, "wooden table", new ImageIcon("Assets/Items/General/wooden table.png").getImage(),2000, 420);
+        items[3][1] = new Item(139, "white couch", new ImageIcon("Assets/Items/General/white couch.png").getImage(),2000, 420);
     }
 
     // Load boy and girl images
@@ -296,11 +305,12 @@ public class Player {
     // Return what is in the grid in the specified direction
     public int inDir(int dir) {
         int ans = 0;
+
         switch (dir) {
             case (Player.RIGHT):
                 ans = grid[xTile+1][yTile];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if ((xTile + 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile + 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
+                    if (mainFrame.getCurRoom() == temp.getRoom() && ((xTile + 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile + 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile()))) {
                         ans = 0;
                     }
                 }
@@ -308,7 +318,7 @@ public class Player {
             case (Player.UP):
                 ans = grid[xTile][yTile-1];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if ((xTile == temp.getxTile() && yTile - 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile - 1 == temp.getGoingToyTile())) {
+                    if (mainFrame.getCurRoom() == temp.getRoom() && ((xTile == temp.getxTile() && yTile - 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile - 1 == temp.getGoingToyTile()))) {
                         ans = 0;
                     }
                 }
@@ -316,7 +326,7 @@ public class Player {
             case (Player.LEFT):
                 ans = grid[xTile-1][yTile];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if ((xTile - 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile - 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile())) {
+                    if (mainFrame.getCurRoom() == temp.getRoom() && ((xTile - 1 == temp.getxTile() && yTile == temp.getyTile()) || (xTile - 1 == temp.getGoingToxTile() && yTile == temp.getGoingToyTile()))) {
                         ans = 0;
                     }
                 }
@@ -324,7 +334,7 @@ public class Player {
             case (Player.DOWN):
                 ans = grid[xTile][yTile+1];
                 for (NPC temp : mainFrame.getNPCs()) {
-                    if ((xTile == temp.getxTile() && yTile + 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile + 1 == temp.getGoingToyTile())) {
+                    if (mainFrame.getCurRoom() == temp.getRoom() && ((xTile == temp.getxTile() && yTile + 1 == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile + 1 == temp.getGoingToyTile()))) {
                         ans = 0;
                     }
                 }
@@ -333,6 +343,7 @@ public class Player {
         if (ans == 4 | ans == 6) {
             ans = 1;
         }
+
         return ans;
     }
 
@@ -749,7 +760,10 @@ public class Player {
                	    rightClickMenu.clear();
                	    if (!selectedEquipped) {
                         rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 140, 40));
-                        if (items[selectedItemR][selectedItemC].canBeEquipped()) {
+                        if (items[selectedItemR][selectedItemC].canBeEquipped() || items[selectedItemR][selectedItemC].isWallpaper() || items[selectedItemR][selectedItemC].isFloor()) {
+                            rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 94 + selectedItemC * 68 + offsetY + 18, 140, 40));
+                        }
+                        else if (items[selectedItemR][selectedItemC].isFurniture()) {
                             rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 94 + selectedItemC * 68 + offsetY + 18, 140, 40));
                         }
                     }
@@ -782,13 +796,21 @@ public class Player {
                 g2.drawString(String.valueOf(bells), 360 ,293);
 
                 if (rightClickMenuOpen) {
-                    if (selectedItemR!=-1 && selectedItemC!=-1) {
+                    if (selectedItemR != -1 && selectedItemC != -1) {
                         width = fontMetrics.stringWidth("Drop");
                         g2.drawString("Drop",323 + selectedItemR * 68 + offsetX + 19 + (140 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 28);
-                        if (rightClickMenu.size() >= 2) {
+                        if (rightClickMenu.size() >= 2 && items[selectedItemR][selectedItemC].canBeEquipped()) {
                             width = fontMetrics.stringWidth("Equip");
                             g2.drawString("Equip",323 + selectedItemR * 68 + offsetX + 19 + (142 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 68);
-
+                        }
+                        else if (mainFrame.getCurRoom() == mainFrame.getPlayerRoom() && (items[selectedItemR][selectedItemC].isWallpaper() ||
+                            items[selectedItemR][selectedItemC].isFloor())) {
+                            width = fontMetrics.stringWidth("Apply");
+                            g2.drawString("Apply",323 + selectedItemR * 68 + offsetX + 19 + (142 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 68);
+                        }
+                        else if (mainFrame.getCurRoom() == mainFrame.getPlayerRoom() && items[selectedItemR][selectedItemC].isFurniture()) {
+                            width = fontMetrics.stringWidth("Place");
+                            g2.drawString("Place",323 + selectedItemR * 68 + offsetX + 19 + (142 - width) / 2, 54 + selectedItemC * 68 + offsetY + 18 + 68);
                         }
                     }
                     else if (selectedEquipped) {
@@ -797,6 +819,7 @@ public class Player {
                         width = fontMetrics.stringWidth("Unequip");
                         g2.drawString("Unequip",663 + offsetX + (140 - width) / 2, 262 + offsetY + 68);
                     }
+
                 }
             }
         }
@@ -974,6 +997,7 @@ public class Player {
             }
         }
 
+
     }
 
     public boolean inventoryHasSpace() {
@@ -999,7 +1023,14 @@ public class Player {
     }
     
     public void removeItem(Item item){
-    	
+        for (int j = 0; j < 3; j++) {
+            for (int i = 0; i < 6; i++) {
+                if(items[i][j] == item) {
+                    items[i][j] = null;
+                    return;
+                }
+            }
+        }
     }
     
     public void selectItem(Point mouse){
@@ -1518,5 +1549,33 @@ public class Player {
 
     public void setCaughtItem(Item item) {
         caughtItem = item;
+    }
+
+    public ArrayList<Furniture> getFurniture() {
+        return furniture;
+    }
+
+    public String getSelectedWallpaper() {
+        return selectedWallpaper;
+    }
+
+    public void setSelectedWallpaper(String selectedWallpaper) {
+        this.selectedWallpaper = selectedWallpaper;
+    }
+
+    public String getSelectedFloor() {
+        return selectedFloor;
+    }
+
+    public void setSelectedFloor(String selectedFloor) {
+        this.selectedFloor = selectedFloor;
+    }
+
+    public boolean isPlacingFurniture() {
+        return placingFurniture;
+    }
+
+    public void setPlacingFurniture(boolean b) {
+        placingFurniture = b;
     }
 }

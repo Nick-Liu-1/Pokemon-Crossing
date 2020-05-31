@@ -1,0 +1,17 @@
+16
+blue bed 2 2
+blue bookshelf 2 3
+cabinet 2 3 
+dining table 3 2
+fridge 1 3
+green bed 2 2
+green side table 1 2
+kitchen counter 2 2
+orange chair 1 1
+ranch table 2 2
+weeping fig 1 2
+white couch 2 2
+white shelf 2 2
+wooden chair 1 1
+wooden side table 1 2
+wooden table 2 2
