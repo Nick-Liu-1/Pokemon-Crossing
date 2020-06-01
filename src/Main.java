@@ -566,7 +566,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             if (player.getAction() == Player.DIGGING_FOSSIL) {
                 Item item = items.get(3);
-                item.setName(Item.fossilNames.get(randint(0, Item.fossilNames.size() - 1)));
+                item.setName(capitalizeWord(Item.fossilNames.get(randint(0, Item.fossilNames.size() - 1))));
                 player.setItemFoundPrompt(true);
                 player.setCaughtItem(item);
                 player.addItem(item);
@@ -687,41 +687,57 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = true;
+
             if (player.isInventoryOpen()){
-                if (player.isRightClickMenuOpen()) {
+                if (!player.isRightClickMenuOpen()) {
+                    player.selectItem(mouse);
+                }
+
+                else {
                     if (player.clickedMenuBox(mouse.x, mouse.y) == 0 && grid[player.getxTile()][player.getyTile()] != 4) {
                         curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
                         grid[player.getxTile()][player.getyTile()] = 4;
                         player.dropSelectedItem();
                     }
-                    else if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
-                        Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
-                        if (item.isFloor()) {
-                            String temp = player.getSelectedFloor();
-                            player.setSelectedFloor(item.getName());
-                            player.removeItem(item);
-                            player.addItem(new Item(144, temp, new ImageIcon("Assets/Items/General/flooring.png").getImage(), 1500, 350));
+                    if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
+                        if (player.getSelectedItemR() != -1 && player.getSelectedItemC() != -1) {
+                            Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
+                            if (item.isFloor()) {
+                                String temp = player.getSelectedFloor();
+                                player.setSelectedFloor(item.getName());
+                                player.removeItem(item);
+                                player.addItem(new Item(144, temp, new ImageIcon("Assets/Items/General/flooring.png").getImage(), 1500, 350));
+                                player.setSelectedItemC(-1);
+                                player.setSelectedItemR(-1);
+
+                            }
+                            else if (item.isWallpaper()) {
+                                String temp = player.getSelectedWallpaper();
+                                player.setSelectedWallpaper(item.getName());
+                                player.removeItem(item);
+                                player.addItem(new Item(125, temp, new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 1000, 200));
+                                player.setSelectedItemC(-1);
+                                player.setSelectedItemR(-1);
+                            }
+                            else if (item.isFurniture()) {
+                                player.setPlacingFurniture(true);
+                                player.setInventoryOpen(false);
+                            }
+
+                            else if (!player.isSelectedEquipped()) {
+                                player.equipItem();
+                                player.setSelectedEquipped(true);
+                                player.setSelectedItemC(-1);
+                                player.setSelectedItemR(-1);
+                            }
+
                         }
-                        else if (item.isWallpaper()) {
-                            String temp = player.getSelectedWallpaper();
-                            player.setSelectedWallpaper(item.getName());
-                            player.removeItem(item);
-                            player.addItem(new Item(125, temp, new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 1000, 200));
-                        }
-                        else if (item.isFurniture()) {
-                            player.setPlacingFurniture(true);
-                            player.setInventoryOpen(false);
-                        }
-                        else if (!player.isSelectedEquipped()) {
-                            player.equipItem();
-                        }
+
                         else {
                             player.unequipItem();
+                            player.setSelectedEquipped(false);
                         }
                     }
-                }
-                else {
-                    player.selectItem(mouse);
                 }
             }
             else if (player.isShopOpen()) {
@@ -733,21 +749,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 if (tom_nook.getBuyRect().contains(mouse)) {
                     if (player.inventoryHasSpace()) {
-                        Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
-                        if (player.getBells() >= item.getBuyCost()) {
-                            player.addItem(item);
-                            player.setBells(player.getBells() - item.getBuyCost());
-                            tom_nook.getStoreItems().remove(item);
-                        }
+                        if (player.getSelectedItemInShop() <= tom_nook.getStoreItems().size() - 1) {
+                            Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
 
-                        player.setShopOpen(false);
-                        player.setDialogueSelectionOpen(true);
-                        tom_nook.setSpeechStage(NPC.GREETING);
+                            if (player.getBells() >= item.getBuyCost()) {
+                                player.addItem(item);
+                                player.setBells(player.getBells() - item.getBuyCost());
+                                tom_nook.getStoreItems().remove(item);
+                            }
+
+                            player.setShopOpen(false);
+                            player.setDialogueSelectionOpen(true);
+                            tom_nook.setSpeechStage(NPC.GREETING);
+                        }
                     }
                     else {
                         player.setInventoryFullPromptOpen(true);
                     }
-
                 }
 
                 else if (tom_nook.getCancelRect().contains(mouse)) {
@@ -866,7 +884,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     placeFurniture(xTile, yTile, length, width, item);
                     player.setPlacingFurniture(false);
                 }
-
             }
         }
 
@@ -1017,7 +1034,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-                else if (curRoom == outside && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] != 4) && isAdjacentToPlayer(xTile, yTile)) {
+                else if (curRoom == outside && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] != 4) && isAdjacentToPlayer(xTile, yTile) && npcAtPoint(xTile, yTile) == null) {
                     if (player.inventoryHasSpace()) {
                         player.setActionProgressOpen(true);
                         player.setAction(Player.DIGGING);
@@ -1076,6 +1093,29 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                     else {
                         player.setInventoryFullPromptOpen(true);
+                    }
+                }
+
+                if (curRoom == rooms.get(new Point(30, 35))) {
+                    if (furnitureAtTile(xTile, yTile) != null) {
+                        Furniture furniture = furnitureAtTile(xTile, yTile);
+
+                        if (player.inventoryHasSpace()) {
+                            player.addItem(new Item(furniture.getId(), capitalizeWord(items.get(furniture.getId()).getName()), items.get(furniture.getId()).getImage(),
+                                items.get(furniture.getId()).getBuyCost(), items.get(furniture.getId()).getSellCost()));
+
+                            for (int i = furniture.getxTile(); i < furniture.getxTile() + furniture.getLength(); i++) {
+                                for (int j = furniture.getyTile(); j < furniture.getyTile() + furniture.getWidth(); j++) {
+                                    grid[i][j] = 1;
+                                }
+                            }
+
+                            player.getFurniture().remove(furniture);
+
+                        }
+                        else {
+                            player.setInventoryFullPromptOpen(true);
+                        }
                     }
                 }
             }
@@ -1164,7 +1204,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = false;
-            if (player.isInventoryOpen()) {
+            if (player.isInventoryOpen() && !player.isRightClickMenuOpen()) {
                 player.moveItem(mouse);
             }
 
@@ -1620,8 +1660,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         String msg = "";
         boolean draw = false;
 
-
-
         if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1 && (curRoom == outside || curRoom == minigameIsland)) {
             if (validFishingTile(xTile, yTile)) {
                 msg = "Cast line.";
@@ -1666,6 +1704,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         else if (treeAtTile(xTile, yTile) != null && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
             msg = "Catch bugs";
+            draw = true;
+        }
+
+        else if (curRoom == rooms.get(new Point(30, 35)) && furnitureAtTile(xTile, yTile) != null) {
+            msg = "Pick up furniture";
             draw = true;
         }
 
@@ -1840,7 +1883,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
             int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
-            System.out.println(Furniture.furnitureSizes);
+            System.out.println(item.getName());
             int length = Furniture.furnitureSizes.get(item.getName()).getKey();
             int width = Furniture.furnitureSizes.get(item.getName()).getValue();
 
@@ -1863,6 +1906,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             Furniture display = new Furniture(xTile, yTile, length, width, item.getId(), Furniture.furnitureImages.get(item.getName()));
             display.draw(g, player.getX(), player.getY());
         }
+    }
+
+    public Furniture furnitureAtTile(int xTile, int yTile) {
+        for (Furniture temp : player.getFurniture()) {
+            for (int i = temp.getxTile(); i < temp.getxTile() + temp.getLength(); i++) {
+                for (int j = temp.getyTile(); j < temp.getyTile() + temp.getWidth(); j++) {
+                    if (i == xTile && j == yTile) {
+                        return temp;
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     public Point getMouse() {

@@ -459,7 +459,7 @@ class Tom_Nook extends NPC {
         playerOptions.add("Never mind.");
 
         for (int i = 0; i < 5; i++) {
-            itemRects.add(new Rectangle(332, 64 + 110*i, 360, 56));
+            itemRects.add(new Rectangle(332, 64 + 109*i, 395, 56));
         }
     }
 
@@ -475,8 +475,8 @@ class Tom_Nook extends NPC {
 
 
     public void generateStoreItems() {
+        storeItems.clear();
         for (int i = 0; i < 5; i++) {
-            storeItems.clear();
             Item item = GamePanel.getItems().get(Item.soldAtStore[GamePanel.randint(0, Item.soldAtStore.length - 1)]);
             if (item.isFloor()) {
                 item.setName(Furniture.floorNames[GamePanel.randint(0, Furniture.floorNames.length - 1)]);
