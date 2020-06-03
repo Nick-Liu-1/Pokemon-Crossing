@@ -152,9 +152,9 @@ public class Player {
         items[3][2] = new Item(5, "Net", new ImageIcon("Assets/Items/General/net.png").getImage(), 500, 125);
         items[4][2] = new Item(144, "blue carpet", new ImageIcon("Assets/Items/General/flooring.png").getImage(), 0, 0);
         items[5][2] = new Item(125, "simple", new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 0, 0);
-        items[5][1] = new Item(128, "blue bed", new ImageIcon("Assets/Items/General/blue bed.png").getImage(),2000, 420);
-        items[4][1] = new Item(143, "wooden table", new ImageIcon("Assets/Items/General/wooden table.png").getImage(),2000, 420);
-        items[3][1] = new Item(139, "white couch", new ImageIcon("Assets/Items/General/white couch.png").getImage(),2000, 420);
+        items[5][1] = new Item(128, "Blue Bed", new ImageIcon("Assets/Items/General/blue bed.png").getImage(),2000, 420);
+        items[4][1] = new Item(143, "Wooden Table", new ImageIcon("Assets/Items/General/wooden table.png").getImage(),2000, 420);
+        items[3][1] = new Item(139, "White Couch", new ImageIcon("Assets/Items/General/white couch.png").getImage(),2000, 420);
     }
 
     // Load boy and girl images
@@ -1348,6 +1348,10 @@ public class Player {
         return selectedEquipped;
     }
 
+    public void setSelectedEquipped(boolean b) {
+        selectedEquipped = b;
+    }
+
     public boolean isTalkingToNPC() {
         return talkingToNPC;
     }
@@ -1578,4 +1582,5 @@ public class Player {
     public void setPlacingFurniture(boolean b) {
         placingFurniture = b;
     }
+
 }

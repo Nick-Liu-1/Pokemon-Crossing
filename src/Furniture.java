@@ -15,6 +15,7 @@ public class Furniture {
     private int length, width;
     private Image image;
     private int id;
+    private String name;
 
     public static Hashtable<String, Image> wallpaperImages = new Hashtable<>();
     public static Hashtable<String, Image> floorImages = new Hashtable<>();
@@ -62,7 +63,7 @@ public class Furniture {
         assert listOfFiles != null;
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
-                furnitureImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),
+                furnitureImages.put(GamePanel.capitalizeWord(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4)),
                     new ImageIcon("Assets/Items/Furniture/"+listOfFiles[i].getName()).getImage());
             }
         }
@@ -83,7 +84,7 @@ public class Furniture {
 
                 fileName = fileName.substring(0, fileName.length()-1);
 
-                furnitureSizes.put(fileName, new Pair<>(Integer.parseInt(line[line.length - 2]), Integer.parseInt(line[line.length - 1])));
+                furnitureSizes.put(GamePanel.capitalizeWord(fileName), new Pair<>(Integer.parseInt(line[line.length - 2]), Integer.parseInt(line[line.length - 1])));
             }
         }
         catch (FileNotFoundException e) {
@@ -110,4 +111,9 @@ public class Furniture {
     public int getWidth() {
         return width;
     }
+
+    public int getId() {
+        return id;
+    }
+
 }
