@@ -14,6 +14,7 @@ import java.util.*;
 public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
+    private Thin_Ice thinIce;
 
     public Main() {
         // Creating frame
@@ -24,6 +25,11 @@ public class Main extends JFrame implements ActionListener {
 
         game = new GamePanel(this);
         add(game);
+
+        Thin_Ice.load();
+        //thinIce = new Thin_Ice(this);D
+        //add(thinIce);
+
         myTimer = new javax.swing.Timer(10, new TickListener());
 
         setResizable(false);
@@ -51,6 +57,11 @@ public class Main extends JFrame implements ActionListener {
                 game.grabFocus();
                 game.move();
                 game.repaint();
+            }
+            else if (thinIce != null) {
+                thinIce.grabFocus();
+                thinIce.move();
+                thinIce.repaint();
             }
         }
     }
