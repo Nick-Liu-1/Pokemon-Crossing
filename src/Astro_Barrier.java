@@ -4,23 +4,35 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-class ABGamePanel extends JPanel implements KeyListener {
+class Astro_Barrier extends JPanel implements KeyListener {
 	private Rocket rocket;
 	private boolean [] keys;
 	private boolean restarting = false;
 	private ArrayList<Level> allLevels = new ArrayList<Level>();
-	private int currentLevel=0;
-	private int numLives = 3;
+	private int currentLevel, numLives, score;
+	private Font font = new Font("Helvetica", Font.PLAIN, 30);
+	
 	private Image endScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	private Image rocketPic = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/rocketLives.png").getImage();
 	private Image restartScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	private Point mouse = new Point(0, 0);
 	private Main mainframe;
 	
-	public ABGamePanel(Main m){
+	public Astro_Barrier(Main m){
+		mainframe = m;
+		addKeyListener(this);
+        addMouseListener(new clickListener());
+		setSize(1020,695);
+	}
+	
+	public void init(){
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		rocket = new Rocket(510, 548);
-		mainframe = m;
+
+		currentLevel=0;
+		numLives=3;
+		score=0;
+		
 		try{
             Scanner levelsFile = new Scanner(new BufferedReader(new FileReader("Assets/Minigames/Astro Barrier/Levels/allLevels.txt")));
             int numLevels = Integer.parseInt(levelsFile.nextLine());
@@ -36,28 +48,20 @@ class ABGamePanel extends JPanel implements KeyListener {
         catch(FileNotFoundException e) {
             System.out.println("levels file not found");
         }
-		
-        addKeyListener(this);
-        addMouseListener(new clickListener());
-		setSize(1020,695);
 	}
 	
 	public void addNotify(){
         super.addNotify();
         requestFocus();
     }
-
-    public void init() {
-		currentLevel = 1;
-	}
 	
 	public void move(){
 		rocket.moveBullet();
 		allLevels.get(currentLevel).moveTargets();
-		if(keys[KeyEvent.VK_RIGHT] ){
+		if(keys[KeyEvent.VK_D] ){
 			rocket.move(2);
 		}
-		if(keys[KeyEvent.VK_LEFT] ){
+		if(keys[KeyEvent.VK_A] ){
 			rocket.move(-2);
 		}
 		if(keys[KeyEvent.VK_SPACE]){
@@ -84,6 +88,15 @@ class ABGamePanel extends JPanel implements KeyListener {
     				allLevels.get(currentLevel).removeBullet();
     				allLevels.get(currentLevel).addWall(tmp);
     				allLevels.get(currentLevel).getTargets().get(i).setIsHit(true);
+    				if(target.getSize()==0){
+    					score += 15;
+    				}
+    				else if(target.getSize()==1){
+    					score += 10;
+    				}
+    				else if(target.getSize()==2){
+    					score += 5;
+    				}
     			}
     		}
     	}
@@ -98,14 +111,15 @@ class ABGamePanel extends JPanel implements KeyListener {
 		}
 		if(numLives<=0){
 			for(int i=0; i<allLevels.size(); i++){
-				allLevels.get(i).restart();
+				score -= allLevels.get(i).restart();
 			}
 			numLives=3;
 			currentLevel=0;
+			score=0;
 			restarting=true;
 		}
 		else if (allLevels.get(currentLevel).getNumBullets() <= 0 && numLives>0){
-			allLevels.get(currentLevel).restart();
+			score -= allLevels.get(currentLevel).restart();
 		}
 	}
 	
@@ -117,20 +131,23 @@ class ABGamePanel extends JPanel implements KeyListener {
 			allLevels.get(currentLevel).draw(g);
 			rocket.draw(g);
 			for(int i=0; i<numLives; i++){
-				g.drawImage(rocketPic, 700 + (i*60), 610, null);
+				g.drawImage(rocketPic, 750 + (i*60), 610, null);
 			}
 		}
 
 		if(restarting){
 			g.drawImage(restartScreen, 0, 0, null);
 			try {
- 		    	Thread.sleep(500);
+ 		    	Thread.sleep(1000);
 			} 
 			catch (InterruptedException ie) {
     			Thread.currentThread().interrupt();
 			}
 			restarting=false;
 		}
+		g.setColor(new Color(255, 255, 255)); 
+		g.setFont(font);
+		g.drawString("Score: " + score, 750, 45);
     }
     
     public void keyTyped(KeyEvent e) {}
@@ -225,8 +242,20 @@ class Level{
     	}
     }
     
-    public void restart(){
+    public int restart(){
+    	int scoreChange = 0;
     	for(int i=0; i<numTargets; i++){
+    		if(targets.get(i).getIsHit()){
+    			if(targets.get(i).getSize() == 0){
+    				scoreChange += 15;
+    			}
+    			else if(targets.get(i).getSize() == 1){
+    				scoreChange += 10;
+    			}
+    			else if(targets.get(i).getSize() ==2){
+    				scoreChange += 5;
+    			}
+    		}
     		targets.get(i).restart();
     	}
     	while(walls.size()>numWalls){
@@ -234,13 +263,14 @@ class Level{
     	}
     	numBullets = totBullets;
     	complete=false;
+    	return scoreChange;
     }
     
     public void draw(Graphics g){
     	g.drawImage(background, 0, 0, null);
     	if(complete){
     		try {
- 		    	Thread.sleep(500);
+ 		    	Thread.sleep(1000);
 			} 
 			catch (InterruptedException ie) {
     			Thread.currentThread().interrupt();

@@ -15,7 +15,7 @@ public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
     private Thin_Ice thinIce;
-    private ABGamePanel astroBarrier;
+    private Astro_Barrier astroBarrier;
 
     private JPanel cards;
     private CardLayout cLayout = new CardLayout();
@@ -40,7 +40,7 @@ public class Main extends JFrame implements ActionListener {
         thinIce = new Thin_Ice(this);
         cards.add(thinIce, "thin ice");
 
-        astroBarrier = new ABGamePanel(this);
+        astroBarrier = new Astro_Barrier(this);
         cards.add(astroBarrier, "astro barrier");
 
         add(cards);
