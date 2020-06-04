@@ -15,7 +15,7 @@ public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
     private Thin_Ice thinIce;
-    private Astro_Barrier astroBarrier;
+    private ABGamePanel astroBarrier;
 
     private JPanel cards;
     private CardLayout cLayout = new CardLayout();
@@ -40,7 +40,7 @@ public class Main extends JFrame implements ActionListener {
         thinIce = new Thin_Ice(this);
         cards.add(thinIce, "thin ice");
 
-        astroBarrier = new Astro_Barrier();
+        astroBarrier = new ABGamePanel(this);
         cards.add(astroBarrier, "astro barrier");
 
         add(cards);
@@ -82,12 +82,25 @@ public class Main extends JFrame implements ActionListener {
                 thinIce.move();
                 thinIce.repaint();
             }
+            else if (astroBarrier != null && panel.equals("astro barrier")) {
+                astroBarrier.grabFocus();
+                astroBarrier.move();
+                astroBarrier.repaint();
+                astroBarrier.checkComplete();
+                astroBarrier.checkCollisions();
+            }
         }
     }
 
     public void changeGame(String game) {
         panel = game;
         cLayout.show(cards, game);
+        if (game.equals("thin ice")) {
+            thinIce.init();
+        }
+        else if (game.equals("astro barrier")) {
+            astroBarrier.init();
+        }
     }
 
     public int getGameScore() {
@@ -1154,7 +1167,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
 
                     else if (tileIsAstroBarrier(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
-
+                        mainFrame.changeGame("astro barrier");
                     }
                 }
 

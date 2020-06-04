@@ -4,50 +4,7 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-public class Astro_Barrier extends JFrame implements ActionListener {
-	private JLayeredPane layeredPane=new JLayeredPane();
-    private javax.swing.Timer myTimer;
-    ABGamePanel game; 
-
-    public Astro_Barrier() {
-        super("Astro Barrier");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1020,695);
-
-		JButton backBtn = new JButton();	
-		backBtn.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e){
-    			//BACK TO POKEMON CROSSING...
-    			setVisible(false);
-    		}
-		});
-		backBtn.setBounds(25, 16, 60, 38);
-		layeredPane.add(backBtn,0);
-		backBtn.setOpaque(false);
-
-        game = new ABGamePanel();
-        add(game);
-        myTimer = new javax.swing.Timer(10, this);
-		myTimer.start();
-		
-        setResizable(false);
-        setVisible(true);
-    }
-    
-    public void actionPerformed(ActionEvent evt){
-    	game.checkComplete();
-		game.move();
-		game.checkCollisions();
-		game.repaint();
-    }
-    
-     public static void main(String[] arguments) {
-        Astro_Barrier frame = new Astro_Barrier();
-    }
-}
-
-class ABGamePanel extends JPanel implements KeyListener{
+class ABGamePanel extends JPanel implements KeyListener {
 	private Rocket rocket;
 	private boolean [] keys;
 	private boolean restarting = false;
@@ -57,10 +14,13 @@ class ABGamePanel extends JPanel implements KeyListener{
 	private Image endScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	private Image rocketPic = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/rocketLives.png").getImage();
 	private Image restartScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
+	private Point mouse = new Point(0, 0);
+	private Main mainframe;
 	
-	public ABGamePanel(){
+	public ABGamePanel(Main m){
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		rocket = new Rocket(510, 548);
+		mainframe = m;
 		try{
             Scanner levelsFile = new Scanner(new BufferedReader(new FileReader("Assets/Minigames/Astro Barrier/Levels/allLevels.txt")));
             int numLevels = Integer.parseInt(levelsFile.nextLine());
@@ -86,6 +46,10 @@ class ABGamePanel extends JPanel implements KeyListener{
         super.addNotify();
         requestFocus();
     }
+
+    public void init() {
+		currentLevel = 1;
+	}
 	
 	public void move(){
 		rocket.moveBullet();
@@ -96,7 +60,7 @@ class ABGamePanel extends JPanel implements KeyListener{
 		if(keys[KeyEvent.VK_LEFT] ){
 			rocket.move(-2);
 		}
-		if(keys[KeyEvent.VK_SPACE] && keys[KeyEvent.VK_LEFT]==false && keys[KeyEvent.VK_RIGHT]==false){
+		if(keys[KeyEvent.VK_SPACE]){
 			if(allLevels.get(currentLevel).getNumBullets() > 0){
 				rocket.shoot();
 			}
@@ -183,11 +147,17 @@ class ABGamePanel extends JPanel implements KeyListener{
 	    public void mouseEntered(MouseEvent e) {}
 	    public void mouseExited(MouseEvent e) {}
 	    public void mouseReleased(MouseEvent e) {}
-	    public void mouseClicked(MouseEvent e){}  
+	    public void mouseClicked(MouseEvent e){
+	    	if (e.getButton() == MouseEvent.BUTTON1) {
+	    		if (new Rectangle(25, 16, 60, 38).contains(mouse)) {
+	    			mainframe.changeGame("game");
+				}
+			}
+		}
 	    public void mousePressed(MouseEvent e){
-	    	Point mouse = MouseInfo.getPointerInfo().getLocation();
+	    	Point mousePos = MouseInfo.getPointerInfo().getLocation();
 			Point offset = getLocationOnScreen();
-	    //	System.out.println((mouse.x-offset.x) + " " + (mouse.y-offset.y));
+			mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
 	    }
     }
 		
