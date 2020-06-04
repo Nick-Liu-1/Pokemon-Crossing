@@ -1154,7 +1154,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
 
                     else if (tileIsAstroBarrier(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
-
+                    	
                     }
                 }
 

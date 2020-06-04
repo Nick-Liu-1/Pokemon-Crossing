@@ -36,9 +36,7 @@ public class Astro_Barrier extends JFrame implements ActionListener {
     }
     
     public void actionPerformed(ActionEvent evt){
-    	game.checkComplete();
 		game.move();
-		game.checkCollisions();
 		game.repaint();
     }
     
@@ -52,13 +50,20 @@ class ABGamePanel extends JPanel implements KeyListener{
 	private boolean [] keys;
 	private boolean restarting = false;
 	private ArrayList<Level> allLevels = new ArrayList<Level>();
+	private int score=0;
 	private int currentLevel=0;
 	private int numLives = 3;
+	private Rectangle backRect = new Rectangle(25, 16, 60, 38);
+	
 	private Image endScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	private Image rocketPic = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/rocketLives.png").getImage();
 	private Image restartScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	
 	public ABGamePanel(){
+		setSize(1020,695);
+		addKeyListener(this);
+        addMouseListener(new clickListener());
+		
 		keys = new boolean[KeyEvent.KEY_LAST+1];
 		rocket = new Rocket(510, 548);
 		try{
@@ -74,12 +79,8 @@ class ABGamePanel extends JPanel implements KeyListener{
             }
 		}
         catch(FileNotFoundException e) {
-            System.out.println("levels file not found");
+            System.out.println("astro barrier levels file not found");
         }
-		
-        addKeyListener(this);
-        addMouseListener(new clickListener());
-		setSize(1020,695);
 	}
 	
 	public void addNotify(){
@@ -88,6 +89,8 @@ class ABGamePanel extends JPanel implements KeyListener{
     }
 	
 	public void move(){
+		checkComplete();
+		checkCollisions();
 		rocket.moveBullet();
 		allLevels.get(currentLevel).moveTargets();
 		if(keys[KeyEvent.VK_RIGHT] ){
@@ -120,6 +123,15 @@ class ABGamePanel extends JPanel implements KeyListener{
     				allLevels.get(currentLevel).removeBullet();
     				allLevels.get(currentLevel).addWall(tmp);
     				allLevels.get(currentLevel).getTargets().get(i).setIsHit(true);
+    				if (target.getSize() == 0){
+    					score += 15;
+    				}
+    				else if(target.getSize() == 1){
+    					score += 10;
+    				}
+    				else if(target.getSize() == 2){
+    					score += 250;
+    				}
     			}
     		}
     	}
@@ -169,6 +181,9 @@ class ABGamePanel extends JPanel implements KeyListener{
 		}
     }
     
+    public void endGame(){
+    }
+    
     public void keyTyped(KeyEvent e) {}
     
 	public void keyPressed(KeyEvent e) {
@@ -183,12 +198,14 @@ class ABGamePanel extends JPanel implements KeyListener{
 	    public void mouseEntered(MouseEvent e) {}
 	    public void mouseExited(MouseEvent e) {}
 	    public void mouseReleased(MouseEvent e) {}
-	    public void mouseClicked(MouseEvent e){}  
-	    public void mousePressed(MouseEvent e){
+	    public void mouseClicked(MouseEvent e){
 	    	Point mouse = MouseInfo.getPointerInfo().getLocation();
 			Point offset = getLocationOnScreen();
-	    //	System.out.println((mouse.x-offset.x) + " " + (mouse.y-offset.y));
-	    }
+	    	if (backRect.contains(mouse.x-offset.x, mouse.y-offset.y)) {
+                endGame();
+            }
+	    }  
+	    public void mousePressed(MouseEvent e){}
     }
 		
 }
