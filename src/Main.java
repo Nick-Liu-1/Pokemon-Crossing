@@ -20,7 +20,9 @@ public class Main extends JFrame implements ActionListener {
     private JPanel cards;
     private CardLayout cLayout = new CardLayout();
 
-    private String panel = "game";
+    private String panel;
+
+    private int gameScore = 0;
 
     public Main() {
         // Creating frame
@@ -36,7 +38,7 @@ public class Main extends JFrame implements ActionListener {
 
         Thin_Ice.load();
         thinIce = new Thin_Ice(this);
-        cards.add(thinIce, " thin ice");
+        cards.add(thinIce, "thin ice");
 
         astroBarrier = new Astro_Barrier();
         cards.add(astroBarrier, "astro barrier");
@@ -46,8 +48,8 @@ public class Main extends JFrame implements ActionListener {
         myTimer = new javax.swing.Timer(10, new TickListener());
 
 
-        cLayout.show(cards, "thin ice");
-        panel = "thin ice";
+        cLayout.show(cards, "game");
+        panel = "game";
 
         setResizable(false);
         setVisible(true);
@@ -81,6 +83,19 @@ public class Main extends JFrame implements ActionListener {
                 thinIce.repaint();
             }
         }
+    }
+
+    public void changeGame(String game) {
+        panel = game;
+        cLayout.show(cards, game);
+    }
+
+    public int getGameScore() {
+        return gameScore;
+    }
+
+    public void setGameScore(int n) {
+        gameScore = n;
     }
 
     public static void main(String[] args) {
@@ -181,7 +196,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadMap();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",1800, 2160, Player.FEMALE, grid, this);
+        player = new Player("NAME",1860, 4500, Player.FEMALE, grid, this);
         loadItems();
         Item.loadFoundImages();
         Player.load();
@@ -521,6 +536,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
             dialogueDelay++;
+        }
+
+        if (mainFrame.getGameScore() > 0) {
+            player.setBells(player.getBells() + mainFrame.getGameScore() / 10);
+            mainFrame.setGameScore(0);
         }
 
 
@@ -1125,6 +1145,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                     else {
                         player.setInventoryFullPromptOpen(true);
+                    }
+                }
+
+                else if (curRoom == rooms.get(new Point(24, 21))) {
+                    if (tileIsThinIce(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
+                        mainFrame.changeGame("thin ice");
+                    }
+
+                    else if (tileIsAstroBarrier(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
+
                     }
                 }
 
@@ -1745,7 +1775,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         else if (curRoom == rooms.get(new Point(24, 21))) {
+            if (tileIsThinIce(xTile, yTile)) {
+                msg = "Play Thin Ice";
+                draw = true;
+            }
 
+            else if (tileIsAstroBarrier(xTile, yTile)) {
+                msg = "Play Astro Barrier";
+                draw = true;
+            }
         }
 
         if (draw) {
@@ -2020,11 +2058,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
-    /*public boolean tileIsThinIce(int xTile, int yTile) {
-
+    public boolean tileIsThinIce(int xTile, int yTile) {
+        for (int i = 0; i < thinIceArcadeTiles.length; i++) {
+            if (xTile == thinIceArcadeTiles[i][0] && yTile == thinIceArcadeTiles[i][1]) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean tileIsAstroBarrier(int xTile, int yTile) {
-
-    }*/
+        for (int i = 0; i < astroBarrierArcadeTiles.length; i++) {
+            if (xTile == astroBarrierArcadeTiles[i][0] && yTile == astroBarrierArcadeTiles[i][1]) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
