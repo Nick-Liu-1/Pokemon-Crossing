@@ -31,15 +31,15 @@ public class Main extends JFrame implements ActionListener {
         // Cards
         cards = new JPanel(cLayout);
 
-        //game = new GamePanel(this);
-        //cards.add(game, "game");
+        game = new GamePanel(this);
+        cards.add(game, "game");
 
         Thin_Ice.load();
         thinIce = new Thin_Ice(this);
         cards.add(thinIce, " thin ice");
 
-        //astroBarrier = new Astro_Barrier();
-        //cards.add(astroBarrier, "astro barrier");
+        astroBarrier = new Astro_Barrier();
+        cards.add(astroBarrier, "astro barrier");
 
         add(cards);
 
