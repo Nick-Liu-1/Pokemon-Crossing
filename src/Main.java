@@ -15,6 +15,12 @@ public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
     private Thin_Ice thinIce;
+    private Astro_Barrier astroBarrier;
+
+    private JPanel cards;
+    private CardLayout cLayout = new CardLayout();
+
+    private String panel = "game";
 
     public Main() {
         // Creating frame
@@ -22,15 +28,26 @@ public class Main extends JFrame implements ActionListener {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1020,695);
 
+        // Cards
+        cards = new JPanel(cLayout);
 
-        game = new GamePanel(this);
-        add(game);
+        //game = new GamePanel(this);
+        //cards.add(game, "game");
 
         Thin_Ice.load();
-        //thinIce = new Thin_Ice(this);D
-        //add(thinIce);
+        thinIce = new Thin_Ice(this);
+        cards.add(thinIce, " thin ice");
+
+        //astroBarrier = new Astro_Barrier();
+        //cards.add(astroBarrier, "astro barrier");
+
+        add(cards);
 
         myTimer = new javax.swing.Timer(10, new TickListener());
+
+
+        cLayout.show(cards, "thin ice");
+        panel = "thin ice";
 
         setResizable(false);
         setVisible(true);
@@ -53,12 +70,12 @@ public class Main extends JFrame implements ActionListener {
                 Method is called every tick while the game is running. Calls the move and paint methods
                 which deal with game logic.
             */
-            if (game != null) {
+            if (game != null && panel.equals("game")) {
                 game.grabFocus();
                 game.move();
                 game.repaint();
             }
-            else if (thinIce != null) {
+            else if (thinIce != null && panel.equals("thin ice")) {
                 thinIce.grabFocus();
                 thinIce.move();
                 thinIce.repaint();
@@ -66,7 +83,7 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
         Main frame = new Main();
     }
 
@@ -132,6 +149,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public static Font finkheavy30 = null;
     public static Font finkheavy32 = null;
     public static Font finkheavy36 = null;
+
+    private int[][] thinIceArcadeTiles = {{13, 14}, {13, 11}, {21, 11}, {21, 14}};
+    private int[][] astroBarrierArcadeTiles = {{12, 14}, {12, 11}, {20, 11}, {20, 14}};
+
 
 
     public GamePanel(Main m) {
@@ -494,7 +515,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
         //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        //System.out.println(player.getxTile()+ " "+ player.getyTile());
+        System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -1723,6 +1744,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             draw = true;
         }
 
+        else if (curRoom == rooms.get(new Point(24, 21))) {
+
+        }
+
         if (draw) {
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -1994,4 +2019,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
     }
+
+    /*public boolean tileIsThinIce(int xTile, int yTile) {
+
+    }
+
+    public boolean tileIsAstroBarrier(int xTile, int yTile) {
+
+    }*/
 }

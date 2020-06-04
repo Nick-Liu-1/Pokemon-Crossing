@@ -44,11 +44,18 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
     private boolean moving;
     private boolean onTile;
+    private boolean sinking;
+
+    private int sinkingCounter;
 
     private static Font helvetica30;
 
     private Rectangle resetRect;
     private Rectangle exitRect;
+
+    private Image playerGif = Toolkit.getDefaultToolkit().createImage("Assets/Minigames/Thin Ice/puffle.gif");
+    private Image sinkingGif = Toolkit.getDefaultToolkit().createImage("Assets/Minigames/Thin Ice/puffleSinking.gif");
+
 
 
     public Thin_Ice(Main m) {
@@ -76,6 +83,11 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         goToNextLevel();
 
         helvetica30 = new Font("Helvetica", Font.PLAIN, 30);
+
+        resetRect = new Rectangle(10, 230, 110, 40);
+        exitRect = new Rectangle(10, 300, 110, 40);
+
+        sinkingCounter = 0;
     }
 
     public static void load() {
@@ -135,6 +147,15 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
         //System.out.println(playerxTile + " " + playeryTile);
         movePlayer();
+
+        if (sinking) {
+            sinkingCounter++;
+            if (sinkingCounter >= 108) {
+                sinking = false;
+                sinkingGif.flush();
+                resetLevel();
+            }
+        }
     }
 
     public void movePlayer(int dir) {
@@ -168,6 +189,17 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
         // If moving. move in the correct direction
         if (moving) {
+            if (grid[playerxTile][playeryTile] == 1 && !onTile) {
+                grid[playerxTile][playeryTile] = 4;
+                score++;
+            }
+            else if (grid[playerxTile][playeryTile] == 2) {
+                grid[playerxTile][playeryTile] = 1;
+                onTile = true;
+                score++;
+            }
+
+
             switch (direction) {
                 case (RIGHT):
                     playerX += speed;
@@ -196,18 +228,10 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
                 goToNextLevel();
             }
 
-            if (grid[playerxTile][playeryTile] == 1 && !onTile) {
+            if (playerHasNoMoreMoves() && !sinking) {
+                sinkingCounter = 0;
+                sinking = true;
                 grid[playerxTile][playeryTile] = 4;
-                score++;
-            }
-            else if (grid[playerxTile][playeryTile] == 2) {
-                grid[playerxTile][playeryTile] = 1;
-                onTile = true;
-                score++;
-            }
-
-            if (playerHasNoMoreMoves()) {
-                resetLevel();
             }
 
 
@@ -238,13 +262,6 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
-            if (grid[playerxTile][playeryTile] == 1) {
-                grid[playerxTile][playeryTile] = 4;
-            }
-            else if (grid[playerxTile][playeryTile] == 2) {
-                grid[playerxTile][playeryTile] = 1;
-            }
-
             scoreAtStartOfLevel = score;
         }
     }
@@ -260,15 +277,6 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             for (int j = 0; j < grid[0].length; j++) {
                 grid[i][j] = levelGrids[level-1][i][j];
             }
-        }
-
-        if (grid[playerxTile][playeryTile] == 1) {
-            grid[playerxTile][playeryTile] = 4;
-            score++;
-        }
-        else if (grid[playerxTile][playeryTile] == 2) {
-            grid[playerxTile][playeryTile] = 1;
-            score++;
         }
 
         score = scoreAtStartOfLevel;
@@ -361,7 +369,11 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (resetRect.contains(mouse)) {
+                resetLevel();
+            }
+        }
     }
 
     @Override
@@ -401,9 +413,22 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
                     }
                 }
             }
-            g.setColor(Color.RED);
-            g.fillRect(playerX, playerY, 40, 40);
 
+
+            g.setColor(new Color(125, 255, 233));
+            g.fillRect(resetRect.x, resetRect.y, resetRect.width, resetRect.height);
+            g.fillRect(exitRect.x, exitRect.y, exitRect.width, exitRect.height);
+
+            g.setColor(Color.BLACK);
+            g.drawRect(resetRect.x, resetRect.y, resetRect.width, resetRect.height);
+            g.drawRect(exitRect.x, exitRect.y, exitRect.width, exitRect.height);
+
+            if (!sinking) {
+                g.drawImage(playerGif, playerX - 21, playerY - 36, null);
+            }
+            else {
+                g.drawImage(sinkingGif, playerX - 12, playerY - 55, null);
+            }
 
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
@@ -417,7 +442,11 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
                 g2.drawString("Score:", (130 - fontMetrics.stringWidth("Score:")) / 2, 157);
                 g2.drawString(String.valueOf(score), (130 - fontMetrics.stringWidth(String.valueOf(score))) / 2, 190);
+
+                g2.drawString("Reset", (130 - fontMetrics.stringWidth("Reset")) / 2, 261);
+                g2.drawString("Exit", (130 - fontMetrics.stringWidth("Exit")) / 2, 331);
             }
         }
     }
 }
+
