@@ -216,7 +216,6 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        //System.out.println((playerX - offX) + " " + (playerY - offY));
 
         // Player has reached a new tile
         if ((playerX - offX) % tileSize == 0 && (playerY - offY) % tileSize == 0) {
@@ -249,7 +248,6 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             }
 
             level++;
-            System.out.println(level);
             playerxTile = levelStarts.get(level - 1).x;
             playeryTile = levelStarts.get(level - 1).y;
 
@@ -263,6 +261,12 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             }
 
             scoreAtStartOfLevel = score;
+        }
+        else {
+            if (allCleared()) {
+                score += level * 10;
+            }
+            endGame();
         }
     }
 
@@ -348,6 +352,11 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         return true;
     }
 
+    public void endGame() {
+        mainFrame.changeGame("game");
+        mainFrame.setGameScore(score);
+    }
+
     @Override
     public void keyTyped(KeyEvent e) {
 
@@ -372,6 +381,9 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (resetRect.contains(mouse)) {
                 resetLevel();
+            }
+            if (exitRect.contains(mouse)) {
+                endGame();
             }
         }
     }
