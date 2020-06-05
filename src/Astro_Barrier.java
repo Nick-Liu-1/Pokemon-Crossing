@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.applet.*;
 
 class Astro_Barrier extends JPanel implements KeyListener {
 	private Rocket rocket;
@@ -14,9 +15,12 @@ class Astro_Barrier extends JPanel implements KeyListener {
 	
 	private Image endScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
 	private Image rocketPic = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/rocketLives.png").getImage();
-	private Image restartScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/endScreen.png").getImage();
+	private Image restartScreen = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/restartScreen.png").getImage();
 	private Point mouse = new Point(0, 0);
 	private Main mainframe;
+	
+	private File pewWav = new File("Assets/Sounds/Pew.wav");	//for when the rocket shoots
+	private AudioClip pewSFX;
 	
 	public Astro_Barrier(Main m){
 		mainframe = m;
@@ -33,6 +37,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
 		numLives=3;
 		score=0;
 		
+		//getting level info
 		try{
             Scanner levelsFile = new Scanner(new BufferedReader(new FileReader("Assets/Minigames/Astro Barrier/Levels/allLevels.txt")));
             int numLevels = Integer.parseInt(levelsFile.nextLine());
@@ -40,6 +45,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
             for (int i = 0 ; i < numLevels; i++) {
                 line = levelsFile.nextLine().split(" ");
                 allLevels.add(new Level(i+1, new ImageIcon("Assets/Minigames/Astro Barrier/Levels/"+line[0]).getImage(), Integer.parseInt(line[1]), Integer.parseInt(line[2]), Integer.parseInt(line[3])));
+                //adding walls to each level:
                 for (int j=0; j<(Integer.parseInt(line[3]))*4; j+=4){
             		allLevels.get(allLevels.size()-1).addWall(new Rectangle(Integer.parseInt(line[3+j+1]), Integer.parseInt(line[3+j+2]), Integer.parseInt(line[3+j+3]), Integer.parseInt(line[3+j+4])));
             	}
@@ -48,6 +54,13 @@ class Astro_Barrier extends JPanel implements KeyListener {
         catch(FileNotFoundException e) {
             System.out.println("levels file not found");
         }
+        
+        try{
+			pewSFX = Applet.newAudioClip(pewWav.toURL());
+		}
+		catch(Exception e){
+			System.out.println("Can't find sound");
+		}
 	}
 	
 	public void addNotify(){
@@ -66,6 +79,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
 		}
 		if(keys[KeyEvent.VK_SPACE]){
 			if(allLevels.get(currentLevel).getNumBullets() > 0){
+				pewSFX.play();
 				rocket.shoot();
 			}
 		}
@@ -75,19 +89,22 @@ class Astro_Barrier extends JPanel implements KeyListener {
     	if(rocket.getIsShooting()){
     		Rectangle bullet = new Rectangle(rocket.getBulletX(), rocket.getBulletY(), 1, 1);
     		for(int i=0; i<allLevels.get(currentLevel).getWalls().size(); i++){
-    			if (bullet.intersects(allLevels.get(currentLevel).getWalls().get(i))){
-    				rocket.setIsShooting(false);
-    				allLevels.get(currentLevel).removeBullet();
+    			if (bullet.intersects(allLevels.get(currentLevel).getWalls().get(i))){	
+    				rocket.setIsShooting(false);					//if a bullet collides with a wall, stops bullet
+    				allLevels.get(currentLevel).removeBullet();		
     			}
     		}
+    		
+    		//checking bullet collions with targets:
     		for(int i=0; i<allLevels.get(currentLevel).getTargets().size(); i++){
     			Target target = allLevels.get(currentLevel).getTargets().get(i);
     			Rectangle tmp = new Rectangle(target.getX()-(target.getLength()/2), target.getY()-(target.getWidth()/2), target.getLength(), target.getWidth());
     			if (bullet.intersects(tmp) && target.getIsHit()==false){
     				rocket.setIsShooting(false);
     				allLevels.get(currentLevel).removeBullet();
-    				allLevels.get(currentLevel).addWall(tmp);
+    				allLevels.get(currentLevel).addWall(tmp);	//once target is hit it becomes a wall, must be added to array of walls for the level
     				allLevels.get(currentLevel).getTargets().get(i).setIsHit(true);
+    				//number of points depends on size of target:
     				if(target.getSize()==0){
     					score += 15;
     				}
@@ -103,12 +120,13 @@ class Astro_Barrier extends JPanel implements KeyListener {
     }
     
     public void checkComplete(){
-		if(allLevels.get(currentLevel).getComplete() && currentLevel<(allLevels.size()-1)){
+		if(allLevels.get(currentLevel).getComplete() && currentLevel<(allLevels.size()-1)){	//moves on if level is complete
 			currentLevel++;
 		}
-		if(allLevels.get(currentLevel).getNumBullets() <= 0){
+		if(allLevels.get(currentLevel).getNumBullets() <= 0){	//lose life when out of bullets
 			numLives--;
 		}
+		//restarting game:
 		if(numLives<=0){
 			for(int i=0; i<allLevels.size(); i++){
 				score -= allLevels.get(i).restart();
@@ -118,8 +136,9 @@ class Astro_Barrier extends JPanel implements KeyListener {
 			score=0;
 			restarting=true;
 		}
+		//restarting level:
 		else if (allLevels.get(currentLevel).getNumBullets() <= 0 && numLives>0){
-			score -= allLevels.get(currentLevel).restart();
+			score -= allLevels.get(currentLevel).restart();	//subtracts points gained from failed level
 		}
 	}
 	
@@ -148,6 +167,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
 		g.setColor(new Color(255, 255, 255)); 
 		g.setFont(font);
 		g.drawString("Score: " + score, 750, 45);
+		g.drawString("Level " + (currentLevel+1), 200, 45);
     }
     
     public void keyTyped(KeyEvent e) {}
@@ -197,11 +217,11 @@ class Level{
     	this.background = background;
         this.numTargets = numTargets;
         this.numBullets = numBullets;
-        totBullets = numBullets;
+        totBullets = numBullets;	//used to reset level
         this.numWalls = numWalls;
         bullet = new ImageIcon("Assets/Minigames/Astro Barrier/Sprites/bullet.png").getImage();
         
-        
+        //ADDING TARGETS:
         try{
             Scanner levelFile = new Scanner(new BufferedReader(new FileReader("Assets/Minigames/Astro Barrier/Levels/Level"+levelNum+".txt")));
             String[] line;
@@ -230,20 +250,20 @@ class Level{
     }
     
     public void moveTargets(){
-    	int count=0;
+    	int count=0;	//coutns number of hit targets in the level
     	for(int i=0; i<numTargets; i++){
     		if(targets.get(i).getIsHit()){
     			count++;
     		}
     		targets.get(i).move();
     	}
-    	if(count==numTargets){
+    	if(count==numTargets){	//level complete when all targets are hit
     		complete=true;
     	}
     }
     
     public int restart(){
-    	int scoreChange = 0;
+    	int scoreChange = 0;	//subtracted from total score when level is failed
     	for(int i=0; i<numTargets; i++){
     		if(targets.get(i).getIsHit()){
     			if(targets.get(i).getSize() == 0){
@@ -258,8 +278,8 @@ class Level{
     		}
     		targets.get(i).restart();
     	}
-    	while(walls.size()>numWalls){
-    		walls.remove(walls.size()-1);
+    	while(walls.size()>numWalls){		//removes all the hit targets from the arraylist of walls that were added later
+    		walls.remove(walls.size()-1);	//leaves only the orginal number of walls
     	}
     	numBullets = totBullets;
     	complete=false;
@@ -270,7 +290,7 @@ class Level{
     	g.drawImage(background, 0, 0, null);
     	if(complete){
     		try {
- 		    	Thread.sleep(1000);
+ 		    	Thread.sleep(1000);	//slows down transitions
 			} 
 			catch (InterruptedException ie) {
     			Thread.currentThread().interrupt();
@@ -317,7 +337,7 @@ class Rocket{
     public void shoot(){
     	if(isShooting==false){
     		isShooting=true;
-    		bulletX=x;
+    		bulletX=x;	//starts bullet at same pos as rocket
     		bulletY=y;
     	}
     }
@@ -337,7 +357,7 @@ class Rocket{
 
 class Target{
 	private int x, y, size, length, width, startx, starty;
-	private ArrayList<Point> pos = new ArrayList<Point>();
+	private ArrayList<Point> pos = new ArrayList<Point>();		//list of all turning points for the target
 	private int nextPos;
     private Image targetPic, targetPicHit;
     private boolean isHit =false;
@@ -388,11 +408,11 @@ class Target{
     
     public void move(){
     	if(isHit == false){			
-			if(nextPos<0){
+			if(nextPos<0){	//once target reaches first position it turns around
 	    		dir = FORWARD;
 	    		nextPos = 1;    		
 	    	}
-	    	else if(nextPos>=pos.size()){
+	    	else if(nextPos>=pos.size()){	//once target reaches last position, turns around again
 	    		dir = BACKWARD;    
 	    		nextPos = pos.size()-2;
 	    	}
@@ -402,7 +422,7 @@ class Target{
 	    	x -= pos.get(nextPos).getX() < x ? speed:0;
 	    	y -= pos.get(nextPos).getY() < y ? speed:0;
 	    	
-	    	if(Math.abs(pos.get(nextPos).getX()-x)<=speed && Math.abs(pos.get(nextPos).getY()-y)<=speed){
+	    	if(Math.abs(pos.get(nextPos).getX()-x)<=speed && Math.abs(pos.get(nextPos).getY()-y)<=speed){	//once the "next position" is reached, moves target on to next position in arraylist
 	    		nextPos += dir;
 	    	}
     	}

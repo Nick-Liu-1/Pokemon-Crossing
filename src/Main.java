@@ -10,6 +10,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.applet.*;
 
 public class Main extends JFrame implements ActionListener {
     private javax.swing.Timer myTimer;  // Game Timer
@@ -181,8 +182,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] thinIceArcadeTiles = {{13, 14}, {13, 11}, {21, 11}, {21, 14}};
     private int[][] astroBarrierArcadeTiles = {{12, 14}, {12, 11}, {20, 11}, {20, 14}};
 
-
-
+	private File diggingWav = new File("Assets/Sounds/Digging.wav");
+	private AudioClip diggingSFX;
+	private File fishingWav = new File("Assets/Sounds/Fishing.wav");
+	private AudioClip fishingSFX;
+	private File animaleseWav = new File("Assets/Sounds/Animalese.wav");
+	private AudioClip animaleseSFX;
+	private MP3 music = new MP3("Assets/Sounds/Background Music.mp3");
+	
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
 
@@ -195,7 +202,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         addMouseListener(this);
         GamePanel.loadFonts();
         init();
-
     }
 
     // Requests focus of game panel
@@ -207,6 +213,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void init() {
         loadMap();
+        loadSounds();
         curRoom = outside;
         grid = curRoom.getGrid();
         player = new Player("NAME",1860, 4500, Player.FEMALE, grid, this);
@@ -248,8 +255,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         grid[68][48] = 6;
-
+        
+        music.play();
+        
     }
+ 	
+ 	public void loadSounds(){
+ 		try{
+			diggingSFX = Applet.newAudioClip(diggingWav.toURL());
+			fishingSFX = Applet.newAudioClip(fishingWav.toURL());
+			animaleseSFX = Applet.newAudioClip(animaleseWav.toURL());
+		}
+		catch(Exception e){
+			System.out.println("Can't find sound");
+		}
+ 	}
 
     public static void loadFonts() {
         try {
@@ -972,6 +992,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(npc.getId());
                     if (!npc.isMoving()) {
+                    	animaleseSFX.play();
                         npc.setTalking(true);
                         npc.setSpeechStage(NPC.GREETING);
                     }
@@ -1001,6 +1022,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
                 if (curRoom == tom_nook.getRoom() && (xTile == tom_nook.getxTile() && (yTile == tom_nook.getyTile() || yTile == tom_nook.getyTile() + 1))) {
+                	animaleseSFX.play();
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.TOM_NOOK);
@@ -1009,6 +1031,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 else if (curRoom == boat_operator.getRoom() && (xTile == boat_operator.getxTile()) && (yTile == boat_operator.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
+                    animaleseSFX.play();
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR);
@@ -1017,6 +1040,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 else if (curRoom == boat_operator_on_island.getRoom() && (xTile == boat_operator_on_island.getxTile()) && (yTile == boat_operator_on_island.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
+                    animaleseSFX.play();
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.BOAT_OPERATOR_ON_ISLAND);
@@ -1025,6 +1049,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 else if (curRoom == celeste.getRoom() && (xTile == celeste.getxTile()) && (yTile == celeste.getyTile())) {
+                	animaleseSFX.play();
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.CELESTE);
@@ -1033,6 +1058,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 else if (curRoom == isabelle.getRoom() && (xTile == isabelle.getxTile()) && (yTile == isabelle.getyTile())) {
+                	animaleseSFX.play();
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(Player.ISABELLE);
@@ -1103,6 +1129,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     if (player.inventoryHasSpace()) {
                         player.setActionProgressOpen(true);
                         player.setAction(Player.DIGGING);
+                        diggingSFX.play();
 
                         if (diggableTiles[xTile][yTile] == 1) {
                             diggableTiles[xTile][yTile] = 0;
@@ -1155,6 +1182,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         player.setAction(Player.FISHING);
                         player.setActionMessage("Casting line");
                         player.setFishing(true);
+                        fishingSFX.play();
                     }
                     else {
                         player.setInventoryFullPromptOpen(true);
