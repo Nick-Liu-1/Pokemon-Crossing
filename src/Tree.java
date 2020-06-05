@@ -103,4 +103,12 @@ public class Tree {
             numFruit--;
         }
     }
+
+    public int getxTile() {
+        return xTile;
+    }
+
+    public int getyTile() {
+        return yTile;
+    }
 }

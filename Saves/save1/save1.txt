@@ -1,6 +1,9 @@
-Nicky
-0
-0
+NAME
+1
+69420
+1
+6
+7
 null
 null
 null
@@ -8,22 +11,17 @@ null
 null
 null
 null
+139
+5
 null
+143
+144
 null
-null
-null
-null
-null
-null
-null
-null
-null
-null
+128
+125
 null
 orange
 yellow
-
-
-
-
-
+12 14 16 17 18 19 20 21 25 27 29 33 34 35 36
+76 80 70 83 46 86 88 48 94 53 99 101 104 69
+Ankylo Tail,Apato Torso,Archelon Skull,Dimetrodon Skull,Diplo Hip,Diplo Tail,Fern Fossil,Megacero Tail,Pachy Skull,Pachy Torso,Raptor Torso,Spino Skull,Spino Tail,Stego Tail,Styraco Tail,Tricera Tail

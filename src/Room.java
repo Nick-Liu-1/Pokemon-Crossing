@@ -11,10 +11,11 @@ public class Room {
     private final int exitY;
     private final int exitX2;
     private final int exitY2;
+    private String name;
 
     private Hashtable<Point, DroppedItem> droppedItems = new Hashtable<>();
 
-    public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2) {
+    public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2, String name) {
         this.grid = grid;
         this.originalGrid = grid;
         this.image = image;
@@ -24,6 +25,7 @@ public class Room {
         this.exitY = exitY;
         this.exitX2 = exitX2;
         this.exitY2 = exitY2;
+        this.name = name;
     }
 
     public Image getImage() {
@@ -44,6 +46,14 @@ public class Room {
 
     public int getExitY() {
         return exitY;
+    }
+
+    public int getExitX2() {
+        return exitX2;
+    }
+
+    public int getExitY2() {
+        return exitY2;
     }
 
     public int[][] getGrid() {
@@ -68,5 +78,9 @@ public class Room {
 
     public void addDroppedItem(DroppedItem item) {
         droppedItems.put(new Point(item.getxTile(), item.getyTile()), item);
+    }
+
+    public String getName() {
+        return name;
     }
 }

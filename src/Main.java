@@ -115,6 +115,10 @@ public class Main extends JFrame implements ActionListener {
     public void setGameScore(int n) {
         gameScore = n;
     }
+
+    public int getNum() {
+        return num;
+    }
 }
 
 class GamePanel extends JPanel implements KeyListener, MouseListener {
@@ -182,6 +186,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] thinIceArcadeTiles = {{13, 14}, {13, 11}, {21, 11}, {21, 14}};
     private int[][] astroBarrierArcadeTiles = {{12, 14}, {12, 11}, {20, 11}, {20, 14}};
 
+    private boolean exitMenuOpen = false;
+    private boolean saveCompletePromptOpen = false;
+
 	private File diggingWav = new File("Assets/Sounds/Digging.wav");
 	private AudioClip diggingSFX;
 	private File fishingWav = new File("Assets/Sounds/Fishing.wav");
@@ -216,7 +223,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadSounds();
         curRoom = outside;
         grid = curRoom.getGrid();
-        player = new Player("NAME",1860, 4500, Player.FEMALE, grid, this);
+
         loadItems();
         Item.loadFoundImages();
         Player.load();
@@ -258,6 +265,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         
         //music.play();
         
+    }
+
+    public void loadMainStuff() {
+        player = new Player("NAME",1860, 4500, Player.FEMALE, grid, this);
+
+        try {
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
+
+
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("error loading save");
+        }
     }
  	
  	public void loadSounds(){
@@ -315,7 +335,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         // Reading from the map grid
         try{
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/map.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
                 for (int j = 0; j < 94; j++) {
@@ -327,13 +347,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             System.out.println("error loading main map");
         }
         // Creating the outside room
-        outside = new Room(mapGrid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0, 0 ,0, 0, 0);
+        outside = new Room(mapGrid, new ImageIcon("Assets/Map/PC Map.png").getImage(), 0, 0, 0 ,0, 0, 0, "PC Map");
 
         int[][] minigameIslandMapGrid = new int[49][46];
 
         // Reading from the map grid
         try{
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island map.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/minigame island map.txt")));
             for (int i = 0; i < 46; i++) {
                 String[] s = stdin.nextLine().split(" ");
                 for (int j = 0; j < 49; j++) {
@@ -345,11 +365,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             System.out.println("error loading minigame island map");
         }
 
-        minigameIsland = new Room(minigameIslandMapGrid, new ImageIcon("Assets/Map/Minigame Island.png").getImage(), 31, 75, 23, 36,0, 0);
+        minigameIsland = new Room(minigameIslandMapGrid, new ImageIcon("Assets/Map/Minigame Island.png").getImage(), 31, 75, 23, 36,0, 0, "Minigame Island");
         rooms.put(new Point(31, 75), minigameIsland);
 
         try {
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/outside diggable tiles.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/outside diggable tiles.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
                 for (int j = 0; j < 94; j++) {
@@ -376,7 +396,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
         try {
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island diggable tiles.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/minigame island diggable tiles.txt")));
             for (int i = 0; i < 46; i++) {
                 String[] s = stdin.nextLine().split(" ");
                 for (int j = 0; j < 49; j++) {
@@ -402,7 +422,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         // Reading from the room file
         try{
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Rooms/rooms.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/Rooms.txt")));
             int n = Integer.parseInt(stdin.nextLine());
             for (int i = 0; i < n; i++) {
                 String file = stdin.nextLine();
@@ -430,7 +450,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 stdin.nextLine();
 
-                rooms.put(new Point(entryX, entryY), new Room(grid, new ImageIcon("Assets/Rooms/"+file).getImage(), entryX, entryY, exitX, exitY, exitX2, exitY2));
+                rooms.put(new Point(entryX, entryY), new Room(grid, new ImageIcon("Assets/Rooms/"+file).getImage(), entryX, entryY, exitX, exitY, exitX2, exitY2, file.substring(0, file.length()-4)));
             }
         }
         catch (FileNotFoundException e) {
@@ -438,7 +458,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         try {
-            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/trees.txt")));
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/trees.txt")));
             int n = Integer.parseInt(stdin.nextLine());
             for (int i = 0; i < n; i++) {
                 String[] line = stdin.nextLine().split(" ");
@@ -580,7 +600,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
         // Move player in different directions if WASD is pressed and the inventory is not open
-        if (!player.isInventoryOpen() && !fadingToBlack && !player.isActionProgressOpen() && !player.isItemFoundPrompt()) {
+        if (!player.isInventoryOpen() && !fadingToBlack && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !exitMenuOpen) {
             if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
                 player.move(Player.RIGHT, keys, grid);
             }
@@ -737,9 +757,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
-        if (keys[KeyEvent.VK_ESCAPE]) {
+        if (keys[KeyEvent.VK_Q]) {
             player.setPlacingFurniture(false);
-            if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt()) {
+            if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !exitMenuOpen) {
                 if (!player.isInventoryOpen()) {
                     player.setEscapeQueued(true);
                 }
@@ -753,7 +773,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             else if (player.isShopOpen()) {
                 player.setShopOpen(false);
             }
+        }
 
+        if (keys[KeyEvent.VK_ESCAPE]) {
+            exitMenuOpen = !exitMenuOpen;
         }
 
         player.setRightClickMenuOpen(false);
@@ -980,6 +1003,27 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setPlacingFurniture(false);
                 }
             }
+
+            else if (exitMenuOpen) {
+                if (new Rectangle(250, 80, 520, 80).contains(mouse)) {
+                    save(mainFrame.getNum());
+                    saveCompletePromptOpen = true;
+                }
+
+                else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {
+                    save(mainFrame.getNum());
+                    StartMenu menu = new StartMenu();
+                }
+
+                else if (new Rectangle(250, 80 + 118*2, 520, 80).contains(mouse)) {
+                    save(mainFrame.getNum());
+                    System.exit(0);
+                }
+
+                else if (new Rectangle(250, 80 + 118*3, 520, 80).contains(mouse)) {
+                    exitMenuOpen = false;
+                }
+            }
         }
 
         player.setRightClickMenuOpen(false);
@@ -991,7 +1035,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     player.setRightClickMenuOpen(true);
                 }
             }
-            else if (!player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() &&!player.isMoving()) {
+            else if (!player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() &&!player.isMoving() && !exitMenuOpen) {
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
@@ -1420,7 +1464,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
 
-                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy32);
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 g2.setFont(GamePanel.finkheavy32);
                 g2.setColor(new Color(0, 0, 0));
@@ -1448,12 +1492,38 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         drawTalkingToTomNook(g);
         drawTalkingToCeleste(g);
 
-        if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !player.isInventoryFullPromptOpen()) {
+        if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !player.isInventoryFullPromptOpen() && !exitMenuOpen) {
             drawHoverText(g);
         }
 
         if (player.isPlacingFurniture()) {
             drawPlacingFurniture(g);
+        }
+
+        if (exitMenuOpen) {
+            g.setColor(new Color(251, 255, 164));
+            g.fillRect(200, 50, 620, 500);
+
+            for (int i = 0 ; i < 4; i++) {
+                g.setColor(Color.WHITE);
+                g.fillRect(250, 80 + 118 * i, 520, 80);
+                g.setColor(Color.BLACK);
+                g.drawRect(250, 80 + 118 * i, 520, 80);
+            }
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy32);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy32);
+                g2.setColor(new Color(0, 0, 0));
+
+                g2.drawString("Save and continue", 250 + (520 - fontMetrics.stringWidth("Save and continue")) / 2, 130);
+                g2.drawString("Save and return to menu", 250 + (520 - fontMetrics.stringWidth("Save and return to menu")) / 2, 248);
+                g2.drawString("Save and exit to desktop", 250 + (520 - fontMetrics.stringWidth("Save and exit to desktop")) / 2, 366);
+                g2.drawString("Return to game", 250 + (520 - fontMetrics.stringWidth("Return to game")) / 2, 484);
+            }
         }
     }
 
@@ -2055,7 +2125,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
-            Furniture display = new Furniture(xTile, yTile, length, width, item.getId(), Furniture.furnitureImages.get(item.getName()));
+            Furniture display = new Furniture(xTile, yTile, length, width, item.getId());
             display.draw(g, player.getX(), player.getY());
         }
     }
@@ -2125,7 +2195,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     public void placeFurniture(int xTile, int yTile, int length, int width, Item item) {
-        player.getFurniture().add(new Furniture(xTile, yTile, length, width, item.getId(), Furniture.furnitureImages.get(item.getName())));
+        player.getFurniture().add(new Furniture(xTile, yTile, length, width, item.getId()));
 
         player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()] = null;
 
@@ -2156,7 +2226,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     public void save(int num) {
         PrintWriter outFile;
-        try {
+        try {  // Main stuff
             outFile = new PrintWriter(
                 new BufferedWriter(new FileWriter("Saves/save" + num + "/save" + num + ".txt")));
 
@@ -2209,13 +2279,148 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             line = line.substring(0, line.length()-1);
             outFile.println(line);
 
+
+            line = "";
+            for (Furniture furniture : player.getFurniture()) {
+                //line += furniture.getId() + "," + furniture.ge
+            }
+
             outFile.close();
 
         }
         catch (IOException e) {
             System.out.println("saving error");
+            e.printStackTrace();
         }
 
+        try {  // Trees
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/trees.txt")));
+
+            outFile.println(29);
+            for (Tree tree : trees) {
+                if (tree.getRoom() == outside) {
+                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getFruit() + " " + tree.getNumFruit());
+                }
+            }
+
+            outFile.println(8);
+            for (Tree tree : trees) {
+                if (tree.getRoom() == minigameIsland) {
+                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getFruit() + " " + tree.getNumFruit());
+                }
+            }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("error saving trees");
+        }
+
+
+        try {  // Main map
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/map.txt")));
+
+            for (int i = 0; i < outside.getGrid()[0].length; i++) {
+                String line = "";
+                for (int j = 0; j < outside.getGrid().length; j++) {
+                    line += outside.getGrid()[j][i] + " ";
+                }
+                line = line.substring(0, line.length() - 1);
+                outFile.println(line);
+            }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("creating new file error");
+        }
+
+        try {  // Minigame island
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island map.txt")));
+
+            for (int i = 0; i < minigameIsland.getGrid()[0].length; i++) {
+                String line = "";
+                for (int j = 0; j < minigameIsland.getGrid().length; j++) {
+                    line += minigameIsland.getGrid()[j][i] + " ";
+                }
+                line = line.substring(0, line.length() - 1);
+                outFile.println(line);
+            }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("creating new file error");
+        }
+
+        try { // Rooms
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/rooms.txt")));
+
+            ArrayList<Room> temp = new ArrayList<>(rooms.values());
+
+            outFile.println(temp.size());
+
+            for (Room room : temp) {
+                outFile.println(room.getName());
+                outFile.println(room.getEntryX() + " " + room.getEntryY() + " " + room.getExitX() + " " + room.getExitY() + " " + room.getExitX2() + " " + room.getExitY2());
+                for (int i = 0; i < room.getGrid()[0].length; i++) {
+                    String line = "";
+                    for (int j = 0; j < room.getGrid().length; j++) {
+                        line += room.getGrid()[j][i] + " ";
+                    }
+                    line = line.substring(0, line.length() - 1);
+                    outFile.println(line);
+                }
+             }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("creating new file error");
+        }
+
+
+        try {  // Main map diggable
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/outside diggable tilese.txt")));
+
+            for (int i = 0; i < diggableTiles.length; i++) {
+                String line = "";
+                for (int j = 0; j < diggableTiles.length; j++) {
+                    line += diggableTiles[j][i] + " ";
+                }
+                line = line.substring(0, line.length() - 1);
+                outFile.println(line);
+            }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("creating new file error");
+        }
+
+        try {  // Minigame island diggable
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island diggable tiles.txt")));
+
+            for (int i = 0; i < minigameIslandDiggable[0].length; i++) {
+                String line = "";
+                for (int j = 0; j < minigameIslandDiggable.length; j++) {
+                    line += minigameIslandDiggable[j][i] + " ";
+                }
+                line = line.substring(0, line.length() - 1);
+                outFile.println(line);
+            }
+
+            outFile.close();
+        }
+        catch (IOException e) {
+            System.out.println("creating new file error");
+        }
 
     }
 }

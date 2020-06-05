@@ -26,13 +26,13 @@ public class Furniture {
     public static final Hashtable<String, Image> furnitureImages = new Hashtable<>();
     public static final Hashtable<String, Pair<Integer, Integer>> furnitureSizes = new Hashtable<>();
 
-    public Furniture(int xTile, int yTile, int length, int width, int id, Image image) {
+    public Furniture(int xTile, int yTile, int length, int width, int id) {
         this.xTile = xTile;
         this.yTile = yTile;
-        this.image = image;
         this.length = length;
         this.width = width;
         this.id = id;
+        image = furnitureImages.get(GamePanel.getItems().get(id).getName());
     }
 
     public static void loadImages() {

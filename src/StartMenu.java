@@ -7,7 +7,7 @@ import java.util.*;
 
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
-	private int num = 0;
+	private int num = 1;
 
     public StartMenu() {
 		super("Pokemon Crossing");
@@ -70,7 +70,7 @@ public class StartMenu extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
-		createNewFile(1, "Nicky", 0);
+		//createNewFile(1, "Nicky", 0);
     }
 
     public void createNewFile(int num, String name, int gender) {
@@ -188,6 +188,48 @@ public class StartMenu extends JFrame{
 			}
 			catch (FileNotFoundException e) {
 				System.out.println("error loading rooms");
+			}
+
+			outFile.close();
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/outside diggable tiles.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/outside diggable tiles.txt")));
+
+				for (int i = 0; i < 85; i++) {
+					outFile.println(stdin.nextLine());
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading diggable tiles");
+			}
+
+			outFile.close();
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island diggable tiles.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island diggable tiles.txt")));
+
+				for (int i = 0; i < 46; i++) {
+					outFile.println(stdin.nextLine());
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading diggable tiles");
 			}
 
 			outFile.close();
