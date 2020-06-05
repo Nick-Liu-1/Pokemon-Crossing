@@ -70,7 +70,6 @@ public class StartMenu extends JFrame{
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
 
-		//createNewFile(1, "Nicky", 0);
     }
 
     public void createNewFile(int num, String name, int gender) {
@@ -93,13 +92,12 @@ public class StartMenu extends JFrame{
 			outFile.println(); // museum fossils
 
 			outFile.println(); // placed furniture
-			outFile.println(); // dropped items
 
 			outFile.close();
 
 		}
     	catch (IOException e) {
-    		System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 		try {
@@ -125,11 +123,11 @@ public class StartMenu extends JFrame{
 				outFile.close();
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading trees");
+				e.printStackTrace();
 			}
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 
@@ -147,11 +145,11 @@ public class StartMenu extends JFrame{
 				outFile.close();
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading map");
+				e.printStackTrace();
 			}
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 		try {
@@ -168,11 +166,11 @@ public class StartMenu extends JFrame{
 				outFile.close();
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading map");
+				e.printStackTrace();
 			}
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 		try {
@@ -187,13 +185,13 @@ public class StartMenu extends JFrame{
 				}
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading rooms");
+				e.printStackTrace();
 			}
 
 			outFile.close();
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 		try {
@@ -208,13 +206,13 @@ public class StartMenu extends JFrame{
 				}
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading diggable tiles");
+				e.printStackTrace();
 			}
 
 			outFile.close();
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 		try {
@@ -229,13 +227,13 @@ public class StartMenu extends JFrame{
 				}
 			}
 			catch (FileNotFoundException e) {
-				System.out.println("error loading diggable tiles");
+				e.printStackTrace();
 			}
 
 			outFile.close();
 		}
 		catch (IOException e) {
-			System.out.println("creating new file error");
+			e.printStackTrace();
 		}
 
 	}

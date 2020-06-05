@@ -1159,6 +1159,10 @@ public class Player {
         items[selectedItemR][selectedItemC] = temp;
     }
 
+    public void equipItem(Item item) {
+       equippedItem = item;
+    }
+
     public void unequipItem() {
         if (inventoryHasSpace()) {
             addItem(equippedItem);

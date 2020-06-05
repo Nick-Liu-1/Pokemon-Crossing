@@ -88,7 +88,7 @@ public class Furniture {
             }
         }
         catch (FileNotFoundException e) {
-            System.out.println("error loading furniture sizes");
+            e.printStackTrace();
         }
     }
 
