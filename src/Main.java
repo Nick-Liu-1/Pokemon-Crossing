@@ -13,6 +13,8 @@ import java.util.*;
 import java.applet.*;
 
 public class Main extends JFrame implements ActionListener {
+    private int num;
+
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
     private Thin_Ice thinIce;
@@ -25,11 +27,13 @@ public class Main extends JFrame implements ActionListener {
 
     private int gameScore = 0;
 
-    public Main() {
+    public Main(int num) {
         // Creating frame
         super("Pokemon Crossing");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1020,695);
+
+        this.num = num;
 
         // Cards
         cards = new JPanel(cLayout);
@@ -111,11 +115,6 @@ public class Main extends JFrame implements ActionListener {
     public void setGameScore(int n) {
         gameScore = n;
     }
-
-    public static void main(String[] args) {
-        Main frame = new Main();
-    }
-
 }
 
 class GamePanel extends JPanel implements KeyListener, MouseListener {
@@ -172,6 +171,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private double selectionAngle = 0;
     private int selected = -1;
+    private int gameScore = 0;
 
     private int dialogueDelay = 0;
     public static Font finkheavy15 = null;
@@ -188,7 +188,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 	private AudioClip fishingSFX;
 	private File animaleseWav = new File("Assets/Sounds/Animalese.wav");
 	private AudioClip animaleseSFX;
-	private MP3 music = new MP3("Assets/Sounds/Background Music.mp3");
+	//private MP3 music = new MP3("Assets/Sounds/Background Music.mp3");
 	
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
@@ -256,7 +256,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         grid[68][48] = 6;
         
-        music.play();
+        //music.play();
         
     }
  	
@@ -563,7 +563,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
         //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        System.out.println(player.getxTile()+ " "+ player.getyTile());
+        //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
 
@@ -573,7 +573,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (mainFrame.getGameScore() > 0) {
             player.setBells(player.getBells() + mainFrame.getGameScore() / 10);
+            gameScore = mainFrame.getGameScore();
             mainFrame.setGameScore(0);
+            player.setEarnedBellsPromptOpen(true);
         }
 
 
@@ -954,6 +956,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 Rectangle okRect = new Rectangle(440, 500, 140, 40);
                 if (okRect.contains(mouse)) {
                     player.setInventoryFullPromptOpen(false);
+                }
+            }
+
+            else if (player.isEarnedBellsPromptOpen()) {
+                Rectangle okRect = new Rectangle(440, 500, 140, 40);
+                if (okRect.contains(mouse)) {
+                    player.setEarnedBellsPromptOpen(false);
+                    gameScore = 0;
                 }
             }
 
@@ -1402,6 +1412,33 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         player.draw(g);
+
+        if (player.isEarnedBellsPromptOpen()) {
+            g.setColor(new Color(251, 255, 164));
+            g.fillRect(200, 50, 620, 500);
+
+            if (g instanceof Graphics2D) {
+                Graphics2D g2 = (Graphics2D) g;
+
+                FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setFont(GamePanel.finkheavy32);
+                g2.setColor(new Color(0, 0, 0));
+
+                g.setColor(Color.WHITE);
+                g.fillRect(440, 500, 140, 40);
+
+                g.setColor(Color.BLACK);
+                g.drawRect(440, 500, 140, 40);
+
+                int width = fontMetrics.stringWidth("You earned " + gameScore/10 + " bells!");
+                g2.drawString("You earned " + gameScore/10 + " bells!", 200 + (620 - width) / 2, 100);
+
+                width = fontMetrics.stringWidth("Ok");
+                g2.drawString("Ok", 200 + (620 - width) / 2, 532);
+
+            }
+        }
 
         if (fadingToBlack) {
             fadingToBlack(player.isGoingToNewRoom(), g);
@@ -2115,5 +2152,70 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
         return false;
+    }
+
+    public void save(int num) {
+        PrintWriter outFile;
+        try {
+            outFile = new PrintWriter(
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/save" + num + ".txt")));
+
+            outFile.println(player.getName()); // name
+            outFile.println(player.getGender()); // gender
+            outFile.println(player.getBells()); // bells
+
+            String line = "";
+
+            for (int i = 0; i < 6; i++) {  // items
+                for (int j = 0; j < 3; j++) {
+                    if (player.getItems()[i][j] == null) {
+                        outFile.println("null");
+                    }
+                    else {
+                        outFile.println(player.getItems()[i][j].getId());
+                    }
+                }
+            }
+
+            if (player.getEquippedItem() == null) {
+                outFile.println("null");
+            }
+            else {
+                outFile.println(player.getEquippedItem().getId());
+            }
+
+
+            outFile.println(player.getSelectedWallpaper()); // wallpaper
+            outFile.println(player.getSelectedFloor()); // floor
+
+            line = "";
+            for (Item temp : celeste.getBugs()) {
+                line += temp.getId() + " ";
+            }
+            line = line.substring(0, line.length()-1);
+            outFile.println(line);
+
+            line = "";
+            for (Item temp : celeste.getFish()) {
+                line += temp.getId() + " ";
+            }
+            line = line.substring(0, line.length()-1);
+            outFile.println(line);
+
+            line = "";
+            for (Item temp : celeste.getFossils()) {
+                line += temp.getName() + ",";
+            }
+            line = line.substring(0, line.length()-1);
+            outFile.println(line);
+
+            outFile.close();
+
+        }
+        catch (IOException e) {
+            System.out.println("saving error");
+        }
+
+
     }
 }

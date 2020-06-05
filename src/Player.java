@@ -71,6 +71,7 @@ public class Player {
     private boolean inventoryFullPromptOpen = false;
     private boolean itemFoundPrompt = false;
     private boolean placingFurniture = false;
+    private boolean earnedBellsPromptOpen = false;
 
     private int actionProgress = 0;
     private String actionMessage = "";
@@ -1583,4 +1584,19 @@ public class Player {
         placingFurniture = b;
     }
 
+    public boolean isEarnedBellsPromptOpen() {
+        return earnedBellsPromptOpen;
+    }
+
+    public void setEarnedBellsPromptOpen(boolean b) {
+        earnedBellsPromptOpen = b;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int n) {
+        gender = n;
+    }
 }

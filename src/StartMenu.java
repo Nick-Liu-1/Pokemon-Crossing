@@ -1,9 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
 
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
+	private int num = 0;
 
     public StartMenu() {
 		super("Pokemon Crossing");
@@ -54,7 +58,7 @@ public class StartMenu extends JFrame{
 		tempBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Main PokemonCrossing = new Main();
+    			Main PokemonCrossing = new Main(num);
     			setVisible(false);
     		}
 		});
@@ -65,7 +69,134 @@ public class StartMenu extends JFrame{
 		setContentPane(layeredPane);        
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+
+		createNewFile(1, "Nicky", 0);
     }
+
+    public void createNewFile(int num, String name, int gender) {
+		PrintWriter outFile;
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter (new FileWriter ("Saves/save" + num + "/save" + num + ".txt")));
+
+			outFile.println(name); // name
+			outFile.println(gender); // gender
+			outFile.println(0); // bells
+			for (int i = 0; i < 19; i++) {  // items
+				outFile.println("null");
+			}
+			outFile.println("orange"); // wallpaper
+			outFile.println("yellow"); // floor
+
+			outFile.println(); // museum bugs
+			outFile.println(); // museum fish
+			outFile.println(); // museum fossils
+
+			outFile.println(); // placed furniture
+			outFile.println(); // dropped items
+
+			outFile.close();
+
+		}
+    	catch (IOException e) {
+    		System.out.println("creating new file error");
+		}
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/trees.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/trees.txt")));
+				int n = Integer.parseInt(stdin.nextLine());
+				outFile.println(n);
+
+				for (int i = 0; i < n; i++) {
+					outFile.println(stdin.nextLine());
+				}
+
+				n = Integer.parseInt(stdin.nextLine());
+				outFile.println(n);
+
+				for (int i = 0; i < n; i++) {
+					outFile.println(stdin.nextLine());
+				}
+
+				outFile.close();
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading trees");
+			}
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/map.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
+
+				for (int i = 0; i < 85; i++) {
+					outFile.println(stdin.nextLine());
+				}
+
+				outFile.close();
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading map");
+			}
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island map.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island map.txt")));
+
+				for (int i = 0; i < 46; i++) {
+					outFile.println(stdin.nextLine());
+				}
+
+				outFile.close();
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading map");
+			}
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+		try {
+			outFile = new PrintWriter(
+				new BufferedWriter(new FileWriter("Saves/save" + num + "/rooms.txt")));
+
+			try {
+				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Rooms/Rooms.txt")));
+
+				for (int i = 0; i < 218; i++) {
+					outFile.println(stdin.nextLine());
+				}
+			}
+			catch (FileNotFoundException e) {
+				System.out.println("error loading rooms");
+			}
+
+			outFile.close();
+		}
+		catch (IOException e) {
+			System.out.println("creating new file error");
+		}
+
+	}
     
     public static void main(String[] arguments) {
 		StartMenu menu = new StartMenu();

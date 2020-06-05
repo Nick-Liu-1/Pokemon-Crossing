@@ -31,7 +31,6 @@ public class Tree {
         File folder = new File("Assets/Fruits/");
         File[] listOfFiles = folder.listFiles();
 
-        assert listOfFiles != null;
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
                 fruitImages.put(listOfFiles[i].getName().substring(0, listOfFiles[i].getName().length() - 4),

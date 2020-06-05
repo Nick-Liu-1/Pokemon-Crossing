@@ -19,13 +19,13 @@
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-
+/*
 import javazoom.jl.player.Player;
 
 
 public class MP3 {
     private String filename;
-    private Player player; 
+    private Player player;
     private boolean loop = true;
 
     // constructor that takes the name of an MP3 file
@@ -40,7 +40,7 @@ public class MP3 {
 		            do {
 		                FileInputStream fis     = new FileInputStream(filename);
 		            	BufferedInputStream bis = new BufferedInputStream(fis);
-		            	player = new Player(bis); 
+		            	player = new Player(bis);
 		                player.play();
 		            } while (loop);		//to loop music
 		        }
@@ -57,4 +57,4 @@ public class MP3 {
         player.close();
     }
     
-}
+}*/
