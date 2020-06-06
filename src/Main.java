@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.time.Instant;
 import java.util.*;
 import java.applet.*;
 
@@ -80,7 +81,11 @@ public class Main extends JFrame implements ActionListener {
             if (game != null && panel.equals("game")) {
                 game.grabFocus();
                 game.move();
+
+
                 game.repaint();
+
+
             }
             else if (thinIce != null && panel.equals("thin ice")) {
                 thinIce.grabFocus();
@@ -171,11 +176,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private int[][] waterTiles = new int[94][85];
     private int[][] minigameIslandWater = new int[49][46];
 
+    private int[][] beachTiles = new int[94][85];
+    private int[][] minigameIslandBeach = new int[49][46];
+
     private ArrayList<Tree> trees = new ArrayList<>();
 
     private double selectionAngle = 0;
     private int selected = -1;
     private int gameScore = 0;
+    private long lastOn;
 
     private int dialogueDelay = 0;
     public static Font finkheavy15 = null;
@@ -215,7 +224,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void addNotify() {
         super.addNotify();
         requestFocus();
-        mainFrame.start();
     }
 
     public void init() {
@@ -257,11 +265,62 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Tree.loadFruits();
 
 
+        if (Instant.now().getEpochSecond() / 86400 > lastOn / 86400) {
+            tom_nook.generateStoreItems();
+            for (Tree tree : trees) {
+                if (tree.getSize() == 3) {
+                    tree.setNumFruit(3);
+                }
+            }
+        }
 
-        grid[68][48] = 6;
+        generateShells();
+        generateFossils();
         
         //music.play();
         
+    }
+
+    public void generateShells() {
+        for (int i = 0; i < 200; i++) {
+            int a = randint(0, 93);
+            int b = randint(0, 84);
+
+            if (beachTiles[a][b] == 1 && outside.getGrid()[a][b] == 1) {
+                outside.getGrid()[a][b] = 4;
+                outside.getDroppedItems().put(new Point(a, b), new DroppedItem(items.get(randint(106, 111)), a, b));
+            }
+        }
+
+        for (int i = 0; i < 100; i++) {
+            int a = randint(0, 48);
+            int b = randint(0, 45);
+
+            if (minigameIslandBeach[a][b] == 1 && minigameIsland.getGrid()[a][b] == 1) {
+                minigameIsland.getGrid()[a][b] = 4;
+                minigameIsland.getDroppedItems().put(new Point(a, b), new DroppedItem(items.get(randint(106, 111)), a, b));
+            }
+        }
+    }
+
+    public void generateFossils() {
+        for (int i = 0; i < 12; i++) {
+            int a = randint(0, 93);
+            int b = randint(0, 84);
+
+            if (diggableTiles[a][b] == 1 && outside.getGrid()[a][b] == 1) {
+                outside.getGrid()[a][b] = 6;
+            }
+        }
+
+        for (int i = 0; i < 6; i++) {
+            int a = randint(0, 48);
+            int b = randint(0, 45);
+
+            if (minigameIslandDiggable[a][b] == 1 && minigameIsland.getGrid()[a][b] == 1) {
+                minigameIsland.getGrid()[a][b] = 6;
+            }
+        }
     }
 
     public void loadMainStuff() {
@@ -269,7 +328,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/save" + mainFrame.getNum() + ".txt")));
             String name = stdin.nextLine();
             int gender = Integer.parseInt(stdin.nextLine());
-            player = new Player(name,1860, 4500, gender, grid, this);
+            player = new Player(name,1800, 2100, gender, grid, this);
             player.setBells(Integer.parseInt(stdin.nextLine()));
             for (int i = 0; i < 18; i++) {
                 int b = i / 6;
@@ -307,8 +366,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 celeste.addFossil(new Item(2, s, new ImageIcon("Assets/Items/General/Fossil.png").getImage(), 0, 100));
             }
 
+            lastOn = Long.parseLong(stdin.nextLine());
+
+
             while (stdin.hasNextLine()) {
                 lineItems = stdin.nextLine().split(" ");
+                System.out.println(Arrays.toString(lineItems));
                 player.getFurniture().add(new Furniture(Integer.parseInt(lineItems[0]), Integer.parseInt(lineItems[1]), Integer.parseInt(lineItems[2]), Integer.parseInt(lineItems[3]), Integer.parseInt(lineItems[4])));
             }
 
@@ -458,6 +521,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
+        try {
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/outside beach.txt")));
+            for (int i = 0; i < 85; i++) {
+                String[] s = stdin.nextLine().split(" ");
+                for (int j = 0; j < 94; j++) {
+                    beachTiles[j][i] = Integer.parseInt(s[j]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island beach.txt")));
+            for (int i = 0; i < 46; i++) {
+                String[] s = stdin.nextLine().split(" ");
+                for (int j = 0; j < 49; j++) {
+                    minigameIslandBeach[j][i] = Integer.parseInt(s[j]);
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
         // Reading from the room file
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/Rooms.txt")));
@@ -467,6 +554,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 int entryX, entryY, exitX, exitY, exitX2, exitY2;
                 String[] line = stdin.nextLine().split(" ");
+
                 entryX = Integer.parseInt(line[0]);
                 entryY = Integer.parseInt(line[1]);
                 exitX = Integer.parseInt(line[2]);
@@ -485,8 +573,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         grid[k][j] = Integer.parseInt(line[k]);
                     }
                 }
-
-                stdin.nextLine();
 
                 rooms.put(new Point(entryX, entryY), new Room(grid, new ImageIcon("Assets/Rooms/"+file).getImage(), entryX, entryY, exitX, exitY, exitX2, exitY2, file.substring(0, file.length()-4)));
             }
@@ -2317,11 +2403,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             line = line.substring(0, line.length()-1);
             outFile.println(line);
 
+            long unixTime = Instant.now().getEpochSecond();
+            outFile.println(unixTime);
 
-            line = "";
             for (Furniture furniture : player.getFurniture()) {
-                line += furniture.getxTile() + " " + furniture.getyTile() + " " + furniture.getLength() + " " + furniture.getWidth() + " " + furniture.getId();
+                outFile.println(furniture.getxTile() + " " + furniture.getyTile() + " " + furniture.getLength() + " " + furniture.getWidth() + " " + furniture.getId());
             }
+
 
             outFile.close();
 
@@ -2337,14 +2425,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             outFile.println(29);
             for (Tree tree : trees) {
                 if (tree.getRoom() == outside) {
-                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getFruit() + " " + tree.getNumFruit());
+                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getSize() + " " + tree.getFruit() + " " + tree.getNumFruit());
                 }
             }
 
             outFile.println(8);
             for (Tree tree : trees) {
                 if (tree.getRoom() == minigameIsland) {
-                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getFruit() + " " + tree.getNumFruit());
+                    outFile.println(tree.getxTile() + " " + tree.getyTile() + " " + tree.getSize() + " " + tree.getFruit() + " " + tree.getNumFruit());
                 }
             }
 
@@ -2362,6 +2450,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             for (int i = 0; i < outside.getGrid()[0].length; i++) {
                 String line = "";
                 for (int j = 0; j < outside.getGrid().length; j++) {
+                    if (outside.getGrid()[j][i] == 4 || outside.getGrid()[j][i] == 6) {
+                        outside.getGrid()[j][i] = 1;
+                    }
                     line += outside.getGrid()[j][i] + " ";
                 }
                 line = line.substring(0, line.length() - 1);
@@ -2381,6 +2472,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             for (int i = 0; i < minigameIsland.getGrid()[0].length; i++) {
                 String line = "";
                 for (int j = 0; j < minigameIsland.getGrid().length; j++) {
+                    if (minigameIsland.getGrid()[j][i] == 4 || outside.getGrid()[j][i] == 6) {
+                        minigameIsland.getGrid()[j][i] = 1;
+                    }
+
                     line += minigameIsland.getGrid()[j][i] + " ";
                 }
                 line = line.substring(0, line.length() - 1);
@@ -2399,18 +2494,26 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             ArrayList<Room> temp = new ArrayList<>(rooms.values());
 
-            outFile.println(temp.size());
+            outFile.println(8);
 
             for (Room room : temp) {
-                outFile.println(room.getName());
-                outFile.println(room.getEntryX() + " " + room.getEntryY() + " " + room.getExitX() + " " + room.getExitY() + " " + room.getExitX2() + " " + room.getExitY2());
-                for (int i = 0; i < room.getGrid()[0].length; i++) {
-                    String line = "";
-                    for (int j = 0; j < room.getGrid().length; j++) {
-                        line += room.getGrid()[j][i] + " ";
+                if (room != outside && room != minigameIsland) {
+                    outFile.println(room.getName() + ".png");
+                    outFile.println(room.getEntryX() + " " + room.getEntryY() + " " + room.getExitX() + " " + room.getExitY() + " " + room.getExitX2() + " " + room.getExitY2());
+                    outFile.println(room.getGrid().length + " " +  room.getGrid()[0].length);
+
+                    for (int i = 0; i < room.getGrid()[0].length; i++) {
+                        String line = "";
+                        for (int j = 0; j < room.getGrid().length; j++) {
+                            if (room.getGrid()[j][i] == 4 || outside.getGrid()[j][i] == 6) {
+                                room.getGrid()[j][i] = 1;
+                            }
+
+                            line += room.getGrid()[j][i] + " ";
+                        }
+                        line = line.substring(0, line.length() - 1);
+                        outFile.println(line);
                     }
-                    line = line.substring(0, line.length() - 1);
-                    outFile.println(line);
                 }
              }
 
@@ -2423,9 +2526,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         try {  // Main map diggable
             outFile = new PrintWriter(
-                new BufferedWriter(new FileWriter("Saves/save" + num + "/outside diggable tilese.txt")));
+                new BufferedWriter(new FileWriter("Saves/save" + num + "/outside diggable tiles.txt")));
 
-            for (int i = 0; i < diggableTiles.length; i++) {
+            for (int i = 0; i < diggableTiles[0].length; i++) {
                 String line = "";
                 for (int j = 0; j < diggableTiles.length; j++) {
                     line += diggableTiles[j][i] + " ";

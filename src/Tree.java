@@ -111,4 +111,12 @@ public class Tree {
     public int getyTile() {
         return yTile;
     }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setNumFruit(int n) {
+        numFruit = n;
+    }
 }
