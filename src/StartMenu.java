@@ -7,19 +7,12 @@ import java.util.*;
 
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
-<<<<<<< HEAD
-<<<<<<< HEAD
-	
-=======
-=======
->>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
 	private int num = 1;
 	private NewFile newFile;
 	private LoadFile loadFile;
 	private Main main;
 	private Options options;
 
->>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
     public StartMenu() {
 		super("Pokemon Crossing");
 		setSize(1020,695);
