@@ -8,10 +8,12 @@ import java.util.Scanner;
 
 public class LoadFile extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
-	boolean[] slotsUsed = {false, false, false};
-	String[] names = new String[3];
-	LoadFilePanel panel;
-	Timer myTimer;
+	private JPanel panel = new JPanel();
+	private boolean[] slotsUsed = {false, false, false};
+	private String[] names = new String[3];
+	private Timer myTimer;
+	private JLabel[] saveFileNames = new JLabel[3];
+
 
     public LoadFile() {
 		super("Pokemon Crossing");
@@ -21,9 +23,6 @@ public class LoadFile extends JFrame{
 		JLabel back = new JLabel(background);		
 		back.setBounds(0, 0, 1020, 695);
 		layeredPane.add(back,2);
-
-		panel = new LoadFilePanel(this);
-		add(panel);
 
 		try {
 			Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/Used Slots.txt")));
@@ -91,19 +90,22 @@ public class LoadFile extends JFrame{
 		slot3.setOpaque(false);
 
 
-		myTimer = new javax.swing.Timer(10, new TickListener());
-			
+		for (int i = 0; i < 3; i++) {
+			if (slotsUsed[i]) {
+				JLabel text = new JLabel(names[i]);
+				Dimension size = text.getPreferredSize();
+				text.setBounds(150, 100 + 100*i, size.width, size.height);
+				layeredPane.setLayout(null);
+				layeredPane.add(text);
+			}
+
+		}
+
+
 		setContentPane(layeredPane);        
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
-		myTimer.start();
     }
-
-	class TickListener implements ActionListener {
-		public void actionPerformed(ActionEvent evt) {
-			panel.repaint();
-		}
-	}
 
 	public boolean[] getSlotsUsed() {
     	return slotsUsed;
@@ -116,28 +118,4 @@ public class LoadFile extends JFrame{
     public static void main(String[] arguments) {
 		LoadFile frame = new LoadFile();
     }
-}
-
-class LoadFilePanel extends JPanel {
-	private LoadFile mainframe;
-
-	public LoadFilePanel(LoadFile m) {
-		this.mainframe = m;
-	}
-
-	public void paintComponent(Graphics g) {
-		if (g instanceof Graphics2D) {
-			Graphics2D g2 = (Graphics2D) g;
-
-			g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-			g2.setFont(GamePanel.finkheavy32);
-			g2.setColor(new Color(0, 0, 0));
-
-			for (int i = 0; i < mainframe.getSlotsUsed().length; i++) {
-				if (mainframe.getSlotsUsed()[i]) {
-					g2.drawString(mainframe.getNames()[i], 400, 300 + 80 * i);
-				}
-			}
-		}
-	}
 }
