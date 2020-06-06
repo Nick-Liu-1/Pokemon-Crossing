@@ -14,19 +14,19 @@ import java.util.*;
 import java.applet.*;
 
 public class Main extends JFrame implements ActionListener {
-    private int num;
+    private int num;  // File number
 
     private javax.swing.Timer myTimer;  // Game Timer
     private GamePanel game;  // GamePanel for the actual game
-    private Thin_Ice thinIce;
-    private Astro_Barrier astroBarrier;
+    private Thin_Ice thinIce;  // Thin Ice panel
+    private Astro_Barrier astroBarrier;  // Astro Barrier panel
 
     private JPanel cards;
-    private CardLayout cLayout = new CardLayout();
+    private CardLayout cLayout = new CardLayout();  // Allows switching between games
 
-    private String panel;
+    private String panel;  // Indicates what game the screen is on
 
-    private int gameScore = 0;
+    private int gameScore = 0;  // Score achieved from minigame for bell earning purposes
 
     public Main(int num) {
         // Creating frame
@@ -38,6 +38,7 @@ public class Main extends JFrame implements ActionListener {
         // Cards
         cards = new JPanel(cLayout);
 
+        // Creating panels
         game = new GamePanel(this);
         cards.add(game, "game");
 
@@ -71,9 +72,6 @@ public class Main extends JFrame implements ActionListener {
         myTimer.start();
     }
 
-    public void setPanel(String s) {
-        panel = s;
-    }
 
     // Class that deals with actions within the game
     class TickListener implements ActionListener {
@@ -83,14 +81,9 @@ public class Main extends JFrame implements ActionListener {
                 which deal with game logic.
             */
             if (game != null && panel.equals("game")) {
-
                 game.grabFocus();
-
                 game.move();
-
                 game.repaint();
-
-
 
             }
             else if (thinIce != null && panel.equals("thin ice")) {
@@ -105,7 +98,7 @@ public class Main extends JFrame implements ActionListener {
                 astroBarrier.checkComplete();
                 astroBarrier.checkCollisions();
             }
-            else if (panel.equals("")) {
+            else if (panel.equals("")) {  // End the game if the panel is equal to empty string
                 endGame();
             }
         }
@@ -116,9 +109,12 @@ public class Main extends JFrame implements ActionListener {
         setVisible(false);
     }
 
+    // Changes the current game
     public void changeGame(String game) {
         panel = game;
         cLayout.show(cards, game);
+
+        // Initiate the selected game
         if (game.equals("thin ice")) {
             thinIce.init();
         }
@@ -127,7 +123,7 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
-
+    // Getters/setters
     public int getGameScore() {
         return gameScore;
     }
@@ -140,9 +136,10 @@ public class Main extends JFrame implements ActionListener {
         return num;
     }
 
-    public static void main(String[] args) {
-        Main frame = new Main(1);
+    public void setPanel(String s) {
+        panel = s;
     }
+
 }
 
 class GamePanel extends JPanel implements KeyListener, MouseListener {
@@ -165,9 +162,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Point mouse = new Point(0, 0);
     private boolean clicked = false;
 
+    // Variables to help with the fade effect when entering rooms
     private boolean fadingToBlack = false;
     private int fadeTimeStart = 0;
 
+    // NPCs
     private Tom_Nook tom_nook;
     private Boat_Operator boat_operator;
     private Boat_Operator boat_operator_on_island;
@@ -176,6 +175,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private ArrayList<NPC> NPCs = new ArrayList<>();
 
+    // Images
     private final Image speechBubbleImage = new ImageIcon("Assets/Misc/speech bubble copy.png").getImage();
     private final Image selectionMenuImage = new ImageIcon("Assets/Misc/With click.png").getImage();
     private final Image selectionMenuNoClickImage = new ImageIcon("Assets/Misc/No Click.png").getImage();
@@ -189,6 +189,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private final Image holeImage = new ImageIcon("Assets/Misc/hole.png").getImage();
     private final Image buriedObjectImage = new ImageIcon("Assets/Misc/buried object.png").getImage();
 
+    // Arrays of info
     private int[][] diggableTiles = new int[94][85];
     private int[][] minigameIslandDiggable = new int[49][46];
 
@@ -200,23 +201,26 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     private ArrayList<Tree> trees = new ArrayList<>();
 
-    private double selectionAngle = 0;
-    private int selected = -1;
-    private int gameScore = 0;
-    private long lastOn;
 
-    private int dialogueDelay = 0;
+    private double selectionAngle = 0;  // Angle of dialogue selection
+    private int gameScore = 0;  // Score from minigame
+    private long lastOn; // Unix timestamp of last time player opened file
+
+    private int dialogueDelay = 0;  // Counter for talking after player is leaving
+
+    // Fonts
     public static Font finkheavy15 = null;
     public static Font finkheavy30 = null;
     public static Font finkheavy32 = null;
     public static Font finkheavy36 = null;
 
+    // Arcade tiles to play games
     private int[][] thinIceArcadeTiles = {{13, 14}, {13, 11}, {21, 11}, {21, 14}};
     private int[][] astroBarrierArcadeTiles = {{12, 14}, {12, 11}, {20, 11}, {20, 14}};
 
     private boolean exitMenuOpen = false;
-    private boolean saveCompletePromptOpen = false;
 
+    // Sounds
 	private File diggingWav = new File("Assets/Sounds/Digging.wav");
 	private AudioClip diggingSFX;
 	private File fishingWav = new File("Assets/Sounds/Fishing.wav");
@@ -245,23 +249,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         requestFocus();
     }
 
+    // Initiates the game
     public void init() {
+        // Load stuff
         loadMap();
         loadSounds();
         loadItems();
+
+        // Set initial room to be the outside
         curRoom = outside;
         grid = curRoom.getGrid();
 
-
-
+        // Load more stuff
         Item.loadFoundImages();
         Player.load();
         NPC.loadDialogue();
 
+        // Add nulls to NPC arraylist
         for (int i = 0; i < 8; i++) {
             NPCs.add(null);
         }
 
+        // Create NPCs
         tom_nook = new Tom_Nook("Tom Nook", null, 11, 8, "mate", rooms.get(new Point(39, 55)),0);
         tom_nook.generateStoreItems();
         NPCs.set(0, tom_nook);
@@ -278,13 +287,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         isabelle = new Isabelle("Isabelle", null, 15, 8, "my guy", rooms.get(new Point(63, 35)), 1);
         NPCs.set(1, isabelle);
 
+        // Load more stuff
         Furniture.loadImages();
         Furniture.loadFurnitureSizes();
         loadMainStuff();
         createNPCs();
         Tree.loadFruits();
 
-
+        // Restock the shop and have fruit grow back if the time they opened is a different day then the last time closed
         if (Instant.now().getEpochSecond() / 86400 > lastOn / 86400) {
             tom_nook.generateStoreItems();
             for (Tree tree : trees) {
@@ -294,6 +304,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        // Generate shells and fossils
         generateShells();
         generateFossils();
         
@@ -301,21 +312,26 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         
     }
 
+    // Randomly generate shells on the beaches
     public void generateShells() {
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 200; i++) {  // Main island
+            // X and Y tile position
             int a = randint(0, 93);
             int b = randint(0, 84);
 
+            // Add a shell to the position if the position is a beach tile
             if (beachTiles[a][b] == 1 && outside.getGrid()[a][b] == 1) {
                 outside.getGrid()[a][b] = 4;
                 outside.getDroppedItems().put(new Point(a, b), new DroppedItem(items.get(randint(106, 111)), a, b));
             }
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 100; i++) { // Minigame Island
+            // X and Y tile position
             int a = randint(0, 48);
             int b = randint(0, 45);
 
+            // Add a shell to the position if the position is a beach tile
             if (minigameIslandBeach[a][b] == 1 && minigameIsland.getGrid()[a][b] == 1) {
                 minigameIsland.getGrid()[a][b] = 4;
                 minigameIsland.getDroppedItems().put(new Point(a, b), new DroppedItem(items.get(randint(106, 111)), a, b));
@@ -323,38 +339,51 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Generate fossils on diggable tiles
     public void generateFossils() {
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 12; i++) { // Main island
+            // X and Y tile position
             int a = randint(0, 93);
             int b = randint(0, 84);
 
+            // Add a fossil to the position if the position is a diggable tile
             if (diggableTiles[a][b] == 1 && outside.getGrid()[a][b] == 1) {
                 outside.getGrid()[a][b] = 6;
             }
         }
 
         for (int i = 0; i < 6; i++) {
+            // X and Y tile position
             int a = randint(0, 48);
             int b = randint(0, 45);
 
+            // Add a fossil to the position if the position is a diggable tile
             if (minigameIslandDiggable[a][b] == 1 && minigameIsland.getGrid()[a][b] == 1) {
                 minigameIsland.getGrid()[a][b] = 6;
             }
         }
     }
 
+    // Load player info and other stuff
     public void loadMainStuff() {
         try {
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/save" + mainFrame.getNum() + ".txt")));
-            String name = stdin.nextLine();
-            int gender = Integer.parseInt(stdin.nextLine());
+            String name = stdin.nextLine();  // Player name
+            int gender = Integer.parseInt(stdin.nextLine());  // Player gender
+
+            // Create player
             player = new Player(name,1800, 2100, gender, grid, this);
             player.setBells(Integer.parseInt(stdin.nextLine()));
+
+            // Add items to inventory
             for (int i = 0; i < 18; i++) {
-                int b = i / 6;
-                int a = i % 6;
+                // Converting from 1d to 2d array
+                int b = i / 6; // row
+                int a = i % 6; // column
 
                 String line = stdin.nextLine();
+
+                // Adding the item based on id
                 if (line.equals("null")) {
                     player.getItems()[a][b] = null;
                 }
@@ -363,14 +392,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Get equipped item
             String equipped = stdin.nextLine();
             if (!equipped.equals("null")) {
                 player.equipItem(items.get(Integer.parseInt(equipped)));
             }
 
-            player.setSelectedWallpaper(stdin.nextLine());
-            player.setSelectedFloor(stdin.nextLine());
+            player.setSelectedWallpaper(stdin.nextLine()); // Room wallpaper
+            player.setSelectedFloor(stdin.nextLine()); // Room floor
 
+            // Bugs in museum
             String[] lineItems = stdin.nextLine().split(" ");
             for (String s : lineItems) {
                 if (!s.equals("")) {
@@ -378,6 +409,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Fish in museum
             lineItems = stdin.nextLine().split(" ");
             for (String s : lineItems) {
                 if (!s.equals("")) {
@@ -385,6 +417,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            //
             lineItems = stdin.nextLine().split(",");
             for (String s : lineItems) {
                 if (!s.equals("")) {
@@ -1163,7 +1196,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             else if (exitMenuOpen) {
                 if (new Rectangle(250, 80, 520, 80).contains(mouse)) {
                     save(mainFrame.getNum());
-                    saveCompletePromptOpen = true;
                 }
 
                 else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {
