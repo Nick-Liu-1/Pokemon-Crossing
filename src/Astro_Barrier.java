@@ -36,6 +36,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
 		currentLevel=0;
 		numLives=3;
 		score=0;
+		allLevels.clear();
 		
 		//getting level info
 		try{
@@ -69,6 +70,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
     }
 	
 	public void move(){
+		System.out.println(currentLevel);
 		rocket.moveBullet();
 		allLevels.get(currentLevel).moveTargets();
 		if(keys[KeyEvent.VK_D] ){
@@ -188,6 +190,7 @@ class Astro_Barrier extends JPanel implements KeyListener {
 	    	if (e.getButton() == MouseEvent.BUTTON1) {
 	    		if (new Rectangle(25, 16, 60, 38).contains(mouse)) {
 	    			mainframe.changeGame("game");
+	    			mainframe.setGameScore(score);
 				}
 			}
 		}

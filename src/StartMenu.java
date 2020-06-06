@@ -1,10 +1,25 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
 
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
+<<<<<<< HEAD
+<<<<<<< HEAD
+	
+=======
+=======
+>>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
+	private int num = 1;
+	private NewFile newFile;
+	private LoadFile loadFile;
+	private Main main;
+	private Options options;
 
+>>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
     public StartMenu() {
 		super("Pokemon Crossing");
 		setSize(1020,695);
@@ -18,7 +33,7 @@ public class StartMenu extends JFrame{
 		loadBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			LoadFile frame = new LoadFile();
+    			loadFile = new LoadFile();
     			setVisible(false);
     		}
 		});
@@ -30,7 +45,7 @@ public class StartMenu extends JFrame{
 		newBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			NewFile frame = new NewFile();
+    			newFile = new NewFile();
     			setVisible(false);
     		}			
 		});
@@ -42,7 +57,7 @@ public class StartMenu extends JFrame{
 		optionsBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Options frame = new Options();
+    			options = new Options();
     			setVisible(false);
     		}
 		});
@@ -54,7 +69,7 @@ public class StartMenu extends JFrame{
 		tempBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Main PokemonCrossing = new Main();
+    			Main PokemonCrossing = new Main(num);
     			setVisible(false);
     		}
 		});
@@ -65,7 +80,10 @@ public class StartMenu extends JFrame{
 		setContentPane(layeredPane);        
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		setResizable(false);
+
     }
+
     
     public static void main(String[] arguments) {
 		StartMenu menu = new StartMenu();

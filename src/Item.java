@@ -83,6 +83,7 @@ public class Item {
     }
 
     public static void loadFoundImages() {
+        foundItemImages.clear();
         for (int i = 0; i < GamePanel.getItems().size(); i++) {
             foundItemImages.add(GamePanel.getItems().get(i).getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH));
         }

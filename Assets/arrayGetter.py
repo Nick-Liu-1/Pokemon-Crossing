@@ -13,9 +13,9 @@ BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
 myClock = time.Clock()
-pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Minigames\\Thin Ice\\Levels\\level10.png")
+pic = image.load("C:\\Users\\nickl\\Desktop\\Com Sci\\Pokemon Crossing\\Assets\\Map\minigame island.png")
 
-a,b = 19, 15
+a,b = 49, 46
 color1 = (153, 217, 234, 255)
 color2 = (191, 223, 255, 255)
 color3 = (210, 233, 255, 255)
@@ -32,19 +32,14 @@ while running:
     screen.blit(pic, (0,0))
 
     mx, my = mouse.get_pos()
-    print(screen.get_at((mx, my)))                
+    print(screen.get_at((25*60 + 30, 22*60 + 30)))                
     
     for i in range(a):
         for j in range(b):
-            if screen.get_at((i*60+30, j*60+30)) == color1:
-                grid[j][i] = "0"
-            elif screen.get_at((i*60+30, j*60+30)) == color2:
-                grid[j][i] = "0"
-            elif screen.get_at((i*60+30, j*60+30)) == color3:
+            if screen.get_at((i * 60 + 30, j * 60 + 30)) == (216, 200, 128, 255):
                 grid[j][i] = "1"
             else:
-                grid[j][i] = "2"
-    
+                grid[j][i] = "0"
 
 
    

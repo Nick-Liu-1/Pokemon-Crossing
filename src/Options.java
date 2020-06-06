@@ -4,7 +4,7 @@ import java.awt.event.*;
 
 public class Options extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
-
+	
     public Options() {
 		super("Pokemon Crossing");
 		setSize(1020,695);

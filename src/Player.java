@@ -71,6 +71,7 @@ public class Player {
     private boolean inventoryFullPromptOpen = false;
     private boolean itemFoundPrompt = false;
     private boolean placingFurniture = false;
+    private boolean earnedBellsPromptOpen = false;
 
     private int actionProgress = 0;
     private String actionMessage = "";
@@ -182,7 +183,7 @@ public class Player {
 
     // Move the player, called every frame
     public void move() {
-        int speed = running ? rSpeed : wSpeed;  // Set speed
+        int speed = running ? rSpeed : wSpeed;  // Set speed\
 
         // If moving. move in the correct direction
         if (moving) {
@@ -1158,6 +1159,10 @@ public class Player {
         items[selectedItemR][selectedItemC] = temp;
     }
 
+    public void equipItem(Item item) {
+       equippedItem = item;
+    }
+
     public void unequipItem() {
         if (inventoryHasSpace()) {
             addItem(equippedItem);
@@ -1583,4 +1588,19 @@ public class Player {
         placingFurniture = b;
     }
 
+    public boolean isEarnedBellsPromptOpen() {
+        return earnedBellsPromptOpen;
+    }
+
+    public void setEarnedBellsPromptOpen(boolean b) {
+        earnedBellsPromptOpen = b;
+    }
+
+    public int getGender() {
+        return gender;
+    }
+
+    public void setGender(int n) {
+        gender = n;
+    }
 }

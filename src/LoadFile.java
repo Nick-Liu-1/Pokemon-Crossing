@@ -1,9 +1,19 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.Scanner;
 
 public class LoadFile extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
+	private JPanel panel = new JPanel();
+	private boolean[] slotsUsed = {false, false, false};
+	private String[] names = new String[3];
+	private Timer myTimer;
+	private JLabel[] saveFileNames = new JLabel[3];
+
 
     public LoadFile() {
 		super("Pokemon Crossing");
@@ -13,6 +23,19 @@ public class LoadFile extends JFrame{
 		JLabel back = new JLabel(background);		
 		back.setBounds(0, 0, 1020, 695);
 		layeredPane.add(back,2);
+
+		try {
+			Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/Used Slots.txt")));
+			while (stdin.hasNextLine()) {
+				String[] line = stdin.nextLine().split(" ");
+				slotsUsed[Integer.parseInt(line[0]) - 1] = true;
+				names[Integer.parseInt(line[0]) - 1] = line[1];
+			}
+		}
+		catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
 		
 		JButton backBtn = new JButton();	
 		backBtn.addActionListener(new ActionListener(){
@@ -30,7 +53,11 @@ public class LoadFile extends JFrame{
 		slot1.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			System.out.println("slot1");
+    			if (slotsUsed[0]) {
+					Main frame = new Main(1);
+					goToGame();
+				}
+
     		}			
 		});
 		slot1.setBounds(326, 249, 400, 60);
@@ -41,7 +68,10 @@ public class LoadFile extends JFrame{
 		slot2.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			System.out.println("slot2");
+				if (slotsUsed[1]) {
+					Main frame = new Main(2);
+					goToGame();
+				}
     		}			
 		});
 		slot2.setBounds(326, 309, 400, 60);
@@ -52,18 +82,50 @@ public class LoadFile extends JFrame{
 		slot3.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			System.out.println("slot3");
+				if (slotsUsed[2]) {
+					Main frame = new Main(3);
+					goToGame();
+				}
     		}			
 		});
 		slot3.setBounds(326, 369, 400, 60);
 		layeredPane.add(slot3,3);
 		slot3.setOpaque(false);
-			
-		setContentPane(layeredPane);        
+
+
+		for (int i = 0; i < 3; i++) {
+			if (slotsUsed[i]) {
+				JLabel text = new JLabel(names[i]);
+                text.setFont(new Font("Helvetica", Font.PLAIN, 30));
+				Dimension size = text.getPreferredSize();
+				System.out.println(size);
+				text.setBounds(400, 258 + 60 * i, size.width, size.height);
+				layeredPane.add(text, 0);
+
+			}
+
+		}
+
+
+		setContentPane(layeredPane);
+		panel.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+        setResizable(false);
     }
-    
+
+    public void goToGame() {
+    	setVisible(false);
+	}
+
+	public boolean[] getSlotsUsed() {
+    	return slotsUsed;
+	}
+
+	public String[] getNames() {
+    	return names;
+	}
+
     public static void main(String[] arguments) {
 		LoadFile frame = new LoadFile();
     }
