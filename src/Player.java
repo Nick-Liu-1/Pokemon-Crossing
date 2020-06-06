@@ -183,7 +183,7 @@ public class Player {
 
     // Move the player, called every frame
     public void move() {
-        int speed = running ? rSpeed : wSpeed;  // Set speed
+        int speed = running ? rSpeed : wSpeed;  // Set speed\
 
         // If moving. move in the correct direction
         if (moving) {

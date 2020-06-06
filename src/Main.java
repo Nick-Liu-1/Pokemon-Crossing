@@ -31,7 +31,6 @@ public class Main extends JFrame implements ActionListener {
     public Main(int num) {
         // Creating frame
         super("Pokemon Crossing");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(1020,695);
 
         this.num = num;
@@ -59,6 +58,7 @@ public class Main extends JFrame implements ActionListener {
 
         setResizable(false);
         setVisible(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         start();
     }
 
@@ -71,6 +71,10 @@ public class Main extends JFrame implements ActionListener {
         myTimer.start();
     }
 
+    public void setPanel(String s) {
+        panel = s;
+    }
+
     // Class that deals with actions within the game
     class TickListener implements ActionListener {
         public void actionPerformed(ActionEvent evt){
@@ -79,11 +83,13 @@ public class Main extends JFrame implements ActionListener {
                 which deal with game logic.
             */
             if (game != null && panel.equals("game")) {
+
                 game.grabFocus();
+
                 game.move();
 
-
                 game.repaint();
+
 
 
             }
@@ -99,7 +105,15 @@ public class Main extends JFrame implements ActionListener {
                 astroBarrier.checkComplete();
                 astroBarrier.checkCollisions();
             }
+            else if (panel.equals("")) {
+                endGame();
+            }
         }
+
+    }
+
+    public void endGame() {
+        setVisible(false);
     }
 
     public void changeGame(String game) {
@@ -113,6 +127,7 @@ public class Main extends JFrame implements ActionListener {
         }
     }
 
+
     public int getGameScore() {
         return gameScore;
     }
@@ -123,6 +138,10 @@ public class Main extends JFrame implements ActionListener {
 
     public int getNum() {
         return num;
+    }
+
+    public static void main(String[] args) {
+        Main frame = new Main(1);
     }
 }
 
@@ -232,6 +251,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         loadItems();
         curRoom = outside;
         grid = curRoom.getGrid();
+
 
 
         Item.loadFoundImages();
@@ -353,17 +373,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             String[] lineItems = stdin.nextLine().split(" ");
             for (String s : lineItems) {
-                celeste.addBug(items.get(Integer.parseInt(s)));
+                if (!s.equals("")) {
+                    celeste.addBug(items.get(Integer.parseInt(s)));
+                }
             }
 
             lineItems = stdin.nextLine().split(" ");
             for (String s : lineItems) {
-                celeste.addFish(items.get(Integer.parseInt(s)));
+                if (!s.equals("")) {
+                    celeste.addFish(items.get(Integer.parseInt(s)));
+                }
             }
 
             lineItems = stdin.nextLine().split(",");
             for (String s : lineItems) {
-                celeste.addFossil(new Item(2, s, new ImageIcon("Assets/Items/General/Fossil.png").getImage(), 0, 100));
+                if (!s.equals("")) {
+                    celeste.addFossil(new Item(2, s, new ImageIcon("Assets/Items/General/Fossil.png").getImage(), 0, 100));
+                }
             }
 
             lastOn = Long.parseLong(stdin.nextLine());
@@ -601,6 +627,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Reading from the items file and loading it to the ArrayList
     public void loadItems() {
+        items.clear();
         Hashtable<String, int[]> itemInfo = new Hashtable<>();  // Temporary info
 
         try {
@@ -702,18 +729,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     // Deals with all player movement
     public void move() {
-        //System.out.println(celeste.getSpeechStage() + " " + player.isTalkingToNPC());
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
-        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
-        //System.out.println(player.getxTile()+ " "+ player.getyTile());
 
         count++;
+
 
         if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
             dialogueDelay++;
         }
+
+
 
         if (mainFrame.getGameScore() > 0) {
             player.setBells(player.getBells() + mainFrame.getGameScore() / 10);
@@ -756,6 +783,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+
         for (NPC temp : NPCs) {
             if (curRoom == outside) {
                 temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
@@ -781,6 +809,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 NPCs.get(player.getVillagerPlayerIsTalkingTo()).setTalking(false);
             }
         }
+
+
 
         if (player.isActionProgressOpen() && player.getActionProgress() >= 160) {
             player.setActionProgress(0);
@@ -817,6 +847,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         if (curRoom != rooms.get(new Point(30, 35))) {
             player.setPlacingFurniture(false);
         }
+
+
     }
 
     public void goToNewRoom() {
@@ -1137,6 +1169,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {
                     save(mainFrame.getNum());
                     StartMenu menu = new StartMenu();
+                    mainFrame.setPanel("");
+
                 }
 
                 else if (new Rectangle(250, 80 + 118*2, 520, 80).contains(mouse)) {
@@ -2386,21 +2420,29 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             for (Item temp : celeste.getBugs()) {
                 line += temp.getId() + " ";
             }
-            line = line.substring(0, line.length()-1);
+
+            if (line.length() > 0) {
+                line = line.substring(0, line.length()-1);
+            }
+
             outFile.println(line);
 
             line = "";
             for (Item temp : celeste.getFish()) {
                 line += temp.getId() + " ";
             }
-            line = line.substring(0, line.length()-1);
+            if (line.length() > 0) {
+                line = line.substring(0, line.length()-1);
+            }
             outFile.println(line);
 
             line = "";
             for (Item temp : celeste.getFossils()) {
                 line += temp.getName() + ",";
             }
-            line = line.substring(0, line.length()-1);
+            if (line.length() > 0) {
+                line = line.substring(0, line.length()-1);
+            }
             outFile.println(line);
 
             long unixTime = Instant.now().getEpochSecond();

@@ -8,6 +8,10 @@ import java.util.*;
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
 	private int num = 1;
+	private NewFile newFile;
+	private LoadFile loadFile;
+	private Main main;
+	private Options options;
 
     public StartMenu() {
 		super("Pokemon Crossing");
@@ -22,7 +26,7 @@ public class StartMenu extends JFrame{
 		loadBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			LoadFile frame = new LoadFile();
+    			loadFile = new LoadFile();
     			setVisible(false);
     		}
 		});
@@ -34,7 +38,7 @@ public class StartMenu extends JFrame{
 		newBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			NewFile frame = new NewFile();
+    			newFile = new NewFile();
     			setVisible(false);
     		}			
 		});
@@ -46,7 +50,7 @@ public class StartMenu extends JFrame{
 		optionsBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			Options frame = new Options();
+    			options = new Options();
     			setVisible(false);
     		}
 		});
@@ -69,174 +73,10 @@ public class StartMenu extends JFrame{
 		setContentPane(layeredPane);        
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+		setResizable(false);
 
     }
 
-    public void createNewFile(int num, String name, int gender) {
-		PrintWriter outFile;
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter (new FileWriter ("Saves/save" + num + "/save" + num + ".txt")));
-
-			outFile.println(name); // name
-			outFile.println(gender); // gender
-			outFile.println(0); // bells
-			for (int i = 0; i < 19; i++) {  // items
-				outFile.println("null");
-			}
-			outFile.println("orange"); // wallpaper
-			outFile.println("yellow"); // floor
-
-			outFile.println(); // museum bugs
-			outFile.println(); // museum fish
-			outFile.println(); // museum fossils
-
-			outFile.println(); // placed furniture
-
-			outFile.close();
-
-		}
-    	catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/trees.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/trees.txt")));
-				int n = Integer.parseInt(stdin.nextLine());
-				outFile.println(n);
-
-				for (int i = 0; i < n; i++) {
-					outFile.println(stdin.nextLine());
-				}
-
-				n = Integer.parseInt(stdin.nextLine());
-				outFile.println(n);
-
-				for (int i = 0; i < n; i++) {
-					outFile.println(stdin.nextLine());
-				}
-
-				outFile.close();
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/map.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/map.txt")));
-
-				for (int i = 0; i < 85; i++) {
-					outFile.println(stdin.nextLine());
-				}
-
-				outFile.close();
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island map.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island map.txt")));
-
-				for (int i = 0; i < 46; i++) {
-					outFile.println(stdin.nextLine());
-				}
-
-				outFile.close();
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/rooms.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Rooms/Rooms.txt")));
-
-				for (int i = 0; i < 218; i++) {
-					outFile.println(stdin.nextLine());
-				}
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			outFile.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/outside diggable tiles.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/outside diggable tiles.txt")));
-
-				for (int i = 0; i < 85; i++) {
-					outFile.println(stdin.nextLine());
-				}
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			outFile.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			outFile = new PrintWriter(
-				new BufferedWriter(new FileWriter("Saves/save" + num + "/minigame island diggable tiles.txt")));
-
-			try {
-				Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island diggable tiles.txt")));
-
-				for (int i = 0; i < 46; i++) {
-					outFile.println(stdin.nextLine());
-				}
-			}
-			catch (FileNotFoundException e) {
-				e.printStackTrace();
-			}
-
-			outFile.close();
-		}
-		catch (IOException e) {
-			e.printStackTrace();
-		}
-
-	}
     
     public static void main(String[] arguments) {
 		StartMenu menu = new StartMenu();

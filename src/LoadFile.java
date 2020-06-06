@@ -55,6 +55,7 @@ public class LoadFile extends JFrame{
     		public void actionPerformed(ActionEvent e){
     			if (slotsUsed[0]) {
 					Main frame = new Main(1);
+					goToGame();
 				}
 
     		}			
@@ -69,6 +70,7 @@ public class LoadFile extends JFrame{
     		public void actionPerformed(ActionEvent e){
 				if (slotsUsed[1]) {
 					Main frame = new Main(2);
+					goToGame();
 				}
     		}			
 		});
@@ -82,6 +84,7 @@ public class LoadFile extends JFrame{
     		public void actionPerformed(ActionEvent e){
 				if (slotsUsed[2]) {
 					Main frame = new Main(3);
+					goToGame();
 				}
     		}			
 		});
@@ -93,19 +96,27 @@ public class LoadFile extends JFrame{
 		for (int i = 0; i < 3; i++) {
 			if (slotsUsed[i]) {
 				JLabel text = new JLabel(names[i]);
+                text.setFont(new Font("Helvetica", Font.PLAIN, 30));
 				Dimension size = text.getPreferredSize();
-				text.setBounds(150, 100 + 100*i, size.width, size.height);
-				layeredPane.setLayout(null);
-				layeredPane.add(text);
+				System.out.println(size);
+				text.setBounds(400, 258 + 60 * i, size.width, size.height);
+				layeredPane.add(text, 0);
+
 			}
 
 		}
 
 
-		setContentPane(layeredPane);        
+		setContentPane(layeredPane);
+		panel.setVisible(true);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setVisible(true);
+        setResizable(false);
     }
+
+    public void goToGame() {
+    	setVisible(false);
+	}
 
 	public boolean[] getSlotsUsed() {
     	return slotsUsed;
