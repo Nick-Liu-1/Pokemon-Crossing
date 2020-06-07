@@ -35,6 +35,22 @@ public class MP3 {
     
     public void play() {
     	new Thread() {	//plays in background
+<<<<<<< HEAD
+	    	public void run() {
+				try {
+		        	do {
+			            FileInputStream fis     = new FileInputStream(filename);
+			         	BufferedInputStream bis = new BufferedInputStream(fis);
+			          	player = new Player(bis); 
+			            player.play();
+			        } while (loop);		//to loop music
+			    }
+			    catch (Exception e) {
+			       	System.out.println("Problem playing file " + filename);
+			        System.out.println(e);
+			    }
+	        }
+=======
             public void run() {
 		        try {
 		            do {
@@ -49,6 +65,7 @@ public class MP3 {
 		            System.out.println(e);
 		        }
             }
+>>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
 		}.start();
     }
 
