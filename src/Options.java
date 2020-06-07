@@ -25,6 +25,7 @@ public class Options extends JFrame{
 		layeredPane.add(plus,1);
 		plus.setOpaque(false);
 		
+		//Creating buttons:
 		JButton minus = new JButton();	
 		minus.addActionListener(new ActionListener(){
     		@Override
