@@ -17,7 +17,6 @@ public class Room {
 
     public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2, String name) {
         this.grid = grid;
-        this.originalGrid = grid;
         this.image = image;
         this.entryX = entryX;
         this.entryY = entryY;
@@ -26,6 +25,13 @@ public class Room {
         this.exitX2 = exitX2;
         this.exitY2 = exitY2;
         this.name = name;
+
+        originalGrid = new int[grid.length][grid[0].length];
+        for (int i = 0; i < grid.length; i++) {
+            for (int j = 0; j < grid[0].length; j++) {
+                originalGrid[i][j] = grid[i][j];
+            }
+        }
     }
 
     public Image getImage() {

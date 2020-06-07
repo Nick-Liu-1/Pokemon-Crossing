@@ -153,7 +153,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private Room curRoom;  // Room player is in
     private Room outside;  // The outside map room
     private int[][] grid;  // Current grid of the room the player is in
-    private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms
+    private Hashtable<Point, Room> rooms = new Hashtable<>();  // Hashtable of all rooms with the entry point as the key
 
     private Room minigameIsland;
 
@@ -207,6 +207,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     private long lastOn; // Unix timestamp of last time player opened file
 
     private int dialogueDelay = 0;  // Counter for talking after player is leaving
+    private boolean clickedRightClickMenu = false;
 
     // Fonts
     public static Font finkheavy15 = null;
@@ -417,7 +418,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
-            //
+            // Fossils in museum
             lineItems = stdin.nextLine().split(",");
             for (String s : lineItems) {
                 if (!s.equals("")) {
@@ -425,9 +426,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
-            lastOn = Long.parseLong(stdin.nextLine());
+            lastOn = Long.parseLong(stdin.nextLine());  // Timestamp of last time player was on
 
-
+            // Furniture placed
             while (stdin.hasNextLine()) {
                 lineItems = stdin.nextLine().split(" ");
                 System.out.println(Arrays.toString(lineItems));
@@ -439,7 +440,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
     }
- 	
+
+    // Load sound effects
  	public void loadSounds(){
  		try{
 			diggingSFX = Applet.newAudioClip(diggingWav.toURL());
@@ -451,6 +453,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 		}
  	}
 
+ 	// Load fonts
     public static void loadFonts() {
         try {
             finkheavy15 = Font.createFont(Font.TRUETYPE_FONT, new File("Assets/Misc/FinkHeavy.ttf")).deriveFont(15f);
@@ -528,7 +531,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         minigameIsland = new Room(minigameIslandMapGrid, new ImageIcon("Assets/Map/Minigame Island.png").getImage(), 31, 75, 23, 36,0, 0, "Minigame Island");
         rooms.put(new Point(31, 75), minigameIsland);
 
-        try {
+        try {  // Loading diggable tiles on main island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/outside diggable tiles.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -541,7 +544,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
-        try {
+        try {  // Loading water tiles on main island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/Main Island Water.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -555,7 +558,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
 
-        try {
+        try {  // Loading diggable tiles on minigame island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/minigame island diggable tiles.txt")));
             for (int i = 0; i < 46; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -568,7 +571,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
-        try {
+        try {  // Loading water tiles on minigame island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island water.txt")));
             for (int i = 0; i < 46; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -580,7 +583,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
-        try {
+        try {  // Loading beach tiles on main island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/outside beach.txt")));
             for (int i = 0; i < 85; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -592,7 +595,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
-        try {
+        try {  // Loading beach tiles on minigame island
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Map/minigame island beach.txt")));
             for (int i = 0; i < 46; i++) {
                 String[] s = stdin.nextLine().split(" ");
@@ -607,10 +610,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         // Reading from the room file
         try{
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/Rooms.txt")));
-            int n = Integer.parseInt(stdin.nextLine());
+            int n = Integer.parseInt(stdin.nextLine());  // Number of rooms
             for (int i = 0; i < n; i++) {
                 String file = stdin.nextLine();
 
+                // Reading room info
                 int entryX, entryY, exitX, exitY, exitX2, exitY2;
                 String[] line = stdin.nextLine().split(" ");
 
@@ -625,6 +629,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 line = stdin.nextLine().split(" ");
                 wid = Integer.parseInt(line[0]);
                 len = Integer.parseInt(line[1]);
+
+                // Reading grid
                 int[][] grid = new int[wid][len];
                 for (int j = 0; j < len; j++) {
                     line = stdin.nextLine().split(" ");
@@ -633,6 +639,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Adding to rooms
                 rooms.put(new Point(entryX, entryY), new Room(grid, new ImageIcon("Assets/Rooms/"+file).getImage(), entryX, entryY, exitX, exitY, exitX2, exitY2, file.substring(0, file.length()-4)));
             }
         }
@@ -640,14 +647,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
-        try {
+        try {  // Loading trees
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/save" + mainFrame.getNum() + "/trees.txt")));
-            int n = Integer.parseInt(stdin.nextLine());
+            int n = Integer.parseInt(stdin.nextLine());  // Main island trees
             for (int i = 0; i < n; i++) {
                 String[] line = stdin.nextLine().split(" ");
                 trees.add(new Tree(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]), Integer.parseInt(line[3]), outside, Integer.parseInt(line[4])));
             }
-            n = Integer.parseInt(stdin.nextLine());
+            n = Integer.parseInt(stdin.nextLine());  // Minigame island trees
             for (int i = 0; i < n; i++) {
                 String[] line = stdin.nextLine().split(" ");
                 trees.add(new Tree(Integer.parseInt(line[0]), Integer.parseInt(line[1]), Integer.parseInt(line[2]), Integer.parseInt(line[3]), minigameIsland, Integer.parseInt(line[4])));
@@ -659,11 +666,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     // Reading from the items file and loading it to the ArrayList
+    // Iterates through all files in the items folder and all subfolders
     public void loadItems() {
-        items.clear();
+        items.clear(); // Clear the arraylist
         Hashtable<String, int[]> itemInfo = new Hashtable<>();  // Temporary info
 
-        try {
+        try {  // Reading from file
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Items/Items.txt")));
             int n = Integer.parseInt(stdin.nextLine());
             String[] line;
@@ -678,7 +686,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 itemInfo.put(fileName, new int[] {Integer.parseInt(line[0]), Integer.parseInt(line[line.length-2]), Integer.parseInt(line[line.length-1])});
             }
 
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {  // Add nulls in the arraylist for later
                 items.add(null);
             }
         }
@@ -686,25 +694,31 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             e.printStackTrace();
         }
 
+        // Going through all files in the Items folder and all subfolders within the folder
         File folder = new File("Assets/Items");
         ArrayList<String> absolutePaths = new ArrayList<>();
-        search(".*\\.png", folder, absolutePaths);
+        search(".*\\.png", folder, absolutePaths);  // Recursively get the files and add to the arraylist
 
         String name;
         String[] splitFile;
         int[] info;
+
+        // Go through every file
         for (String file : absolutePaths) {
             splitFile = file.split("\\\\");
             name = splitFile[splitFile.length-1];
             info = itemInfo.get(name);
             name = name.substring(0, name.length()-4);
-            //System.out.println(name + " " + Arrays.toString(info));
+
+            // Add the file at the appropriate position in the arraylist based on id
             items.set(info[0], new Item(info[0], capitalizeWord(name), new ImageIcon(file).getImage(), info[1], info[2]));
         }
 
-        Item.loadFossils();
+        Item.loadFossils();  // Loading fossil names
     }
 
+    // Given a folder and a pattern for the files, adds the names of all the files in the folder
+    // Copied from stack overflow
     public void search(String pattern, File folder, ArrayList<String> result) {
         for (File f : Objects.requireNonNull(folder.listFiles())) {
             if (f.isDirectory()) {
@@ -719,6 +733,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Creates the NPCs by loading images and other information
     public void createNPCs() {
         File folder = new File("Assets/NPCs/Annie");
         File[] listOfFiles = folder.listFiles();
@@ -986,6 +1001,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = true;
+            clickedRightClickMenu = false;
+
 
             if (player.isInventoryOpen()){
                 if (!player.isRightClickMenuOpen()) {
@@ -993,13 +1010,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
 
                 else {
-                    if (player.clickedMenuBox(mouse.x, mouse.y) == 0 && grid[player.getxTile()][player.getyTile()] != 4) {
-                        curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
-                        grid[player.getxTile()][player.getyTile()] = 4;
-                        player.dropSelectedItem();
+                    if (player.clickedMenuBox(mouse.x, mouse.y) == 0) {
+                        clickedRightClickMenu = true;
+                        if (grid[player.getxTile()][player.getyTile()] != 4) {
+                            curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
+                            grid[player.getxTile()][player.getyTile()] = 4;
+                            player.dropSelectedItem();
+
+                            player.setSelectedItemC(-1);
+                            player.setSelectedItemR(-1);
+                        }
                     }
                     if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
                         if (player.getSelectedItemR() != -1 && player.getSelectedItemC() != -1) {
+                            clickedRightClickMenu = true;
                             Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
                             if (item.isFloor()) {
                                 String temp = player.getSelectedFloor();
@@ -1034,6 +1058,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                         else {
                             player.unequipItem();
+                            clickedRightClickMenu = true;
                             player.setSelectedEquipped(false);
                         }
                     }
@@ -1322,6 +1347,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                             temp.remove(new Point(xTile, yTile));
                             curRoom.setDroppedItems(temp);
                             grid[xTile][yTile] = curRoom.getOriginalGrid()[xTile][yTile];
+                            System.out.println(curRoom.getOriginalGrid()[xTile][yTile]);
                         }
                         else {
                             player.setInventoryFullPromptOpen(true);
@@ -1551,7 +1577,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = false;
-            if (player.isInventoryOpen() && !player.isRightClickMenuOpen()) {
+            if (player.isInventoryOpen() && !player.isRightClickMenuOpen() && !clickedRightClickMenu) {
                 player.moveItem(mouse);
             }
 
