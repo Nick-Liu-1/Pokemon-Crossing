@@ -1102,14 +1102,14 @@ public class Player {
     }
     
     public void moveItem(Point mouse){
-    	int shortestDist = Integer.MAX_VALUE;
-    	int swapR=0;
-    	int swapC=0;
-    	if(selectedItemR < 6 && selectedItemC < 3){
+    	int shortestDist = Integer.MAX_VALUE;	//finding the closest slot for the item
+    	int swapR=0;	//row of new slot for item
+    	int swapC=0;	//column of new slot for item
+    	if(selectedItemR < 6 && selectedItemC < 3){ //if the selected item exists
 	    	for (int i = 0; i < 6; i++) {
 	            for (int j = 0; j < 3; j++) {
-	                int dist = (int)(Math.hypot(mouse.x - (342 + i * 68),  mouse.y - (72 + j * 68)));
-	                if(dist<=shortestDist){
+	                int dist = (int)(Math.hypot(mouse.x - (342 + i * 68),  mouse.y - (72 + j * 68)));	// finding the distance between each slot and the selected item
+	                if(dist<=shortestDist){	
 	                	shortestDist = dist;
 	                	swapR = i;
 	                	swapC = j;
@@ -1117,17 +1117,17 @@ public class Player {
 	            }
 	        }
 
-	    	if (selectedItemC != -1 && selectedItemR != -1) {
-                if (items[swapR][swapC] == null){
-                    items[swapR][swapC] = items[selectedItemR][selectedItemC];
+	    	if (selectedItemC != -1 && selectedItemR != -1) {	//-1 is the default for when no item is selected
+                if (items[swapR][swapC] == null){								//if new slot is empty
+                    items[swapR][swapC] = items[selectedItemR][selectedItemC];	//selected item is given a new pos
                     items[selectedItemR][selectedItemC] = null;
                 }
-                else {
-                    Item temp = items[selectedItemR][selectedItemC];
-                    items[selectedItemR][selectedItemC] = items[swapR][swapC];
-                    items[swapR][swapC] = temp;
+                else {															//if there was another item in the new slot
+                    Item temp = items[selectedItemR][selectedItemC];			
+                    items[selectedItemR][selectedItemC] = items[swapR][swapC];	//places previous item in selected item's old slot
+                    items[swapR][swapC] = temp;									//places selected item in new slot
                 }
-                selectedItemR=swapR;
+                selectedItemR=swapR;//updates row and column of the item
                 selectedItemC=swapC;
             }
     	}
