@@ -73,27 +73,31 @@ public class Player {
     private boolean placingFurniture = false;
     private boolean earnedBellsPromptOpen = false;
 
+    // Action variables
     private int actionProgress = 0;
     private String actionMessage = "";
     private int action;
 
-    private Item caughtItem = null;
+    private Item caughtItem = null;  // Item caught (e.g. fish after fishing)
 
+    // Action constants
     public static final int DIGGING = 0;
     public static final int DIGGING_FOSSIL = 1;
     public static final int BUG_CATCHING = 2;
     public static final int FISHING = 3;
 
+    // Rectangles in right click menu
     private ArrayList<Rectangle> rightClickMenu = new ArrayList<>();
 
     private final Image inventoryImage = new ImageIcon("Assets/Misc/inventory.png").getImage();
     private final Image frownyFaceImage = new ImageIcon("Assets/Misc/frowny face.png").getImage();
 
     // How many bells player has
-    private int bells = 69420;
+    private int bells;
 
     private GamePanel mainFrame;
 
+    // Offset of where item was clicked in inventory
     private int offsetX, offsetY;
 
     private final int equippedX = 682;
@@ -101,6 +105,7 @@ public class Player {
 
     private int villagerPlayerIsTalkingTo = -1;
 
+    // Villager constants
     public static final int TOM_NOOK = 0;
     public static final int ISABELLE = 1;
     public static final int CELESTE = 2;
@@ -110,6 +115,7 @@ public class Player {
     public static final int BOAT_OPERATOR = 6;
     public static final int BOAT_OPERATOR_ON_ISLAND = 7;
 
+    // X and Y tile player is heading to
     private int goingToxTile, goingToyTile;
 
     private boolean[][] selectedItems = new boolean [6][3];
@@ -121,7 +127,7 @@ public class Player {
 
     public int selectedItemInShop = -1;
 
-    private ArrayList<Furniture> furniture = new ArrayList<>();
+    private ArrayList<Furniture> furniture = new ArrayList<>();  // Placed furniture
     private String selectedWallpaper = "orange";
     private String selectedFloor = "yellow";
 
@@ -136,26 +142,6 @@ public class Player {
         this.mainFrame = mainFrame;
         goingToxTile = x / GamePanel.tileSize;
         goingToyTile = y / GamePanel.tileSize;
-
-        for (int i = 0; i < 1; i++) {
-            for (int j = 0; j < 3; j++) {
-            	if(j==0){
-            		items[i][j] = new Item(1,"Fishing Rod", new ImageIcon("Assets/Items/General/fishing rod.png").getImage(), 500, 125);
-            	}
-                else if (j == 1){
-                	items[i][j] = new Item(6, "Shovel", new ImageIcon("Assets/Items/General/shovel.png").getImage(), 500, 125);
-                }
-                else {
-                    items[i][j] = new Item(7, "Bell Cricket", new ImageIcon("Assets/Items/Bugs/Ground/bell cricket.png").getImage(),0, 430);
-                }
-            }
-        }
-        items[3][2] = new Item(5, "Net", new ImageIcon("Assets/Items/General/net.png").getImage(), 500, 125);
-        items[4][2] = new Item(144, "blue carpet", new ImageIcon("Assets/Items/General/flooring.png").getImage(), 0, 0);
-        items[5][2] = new Item(125, "simple", new ImageIcon("Assets/Items/General/wallpaper.png").getImage(), 0, 0);
-        items[5][1] = new Item(128, "Blue Bed", new ImageIcon("Assets/Items/General/blue bed.png").getImage(),2000, 420);
-        items[4][1] = new Item(143, "Wooden Table", new ImageIcon("Assets/Items/General/wooden table.png").getImage(),2000, 420);
-        items[3][1] = new Item(139, "White Couch", new ImageIcon("Assets/Items/General/white couch.png").getImage(),2000, 420);
     }
 
     // Load boy and girl images
@@ -221,6 +207,7 @@ public class Player {
                 changeDest();
             }
 
+            // Open inventory if queued
             if (escapeQueued) {
                 inventoryOpen = !inventoryOpen;
                 escapeQueued = false;
@@ -341,7 +328,7 @@ public class Player {
                 }
                 break;
         }
-        if (ans == 4 | ans == 6) {
+        if (ans == 4 | ans == 6) {  // Treat dropped items and buried objects as just a normal tile
             ans = 1;
         }
 
@@ -353,7 +340,7 @@ public class Player {
         if (gender == Player.MALE) {
             if (!moving) {
                 if (!fishing) {
-                    switch (direction) {
+                    switch (direction) {  // Standing images
                         case (RIGHT):
                             g.drawImage(boyImages.get("right"), 410, 248, null);
                             break;
@@ -369,6 +356,8 @@ public class Player {
                     }
                 }
                 else {
+                    // Fishing
+                    // Chooses the frame based on how long teh action progress has finished
                     String dir;
                     String frame;
                     switch (direction) {
@@ -412,11 +401,11 @@ public class Player {
                 }
             }
             else {
-                if (movementTick % 15 == 0) {
+                if (movementTick % 15 == 0) {  // Increment the frame
                     frame++;
                 }
                 if (!running) {
-                    switch (direction) {
+                    switch (direction) {  // Draw walking and go through the different frames
                         case (RIGHT):
                             switch (frame % 4) {
                                 case (0):
@@ -520,7 +509,7 @@ public class Player {
                 }
             }
         }
-        else {
+        else {  // Same as above for girl images
             if (!moving) {
                 if (!fishing) {
                     switch (direction) {
@@ -691,19 +680,24 @@ public class Player {
                 }
             }
         }
+
+        // Drawing action progress
         if (actionProgressOpen) {
-            actionProgress++;
+            actionProgress++; // increment the progress
+
+            // Draw rect
             Rectangle infoRect = new Rectangle(820, 545, 200, 150);
             g.setColor(new Color(251, 255, 164));
             g.fillRect(infoRect.x, infoRect.y, infoRect.width, infoRect.height);
 
+            // Draw progress rect
             g.setColor(Color.GREEN);
             g.fillRect( 840, 600, actionProgress, 40);
 
             g.setColor(Color.BLACK);
             g.drawRect(840, 600, 160, 40);
 
-            if (g instanceof Graphics2D) {
+            if (g instanceof Graphics2D) {  // Draw text of what action is doing
                 Graphics2D g2 = (Graphics2D) g;
 
                 FontMetrics fontMetrics = new JLabel().getFontMetrics(GamePanel.finkheavy30);
@@ -717,6 +711,7 @@ public class Player {
 
         }
 
+        // Inventory
         if (inventoryOpen) {
             g.drawImage(inventoryImage, 288, 20, null);
             for (int i = 0; i < items.length; i++) {

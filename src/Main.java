@@ -734,10 +734,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     }
 
     // Creates the NPCs by loading images and other information
+    // Iterates through ever file in the villager's folder and adds them to a hashtable and creates the NPC objects
     public void createNPCs() {
+        // Annie npc images
         File folder = new File("Assets/NPCs/Annie");
         File[] listOfFiles = folder.listFiles();
         Hashtable<String, Image> annieImages = new Hashtable<>();
+
 
         for (int i = 0; i < listOfFiles.length; i++) {
             if (listOfFiles[i].isFile()) {
@@ -747,6 +750,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
         NPCs.set(3, new NPC("Annie", annieImages, 45, 50, "my guy", outside, Player.ANNIE));
 
+        // Bob the builder npcs
         folder = new File("Assets/NPCs/Bob the Builder");
         listOfFiles = folder.listFiles();
         Hashtable<String, Image> bobImages = new Hashtable<>();
@@ -760,7 +764,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         NPCs.set(4, new NPC("Bob the Builder", bobImages, 45, 51, "pthhpth", outside, Player.BOB_THE_BUILDER));
 
-
+        // Nick npc images
         folder = new File("Assets/NPCs/Nick");
         listOfFiles = folder.listFiles();
         Hashtable<String, Image> nickImages = new Hashtable<>();
@@ -781,15 +785,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point (mousePos.x-offset.x, mousePos.y-offset.y);
 
+        // Increment the counter
         count++;
 
-
+        // Increment the dialogue delay if player is talking to npc and is about to leave
         if (player.isTalkingToNPC() && !player.isDialogueSelectionOpen()) {
             dialogueDelay++;
         }
 
 
-
+        // Add bells after player finishes game
         if (mainFrame.getGameScore() > 0) {
             player.setBells(player.getBells() + mainFrame.getGameScore() / 10);
             gameScore = mainFrame.getGameScore();
@@ -800,19 +805,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         // Move player in different directions if WASD is pressed and the inventory is not open
         if (!player.isInventoryOpen() && !fadingToBlack && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !exitMenuOpen) {
-            if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
+            if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {  // right
                 player.move(Player.RIGHT, keys, grid);
             }
 
-            if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {
+            if (keys[KeyEvent.VK_W] && KeyEvent.VK_W == mostRecentKeyPress) {  // up
                 player.move(Player.UP, keys, grid);
             }
 
-            if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {
+            if (keys[KeyEvent.VK_A] && KeyEvent.VK_A == mostRecentKeyPress) {  // left
                 player.move(Player.LEFT, keys, grid);
             }
 
-            if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {
+            if (keys[KeyEvent.VK_S] && KeyEvent.VK_S == mostRecentKeyPress) {  // down
                 player.move(Player.DOWN, keys, grid);
             }
 
@@ -831,13 +836,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-
+        // Move villagers
         for (NPC temp : NPCs) {
             if (curRoom == outside) {
                 temp.move(grid, player.getX(), player.getY(), player.getGoingToxTile(), player.getGoingToyTile(), NPCs);
             }
         }
 
+        // If player clicks on dialogue selection circle set flag true
         if (player.isDialogueSelectionOpen() && Math.hypot(510 - mouse.x, 186 - mouse.y) <= 34 && clicked) {
             player.setSelectionMenuClicked(true);
         }
@@ -845,10 +851,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             player.setSelectionMenuClicked(false);
         }
 
+        // Get selection angle of dialogue selection
         if (player.isDialogueSelectionOpen()) {
             selectionAngle = ((Math.atan2((186 - mouse.y), (mouse.x - 510)) + 2*Math.PI) % (2*Math.PI));
         }
 
+        // If dialogue delay has finished then player is no longer talking to npcs
         if (player.isTalkingToNPC() && dialogueDelay >= 300) {
             if (!(player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK && tom_nook.getSpeechStage() != Tom_Nook.GOODBYE) &&
             !(player.getVillagerPlayerIsTalkingTo() == Player.CELESTE && celeste.getSpeechStage() != Celeste.GOODBYE)) {
@@ -858,12 +866,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-
-
+        // Action (e.g. bug catching) has completed after 160 frames
         if (player.isActionProgressOpen() && player.getActionProgress() >= 160) {
             player.setActionProgress(0);
             player.setActionProgressOpen(false);
 
+            // Add bug to inventory with 30% chance if player was bug catching
             if (player.getAction() == Player.BUG_CATCHING) {
                 if (randint(1, 10) <= 3) {
                     Item item = items.get(randint(7, 31));
@@ -873,6 +881,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Add fossil to inventory if player was digging fossils
             if (player.getAction() == Player.DIGGING_FOSSIL) {
                 Item item = items.get(3);
                 item.setName(capitalizeWord(Item.fossilNames.get(randint(0, Item.fossilNames.size() - 1))));
@@ -881,6 +890,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.addItem(item);
             }
 
+            // Add fish to inventory if player was fishing with 30% chance
             if (player.getAction() == Player.FISHING) {
                 if (randint(1, 10) <= 3) {
                     Item item = items.get(randint(38, 105));
@@ -892,6 +902,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        // If player leaves their room and are trying to place furniture, it stops them
         if (curRoom != rooms.get(new Point(30, 35))) {
             player.setPlacingFurniture(false);
         }
@@ -899,6 +910,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     }
 
+    // Takes player to a new room
     public void goToNewRoom() {
         curRoom.setGrid(grid);
         curRoom = rooms.get(new Point(player.getxTile(), player.getyTile()));  // Set curRoom to be new the new room
@@ -913,6 +925,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player.setGoingToNewRoom(false);
     }
 
+    // Allows player to exit room
     public void exitRoom() {
         curRoom.setGrid(grid);
         // Set player pos
@@ -934,11 +947,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player.setExitingRoom(false);
     }
 
+    // Returns if a tile is adjacent to a player or not
     public boolean isAdjacentToPlayer(int xTile, int yTile) {
         return (xTile == player.getxTile() && yTile == player.getyTile() - 1) || (xTile == player.getxTile() && yTile == player.getyTile() + 1) ||
             (xTile == player.getxTile() - 1 && yTile == player.getyTile()) || (xTile == player.getxTile() + 1 && yTile == player.getyTile());
     }
 
+    // Returns the NPC at a given location, or null if there isn't any
     public NPC npcAtPoint(int xTile, int yTile) {
         for (NPC temp : NPCs) {
             if ((curRoom == temp.getRoom()) && ((xTile == temp.getxTile() && yTile == temp.getyTile()) || (xTile == temp.getGoingToxTile() && yTile == temp.getGoingToyTile()))) {
@@ -957,28 +972,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void keyPressed(KeyEvent e) {
         if (!keys[e.getKeyCode()] && (e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_W ||
             e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_S)) {
-            mostRecentKeyPress = e.getKeyCode();
+            mostRecentKeyPress = e.getKeyCode();  // If WASD is pressed set the most recent keypress
         }
+
         keys[e.getKeyCode()] = true;  // Set key in key array to be down
 
+        // Inventory opening
         if (keys[KeyEvent.VK_Q]) {
             player.setPlacingFurniture(false);
+
             if (!player.isShopOpen() && !player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !exitMenuOpen) {
                 if (!player.isInventoryOpen()) {
-                    player.setEscapeQueued(true);
+                    player.setEscapeQueued(true);  // Queue the inventory opening
                 }
                 else {
                     player.setInventoryOpen(false);
                 }
 
+                // Deselect any items
                 player.setSelectedItemR(-1);
                 player.setSelectedItemC(-1);
             }
-            else if (player.isShopOpen()) {
-                player.setShopOpen(false);
-            }
         }
 
+        // Exit menu
         if (keys[KeyEvent.VK_ESCAPE]) {
             exitMenuOpen = !exitMenuOpen;
         }
@@ -1005,27 +1022,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
 
             if (player.isInventoryOpen()){
+                // Select item if right click menu is not open
                 if (!player.isRightClickMenuOpen()) {
                     player.selectItem(mouse);
                 }
 
                 else {
-                    if (player.clickedMenuBox(mouse.x, mouse.y) == 0) {
+                    if (player.clickedMenuBox(mouse.x, mouse.y) == 0) {  // First box in right click menu
                         clickedRightClickMenu = true;
-                        if (grid[player.getxTile()][player.getyTile()] != 4) {
+                        if (grid[player.getxTile()][player.getyTile()] != 4) {  // Drop the item if there is no item on the tile already
                             curRoom.addDroppedItem(new DroppedItem(player.getSelectedItem(), player.getxTile(), player.getyTile()));
                             grid[player.getxTile()][player.getyTile()] = 4;
                             player.dropSelectedItem();
 
+                            // Deselect item
                             player.setSelectedItemC(-1);
                             player.setSelectedItemR(-1);
                         }
                     }
-                    if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {
+                    if (player.clickedMenuBox(mouse.x, mouse.y) == 1) {  // Second box in right click menu
                         if (player.getSelectedItemR() != -1 && player.getSelectedItemC() != -1) {
                             clickedRightClickMenu = true;
                             Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
-                            if (item.isFloor()) {
+
+                            if (item.isFloor()) {  // Apply floor if item is floor
                                 String temp = player.getSelectedFloor();
                                 player.setSelectedFloor(item.getName());
                                 player.removeItem(item);
@@ -1034,7 +1054,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                                 player.setSelectedItemR(-1);
 
                             }
-                            else if (item.isWallpaper()) {
+                            else if (item.isWallpaper()) {  // Apply wallpaper if item is wallpaper
                                 String temp = player.getSelectedWallpaper();
                                 player.setSelectedWallpaper(item.getName());
                                 player.removeItem(item);
@@ -1042,12 +1062,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                                 player.setSelectedItemC(-1);
                                 player.setSelectedItemR(-1);
                             }
-                            else if (item.isFurniture()) {
+                            else if (item.isFurniture()) {  // Place furniture if item is furniture
                                 player.setPlacingFurniture(true);
                                 player.setInventoryOpen(false);
                             }
 
-                            else if (!player.isSelectedEquipped()) {
+                            else if (!player.isSelectedEquipped()) {  // Equip item if item can be equipped
                                 player.equipItem();
                                 player.setSelectedEquipped(true);
                                 player.setSelectedItemC(-1);
@@ -1056,7 +1076,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                         }
 
-                        else {
+                        else { // Item is equipped item
+                            // Unequip item
                             player.unequipItem();
                             clickedRightClickMenu = true;
                             player.setSelectedEquipped(false);
@@ -1065,26 +1086,26 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
             else if (player.isShopOpen()) {
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 5; i++) {  // Check if any of the shop rects have been selected
                     if (tom_nook.getItemRects().get(i).contains(mouse)) {
                         player.setSelectedItemInShop(i);
                     }
                 }
 
-                if (tom_nook.getBuyRect().contains(mouse)) {
+                if (tom_nook.getBuyRect().contains(mouse)) {  // Buy button pressed
                     if (player.inventoryHasSpace()) {
                         if (player.getSelectedItemInShop() <= tom_nook.getStoreItems().size() - 1) {
                             Item item = tom_nook.getStoreItems().get(player.getSelectedItemInShop());
 
-                            if (player.getBells() >= item.getBuyCost()) {
+                            if (player.getBells() >= item.getBuyCost()) {  // If player has enough bells buy the item
                                 player.addItem(item);
                                 player.setBells(player.getBells() - item.getBuyCost());
                                 tom_nook.getStoreItems().remove(item);
-                            }
 
-                            player.setShopOpen(false);
-                            player.setDialogueSelectionOpen(true);
-                            tom_nook.setSpeechStage(NPC.GREETING);
+                                player.setShopOpen(false);
+                                player.setDialogueSelectionOpen(true);
+                                tom_nook.setSpeechStage(NPC.GREETING);
+                            }
                         }
                     }
                     else {
@@ -1092,47 +1113,49 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-                else if (tom_nook.getCancelRect().contains(mouse)) {
+                else if (tom_nook.getCancelRect().contains(mouse)) {  // Cancel button pressed
                     player.setShopOpen(false);
                     player.setDialogueSelectionOpen(true);
                     tom_nook.setSpeechStage(NPC.GREETING);
                 }
             }
 
-            else if (player.isSellShopOpen()) {
+            else if (player.isSellShopOpen()) {  // Selling items
                 player.selectSellItem(mouse);
-                if (player.getSellRect().contains(mouse)) {
+                if (player.getSellRect().contains(mouse)) {  // Sell button pressed - sell selected items
                     player.sellItems();
                     player.setSellShopOpen(false);
                     player.setDialogueSelectionOpen(true);
                     tom_nook.setSpeechStage(NPC.GREETING);
                 }
-                else if (player.getCancelRect().contains(mouse)) {
+                else if (player.getCancelRect().contains(mouse)) {  // Cancel button pressed - return to talking to tom nook
                     player.setSellShopOpen(false);
                     player.setDialogueSelectionOpen(true);
                     tom_nook.setSpeechStage(NPC.GREETING);
                 }
             }
 
-            else if (player.isMuseumOpen()) {
+            else if (player.isMuseumOpen()) {  // Museum open
+                // Scroll up and down buttons
                 Rectangle upRect = new Rectangle(483, 223, 62, 20);
                 Rectangle downRect = new Rectangle(483, 512, 62, 20);
 
-                if (Math.hypot(950 - mouse.x, 140 - mouse.y) < 20) {
+                if (Math.hypot(950 - mouse.x, 140 - mouse.y) < 20) {  // X button in top right
                     player.setMuseumOpen(false);
                     player.setDialogueSelectionOpen(true);
                     celeste.setSpeechStage(NPC.GREETING);
                 }
-                else if (celeste.getBugRect().contains(mouse)) {
+                else if (celeste.getBugRect().contains(mouse)) {  // Bug section
                     celeste.setPage(Celeste.BUG_PAGE);
                 }
-                else if (celeste.getFishRect().contains(mouse)) {
+                else if (celeste.getFishRect().contains(mouse)) {  // Fish section
                     celeste.setPage(Celeste.FISH_PAGE);
                 }
-                else if (celeste.getFossilRect().contains(mouse)) {
+                else if (celeste.getFossilRect().contains(mouse)) {  // Fossil section
                     celeste.setPage(Celeste.FOSSIL_PAGE);
                 }
-                else if (upRect.contains(mouse)) {
+                // Museum draws from starting index to starting index + 5
+                else if (upRect.contains(mouse)) {  // scroll up by increasing the starting index by 5
                     if (celeste.getPage() == Celeste.BUG_PAGE) {
                         if (celeste.getBugStart() - 5 >= 0) {
                             celeste.setBugStart(celeste.getBugStart() - 5);
@@ -1149,7 +1172,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                         }
                     }
                 }
-                else if (downRect.contains(mouse)) {
+                else if (downRect.contains(mouse)) {  // scroll down by increasing the starting index by 5
                     if (celeste.getPage() == Celeste.BUG_PAGE) {
                         if (celeste.getBugStart() + 5 <= celeste.getBugs().size() - 1) {
                             celeste.setBugStart(celeste.getBugStart() + 5);
@@ -1167,28 +1190,30 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
             }
-            else if (player.isDonateMenuOpen()) {
+            else if (player.isDonateMenuOpen()) {  // Donation menu
                 player.selectDonateItem(mouse);
-                if (player.getSellRect().contains(mouse)) {
+                if (player.getSellRect().contains(mouse)) {  // Donate button pressed
                     donateItems();
                     player.setDonateMenuOpen(false);
                     player.setDialogueSelectionOpen(true);
                     celeste.setSpeechStage(NPC.GREETING);
                 }
-                else if (player.getCancelRect().contains(mouse)) {
+                else if (player.getCancelRect().contains(mouse)) {  // Cancel button pressed
                     player.setDonateMenuOpen(false);
                     player.setDialogueSelectionOpen(true);
                     celeste.setSpeechStage(NPC.GREETING);
                 }
             }
 
+            // Item found (e.g. fossil dug up)
             else if (player.isItemFoundPrompt()) {
                 Rectangle okRect = new Rectangle(440, 500, 140, 40);
-                if (okRect.contains(mouse)) {
+                if (okRect.contains(mouse)) {  // Press ok to exit prompt
                     player.setItemFoundPrompt(false);
                 }
             }
 
+            // Inventory is full when player tries to acquire another item
             else if (player.isInventoryFullPromptOpen()) {
                 Rectangle okRect = new Rectangle(440, 500, 140, 40);
                 if (okRect.contains(mouse)) {
@@ -1196,6 +1221,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Player earned bells from minigame
             else if (player.isEarnedBellsPromptOpen()) {
                 Rectangle okRect = new Rectangle(440, 500, 140, 40);
                 if (okRect.contains(mouse)) {
@@ -1204,38 +1230,44 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Player is placing furniture
             else if (player.isPlacingFurniture()) {
-                Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
+                Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];  // furniture being placed
+
+                // Tile pos of mouse
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
+                // Dimension of the furniture
                 int length = Furniture.furnitureSizes.get(item.getName()).getKey();
                 int width = Furniture.furnitureSizes.get(item.getName()).getValue();
 
+                // Place the furniture at the specified position if it is valid
                 if (validFurniturePlacement(xTile, yTile, length, width)) {
                     placeFurniture(xTile, yTile, length, width, item);
                     player.setPlacingFurniture(false);
                 }
             }
 
+            // Exit menu
             else if (exitMenuOpen) {
-                if (new Rectangle(250, 80, 520, 80).contains(mouse)) {
+                if (new Rectangle(250, 80, 520, 80).contains(mouse)) {  // Save and continue
                     save(mainFrame.getNum());
                 }
 
-                else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {
+                else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {  // Save and return to menu
                     save(mainFrame.getNum());
                     StartMenu menu = new StartMenu();
                     mainFrame.setPanel("");
 
                 }
 
-                else if (new Rectangle(250, 80 + 118*2, 520, 80).contains(mouse)) {
+                else if (new Rectangle(250, 80 + 118*2, 520, 80).contains(mouse)) {  // Save and exit to desktop
                     save(mainFrame.getNum());
                     System.exit(0);
                 }
 
-                else if (new Rectangle(250, 80 + 118*3, 520, 80).contains(mouse)) {
+                else if (new Rectangle(250, 80 + 118*3, 520, 80).contains(mouse)) {  // Return to game
                     exitMenuOpen = false;
                 }
             }
@@ -1244,33 +1276,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         player.setRightClickMenuOpen(false);
 
         if (e.getButton() == MouseEvent.BUTTON3) {
-            if (player.isInventoryOpen()) {
+            if (player.isInventoryOpen()) {  // Right click menu if clicked on item
                 player.selectItem(mouse);
                 if (player.getSelectedItem() != null) {
                     player.setRightClickMenuOpen(true);
                 }
             }
+
+            // Basically every action involving right click
             else if (!player.isTalkingToNPC() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() &&!player.isMoving() && !exitMenuOpen) {
+                // Mouse position
                 int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
                 int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
 
                 NPC npc = npcAtPoint(xTile, yTile);
+
+                // Talk to npc if there is one
                 if (npc != null && isAdjacentToPlayer(npc.getxTile(), npc.getyTile())) {
                     player.setTalkingToNPC(true);
                     player.setDialogueSelectionOpen(true);
                     player.setVillagerPlayerIsTalkingTo(npc.getId());
-                    if (!npc.isMoving()) {
+
+                    if (!npc.isMoving()) {  // Talk to npc
                     	animaleseSFX.play();
                         npc.setTalking(true);
                         npc.setSpeechStage(NPC.GREETING);
                     }
                     else {
-                        npc.setStopQueued(true);
+                        npc.setStopQueued(true);  // By queuing it the npc will tak after it has finished moving
                     }
 
                     int playerDir;
 
+                    // Make player face npc
                     if (npc.getxTile() == player.getxTile() + 1) {
                         playerDir = Player.RIGHT;
                     }
@@ -1285,11 +1324,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
 
                     player.setDirection(playerDir);
-                    npc.setDirection((playerDir + 2) % 4);
+                    npc.setDirection((playerDir + 2) % 4);  // Make npc face player by setting its direction opposite of that of the player
 
                 }
 
-
+                // Talking to Tom Nook
                 if (curRoom == tom_nook.getRoom() && (xTile == tom_nook.getxTile() && (yTile == tom_nook.getyTile() || yTile == tom_nook.getyTile() + 1))) {
                 	animaleseSFX.play();
                     player.setTalkingToNPC(true);
@@ -1299,6 +1338,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     tom_nook.resetDialogue();
                 }
 
+                // Talking to boat operator
                 else if (curRoom == boat_operator.getRoom() && (xTile == boat_operator.getxTile()) && (yTile == boat_operator.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
                     animaleseSFX.play();
                     player.setTalkingToNPC(true);
@@ -1308,6 +1348,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     boat_operator.resetDialogue();
                 }
 
+                // Talking to boat operator on island
                 else if (curRoom == boat_operator_on_island.getRoom() && (xTile == boat_operator_on_island.getxTile()) && (yTile == boat_operator_on_island.getyTile()) && isAdjacentToPlayer(xTile, yTile)) {
                     animaleseSFX.play();
                     player.setTalkingToNPC(true);
@@ -1317,6 +1358,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     boat_operator_on_island.resetDialogue();
                 }
 
+                // Talking to Celeste
                 else if (curRoom == celeste.getRoom() && (xTile == celeste.getxTile()) && (yTile == celeste.getyTile())) {
                 	animaleseSFX.play();
                     player.setTalkingToNPC(true);
@@ -1326,6 +1368,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     celeste.resetDialogue();
                 }
 
+                // Talking to isabelle
                 else if (curRoom == isabelle.getRoom() && (xTile == isabelle.getxTile()) && (yTile == isabelle.getyTile())) {
                 	animaleseSFX.play();
                     player.setTalkingToNPC(true);
@@ -1335,13 +1378,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     isabelle.resetDialogue();
                 }
 
-                System.out.println(xTile + " " + yTile + " " + player.getxTile() + " " + player.getyTile());
-
+                // Picking up item if item is clicked
                 if (Math.hypot(xTile*tileSize + 30 - (mouse.getX() + player.getX() - 480), yTile*tileSize + 30 - (mouse.getY() + player.getY() - 300)) < 19) {
                     DroppedItem droppedItem = curRoom.getDroppedItems().get(new Point(xTile, yTile));
 
                     if (grid[xTile][yTile] == 4 && droppedItem != null && isAdjacentToPlayer(xTile, yTile)) {
-                        if (player.inventoryHasSpace()) {
+                        if (player.inventoryHasSpace()) {  // Adding item to player inventory
                             player.addItem(new Item(droppedItem.getId(), droppedItem.getName(), droppedItem.getImage(), droppedItem.getBuyCost(), droppedItem.getSellCost()));
                             Hashtable<Point, DroppedItem> temp = curRoom.getDroppedItems();
                             temp.remove(new Point(xTile, yTile));
@@ -1355,10 +1397,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Picking fruit if player is adjacent to the tree and they do not have the net equipped
                 if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).getNumFruit() > 0
                     && treeAtTile(xTile, yTile).isTileAdjacent(player.getxTile(), player.getyTile())
                 && !(player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
-                    if (player.inventoryHasSpace()) {
+                    if (player.inventoryHasSpace()) {  // adding fruit to player inventory
                         Tree tree = treeAtTile(xTile, yTile);
                         tree.pickFruit();
 
@@ -1382,9 +1425,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Catching bugs if net is equipped
                 else if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).isTileAdjacent(player.getxTile(), player.getyTile())
                     && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
-                    if (player.inventoryHasSpace()) {
+                    if (player.inventoryHasSpace()) {  // Starting the action progress
                         player.setActionProgressOpen(true);
                         player.setActionMessage("Catching bugs");
                         player.setAction(Player.BUG_CATCHING);
@@ -1395,22 +1439,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Digging on main island
                 else if (curRoom == outside && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] != 4) && isAdjacentToPlayer(xTile, yTile) && npcAtPoint(xTile, yTile) == null) {
                     if (player.inventoryHasSpace()) {
+                        // Set action progress
                         player.setActionProgressOpen(true);
                         player.setAction(Player.DIGGING);
                         diggingSFX.play();
 
-                        if (diggableTiles[xTile][yTile] == 1) {
+                        if (diggableTiles[xTile][yTile] == 1) {  // 1 --> can be dug; 0 --> cannot
                             diggableTiles[xTile][yTile] = 0;
-                            if (grid[xTile][yTile] == 6) {
+                            if (grid[xTile][yTile] == 6) {  // Fossil digging
                                 player.setAction(Player.DIGGING_FOSSIL);
                             }
 
                             grid[xTile][yTile] = 5;
                             player.setActionMessage("Digging");
                         }
-                        else if (grid[xTile][yTile] == 5) {
+                        else if (grid[xTile][yTile] == 5) {  // Filling up hole
                             diggableTiles[xTile][yTile] = 1;
                             if (grid[xTile][yTile] == 6) {
                                 player.setAction(Player.DIGGING_FOSSIL);
@@ -1425,13 +1471,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-                else if (curRoom == minigameIsland && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] == 1 || grid[xTile][yTile] == 5) && isAdjacentToPlayer(xTile, yTile)) {
+                // Digging on minigame island; same process as on main island
+                else if (curRoom == minigameIsland && (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6) && (grid[xTile][yTile] != 4) && isAdjacentToPlayer(xTile, yTile)) {
                     if (player.inventoryHasSpace()) {
                         player.setActionProgressOpen(true);
                         player.setAction(Player.DIGGING);
+                        diggingSFX.play();
 
                         if (minigameIslandDiggable[xTile][yTile] == 1) {
                             minigameIslandDiggable[xTile][yTile] = 0;
+                            if (grid[xTile][yTile] == 6) {
+                                player.setAction(Player.DIGGING_FOSSIL);
+                            }
                             grid[xTile][yTile] = 5;
                             player.setActionMessage("Digging");
                         }
@@ -1446,8 +1497,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Fishing
                 else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1 && validFishingTile(xTile, yTile)) {
-                    if (player.inventoryHasSpace()) {
+                    if (player.inventoryHasSpace()) {  // Set action progress
                         player.setActionProgressOpen(true);
                         player.setAction(Player.FISHING);
                         player.setActionMessage("Casting line");
@@ -1459,31 +1511,34 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Arcade machines for minigames
                 else if (curRoom == rooms.get(new Point(24, 21))) {
-                    if (tileIsThinIce(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
+                    if (tileIsThinIce(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {  // thin ice
                         mainFrame.changeGame("thin ice");
                     }
 
-                    else if (tileIsAstroBarrier(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {
+                    else if (tileIsAstroBarrier(xTile, yTile) && isAdjacentToPlayer(xTile, yTile)) {  // Astro barrier
                         mainFrame.changeGame("astro barrier");
                     }
                 }
 
+                // Player rrom
                 if (curRoom == rooms.get(new Point(30, 35))) {
-                    if (furnitureAtTile(xTile, yTile) != null) {
+                    if (furnitureAtTile(xTile, yTile) != null) {  // Picking up furniture
                         Furniture furniture = furnitureAtTile(xTile, yTile);
 
-                        if (player.inventoryHasSpace()) {
+                        if (player.inventoryHasSpace()) {  // adding furniture to inventory
                             player.addItem(new Item(furniture.getId(), capitalizeWord(items.get(furniture.getId()).getName()), items.get(furniture.getId()).getImage(),
                                 items.get(furniture.getId()).getBuyCost(), items.get(furniture.getId()).getSellCost()));
 
+                            // Setting the grid back to normal as no furniture is there anymore
                             for (int i = furniture.getxTile(); i < furniture.getxTile() + furniture.getLength(); i++) {
                                 for (int j = furniture.getyTile(); j < furniture.getyTile() + furniture.getWidth(); j++) {
                                     grid[i][j] = 1;
                                 }
                             }
 
-                            player.getFurniture().remove(furniture);
+                            player.getFurniture().remove(furniture);  // remove from arraylist
 
                         }
                         else {
@@ -1495,11 +1550,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Gets the items that can be donated in the player inventory
     public boolean[][] findCanBeDonatedItems() {
         boolean[][] ans = new boolean[6][3];
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
                 boolean canBeDonated = false;
+
+                // Checks if item is fish, bug, or fossil and then checks the museum if that item has already been donated or not
+                // If it has been donated already then it cannot be donated again
                 if (player.getItems()[i][j] != null) {
                     canBeDonated = true;
                     Item temp = player.getItems()[i][j];
@@ -1527,7 +1586,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                             }
                         }
                     }
-                    else {
+                    else {  // If item is not a bug, fish, or fossil it cannot be donated
                         canBeDonated = false;
                     }
                 }
@@ -1539,12 +1598,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return ans;
     }
 
+    // Donates the selected items and adds to the appropriate arraylist
     public void donateItems() {
         Item[][] temp = player.getItems();
 
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
-                if (player.getSelectedItems()[i][j]) {
+                if (player.getSelectedItems()[i][j]) {  // donate selected items
                     if (temp[i][j].isBug()) {
                         celeste.addBug(temp[i][j]);
                     }
@@ -1554,13 +1614,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     else if (temp[i][j].isRiverFish() || temp[i][j].isPondFish() || temp[i][j].isOceanFish()) {
                         celeste.addFish(temp[i][j]);
                     }
-                    temp[i][j] = null;
+                    temp[i][j] = null;  // remove item from inventory
 
                 }
             }
         }
     }
 
+    // Returns the tree at a tile if there is one otherwise null
     public Tree treeAtTile(int xTile, int yTile) {
         Tree ans = null;
         for (Tree tree : trees) {
@@ -1577,10 +1638,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
             clicked = false;
-            if (player.isInventoryOpen() && !player.isRightClickMenuOpen() && !clickedRightClickMenu) {
+            if (player.isInventoryOpen() && !player.isRightClickMenuOpen() && !clickedRightClickMenu) {  // If item is selected move the item
                 player.moveItem(mouse);
             }
 
+            // Select the dialogue if selecting dialogue
             if (player.isDialogueSelectionOpen() && player.isSelectionMenuClicked() && Math.hypot(510 - mouse.x, 186 - mouse.y) > 34) {
                 player.setSelectionMenuClicked(false);
                 selectDialogue();
@@ -1600,9 +1662,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
     }
 
+    // Fading to black effect when changing rooms
     public void fadingToBlack(boolean isEntering, Graphics g) {
-        //System.out.println(count - fadeTimeStart);
-        if (count - fadeTimeStart == 100) {
+        if (count - fadeTimeStart == 100) {  // At 100 frames effect is done
             if (isEntering) {
                 goToNewRoom();
             }
@@ -1612,19 +1674,22 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             fadingToBlack = false;
             return;
         }
-        int alpha = Math.min((int) ((double) (count - fadeTimeStart + 20) / 100 * 255), 255);
+        int alpha = Math.min((int) ((double) (count - fadeTimeStart + 20) / 100 * 255), 255);  // opacity
         g.setColor(new Color(0, 0, 0, alpha));
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
+    // Draws the sprites
     public void paintComponent(Graphics g) {
         g.drawImage(curRoom.getImage(), 480 - player.getX(), 303 - player.getY(), null);  // Drawing room
-        if (curRoom == rooms.get(new Point(30, 35))) {
+        if (curRoom == rooms.get(new Point(30, 35))) {  // Draw player room if curRoom is player room
             drawPlayerRoom(g);
         }
 
         //drawGrids(g);
         //drawXs(g);
+
+        // Drawing holes and buried objects
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
                 if (grid[i][j] == 5) {
@@ -1636,7 +1701,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-
+        // Drawing dropped items
         for (Map.Entry<Point, DroppedItem> pair : curRoom.getDroppedItems().entrySet()) {
             DroppedItem item = pair.getValue();
             if (item.isFurniture()) {
@@ -1647,32 +1712,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        // Drawing trees
         for (Tree tree : trees) {
             if (tree.getRoom() == curRoom) {
                 tree.draw(g, player.getX(), player.getY());
             }
         }
 
-        if (curRoom == tom_nook.getRoom()) {
-            tom_nook.draw(g, player.getX(), player.getY());
-        }
-        if (curRoom == celeste.getRoom()) {
-            celeste.draw(g, player.getX(), player.getY());
-        }
-        if (curRoom == isabelle.getRoom()) {
-            isabelle.draw(g, player.getX(), player.getY());
-        }
-
-
+        // Drawing npcs
         for (NPC temp : NPCs) {
             if (temp.getRoom() == curRoom) {
                 temp.draw(g, player.getX(), player.getY());
-
             }
         }
 
+        // Drawing player
         player.draw(g);
 
+        // Drawing earned bells prompt if it's open
         if (player.isEarnedBellsPromptOpen()) {
             g.setColor(new Color(251, 255, 164));
             g.fillRect(200, 50, 620, 500);
@@ -1700,22 +1757,27 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        // Drawing fade to black effect if active
         if (fadingToBlack) {
             fadingToBlack(player.isGoingToNewRoom(), g);
         }
 
+        // Draw talking to npcs
         drawTalkingToGeneralNPC(g);
         drawTalkingToTomNook(g);
         drawTalkingToCeleste(g);
 
+        // Hover text
         if (!player.isTalkingToNPC() && !player.isInventoryOpen() && !player.isActionProgressOpen() && !player.isItemFoundPrompt() && !player.isInventoryFullPromptOpen() && !exitMenuOpen) {
             drawHoverText(g);
         }
 
+        // Placing furniture
         if (player.isPlacingFurniture()) {
             drawPlacingFurniture(g);
         }
 
+        // Drawing exit menu
         if (exitMenuOpen) {
             g.setColor(new Color(251, 255, 164));
             g.fillRect(200, 50, 620, 500);
@@ -1743,6 +1805,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Draws grids. Not used in game just during development
     public void drawGrids(Graphics g) {
         g.setColor(new Color(255, 255, 255));
         // Drawing grids
@@ -1758,6 +1821,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Draws x's on tiles that cannot be accessed. Not used in game just during development
     public void drawXs(Graphics g) {
         g.setColor(new Color(255,0,0));
         for (int i = Math.max(0, player.getxTile()-8); i <= Math.min(94, player.getxTile() + 8); i++) {
@@ -1773,12 +1837,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Talking to npc and drawing speech
     public void drawTalkingToGeneralNPC(Graphics g) {
         if (player.isTalkingToNPC()) {
             NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo());
 
-
-            assert npc != null;
+            // Drawing speech bubble
             if (!(npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SHOP) && !(npc == celeste && npc.getSpeechStage() == Celeste.MUSEUM)) {
                 g.drawImage(speechBubbleImage, (1020 - 700) / 2, 350, null);
             }
@@ -1799,11 +1863,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 x = 204 + (416 - 204 - width) / 2;
                 y = 397;
 
-
+                // Drawing npc name in the name spot
                 if (!(npc == tom_nook && (npc.getSpeechStage() == Tom_Nook.SHOP))) {
                     g2.drawString(npc.getName(), x, y);
                 }
 
+                // Drawing the greetings speech
                 if (npc.getSpeechStage() == NPC.GREETING) {
                     if (npc.getCurrentGreeting().equals("")) {
                         npc.generateGreeting(player.getName());
@@ -1818,6 +1883,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Drawing the chat speech
                 else if (npc.getSpeechStage() == NPC.CHAT) {
                     if (npc.getCurrentChat().equals("")) {
                         npc.generateChat(player.getName());
@@ -1832,6 +1898,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Drawing the goodbye speech
                 else if (npc.getSpeechStage() == NPC.GOODBYE) {
                     if (npc.getCurrentGoodbye().equals("")) {
                         npc.generateGoodbye(player.getName());
@@ -1846,6 +1913,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+
+                // Drawing the sell shop
                 if (npc == tom_nook && npc.getSpeechStage() == Tom_Nook.SELL_SHOP) {
                     g2.setColor(new Color(240, 240, 240));
 
@@ -1855,6 +1924,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
+                // Drawing the donation menu
                 if (npc == celeste && npc.getSpeechStage() == Celeste.DONATION) {
                     g2.setColor(new Color(240, 240, 240));
                     if (player.hasItemToDonate()) {
@@ -1871,7 +1941,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     }
                 }
 
-
+                // Drawing the dialogue selection
                 if (player.isDialogueSelectionOpen()) {
                     g.setColor(new Color(255, 255, 255, 100));
                     g.fillRect(310, 86, 400, 200);
@@ -1883,8 +1953,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     else {
                         g.drawImage(selectionMenuImage, 421, 120, null);
                     }
+
                     g2.setColor(Color.BLACK);
 
+
+                    // Drawing the options
                     if (npc.getPlayerOptions().size() == 2) {
                         width = fontMetrics.stringWidth(npc.getPlayerOptions().get(0));
                         g2.drawString(npc.getPlayerOptions().get(0), (1020 - width) / 2, 140);
@@ -1922,11 +1995,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Draw the shop when talking to tom nook
     public void drawTalkingToTomNook(Graphics g) {
         if (player.isTalkingToNPC() && player.getVillagerPlayerIsTalkingTo() == Player.TOM_NOOK) {
             if (player.isShopOpen()) {
                 g.drawImage(shopImage, (1020 - 390) / 2,  10, null);
 
+                // Buy/cancel rects
                 Rectangle br = tom_nook.getBuyRect();
                 Rectangle cr = tom_nook.getCancelRect();
 
@@ -1938,6 +2013,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 g.drawRect(br.x, br.y, br.width, br.height);
                 g.drawRect(cr.x, cr.y, cr.width, cr.height);
 
+                // Drawing selected rect
                 if (player.selectedItemInShop != -1) {
                     Rectangle temp = tom_nook.getItemRects().get(player.getSelectedItemInShop());
 
@@ -1947,6 +2023,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 g.setColor(Color.BLACK);
 
+                // Drawing store items
                 for (int i = 0; i < tom_nook.getStoreItems().size(); i++) {
                     if (tom_nook.getStoreItems().get(i).isFurniture()) {
                         g.drawImage(Item.storeLeafImage, 330,63 + 110*i, null);
@@ -1978,6 +2055,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Musueum drawing stuff
     public void drawTalkingToCeleste(Graphics g) {
          if (player.isMuseumOpen()) {
              if (g instanceof Graphics2D) {
@@ -1988,6 +2066,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                  g.drawImage(museumMenuImage, 50, 120, null);
                  g.drawImage(exitButtonImage, 930, 120, null);
 
+
+                 // Drawing colored image based on which page is selected
                  if (celeste.getPage() == Celeste.BUG_PAGE) {
                      g.drawImage(museumBugsImage, 50, 120, null);
                  }
@@ -1999,6 +2079,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                  }
 
 
+                 // Drawing museum items. Starts at the starting index and draws 5 items
                  for (int i = 0; i < 5; i++) {
                      if (celeste.getPage() == Celeste.BUG_PAGE && i + celeste.getBugStart() < celeste.getBugs().size()) {
                          g.drawImage(celeste.getBugs().get(i + celeste.getBugStart()).getImage(), 764, 260 + 49 * i, null);
@@ -2017,48 +2098,41 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
          }
     }
 
+    // Draws player room
     public void drawPlayerRoom(Graphics g) {
+        // Floor and wallpaper images
         g.drawImage(Furniture.wallpaperImages.get(player.getSelectedWallpaper()), 9 * tileSize - player.getX() + 480,  6 * tileSize - player.getY() + 300, null);
         g.drawImage(Furniture.floorImages.get(player.getSelectedFloor()), 9 * tileSize - player.getX() + 480, 8 * tileSize - player.getY() + 300, null);
 
+
+        // Drawing furniture
         for (Furniture temp : player.getFurniture()) {
             temp.draw(g, player.getX(), player.getY());
         }
     }
 
-    public static int[][] transpose(int[][] arr) {
-        /*  Takes an axb array and transposes it to a bxa array such that arr[a][b] == out[b][a]
-         */
 
-        int[][] out = new int[arr[0].length][arr.length];
-
-        for (int i = 0; i < arr.length; i++) {
-            for (int j = 0; j < arr[0].length; j++) {
-                out[j][i] = arr[i][j];
-            }
-        }
-        return out;
-    }
-
+    // Takes a string and splits it into an arraylist where each element does not exceed a certain width
     public static ArrayList<String> wordWrap(String str, int width) {
         FontMetrics fontMetrics = new JLabel().getFontMetrics(finkheavy32);
-        ArrayList<String> ans = new ArrayList<>();
+        ArrayList<String> ans = new ArrayList<>();  // output
         String[] wordsArray = str.split(" ");
         ArrayList<String> words = new ArrayList<>();
         words.addAll(Arrays.asList(wordsArray));
         Collections.reverse(words);
 
-        String word = "";
-        String string;
+        String word = "";  // Current word
+        String string;  // current line
 
         while (words.size() > 0 || !word.equals("")) {
-            string = "";
+            string = "";  // Reset line
             while (words.size() > 0 || !word.equals("")) {
-                if (word.equals("")) {
+                if (word.equals("")) {  // Set word to be the next word
                     word = words.get(words.size() - 1);
                     words.remove(words.size() - 1);
                 }
 
+                // Add the word to the line if it does not exceed the limit otherwise go to next line
                 if (fontMetrics.stringWidth(string) + fontMetrics.stringWidth(" " + word) <= width) {
                     string += " " + word;
                     word = "";
@@ -2067,25 +2141,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                     break;
                 }
             }
-            ans.add(string.substring(1));
+            ans.add(string.substring(1));  // Add to output arraylist
         }
 
         return ans;
     }
 
+    // Draws hover text (e.g. right click to dig)
     public void drawHoverText(Graphics g) {
         int xTile = (int) ((mouse.getX() + player.getX() - 480) / 60);
         int yTile = (int) ((mouse.getY() + player.getY() - 300) / 60);
 
+        // Dimensions of the rect that will be drawn
         int width;
         int height = 30;
         int x = mouse.x + 20;
         int y = mouse.y - 15;
 
 
-        String msg = "";
-        boolean draw = false;
+        String msg = "";  // Message
+        boolean draw = false;  // Whether or not text will be drawn
 
+        // Fishing message
         if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 1 && (curRoom == outside || curRoom == minigameIsland)) {
             if (validFishingTile(xTile, yTile)) {
                 msg = "Cast line.";
@@ -2093,17 +2170,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
+        // Pick up item message
         else if (xTile < grid.length && yTile < grid[0].length && grid[xTile][yTile] == 4) {
             msg = "Pick up item.";
             draw = true;
         }
 
+        // Pick fruit message
         else if (treeAtTile(xTile, yTile) != null && treeAtTile(xTile, yTile).getNumFruit() > 0 &&
             !(player.getEquippedItem() != null && player.getEquippedItem().getId() == 5)) {
             msg = "Pick fruit";
             draw = true;
         }
 
+        // Digging message
         else if (player.getEquippedItem() != null && player.getEquippedItem().getId() == 6 && (curRoom == outside || curRoom == minigameIsland)) {
             if (curRoom == outside && diggableTiles[xTile][yTile] == 1) {
                 msg = "Dig";
@@ -2138,6 +2218,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             draw = true;
         }
 
+        // Arcade machines
         else if (curRoom == rooms.get(new Point(24, 21))) {
             if (tileIsThinIce(xTile, yTile)) {
                 msg = "Play Thin Ice";
@@ -2150,7 +2231,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
         }
 
-        if (draw) {
+        if (draw) {  // Draws the text and a rect if a message has been selected
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
 
@@ -2169,19 +2250,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Selects the dialogue based on the selection angle (angle the mouse makes with the center of the selection circle)
     public void selectDialogue() {
         NPC npc = NPCs.get(player.getVillagerPlayerIsTalkingTo());
         player.setDialogueSelectionOpen(false);
         dialogueDelay = 0;
 
+        // Regular villagers
         if ((player.getVillagerPlayerIsTalkingTo() >= 3 && player.getVillagerPlayerIsTalkingTo() < 6)) {
             if (npc.getPlayerOptions().size() == 2) {
-                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {  // Chat
                     if (npc.getSpeechStage() == NPC.GREETING) {
                         npc.setSpeechStage(NPC.CHAT);
                     }
                 }
-                else {
+                else {  // Goodbye
                     npc.setSpeechStage(NPC.GOODBYE);
                     npc.resetDialogue();
                 }
@@ -2190,12 +2273,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         if (npc == isabelle) {
             if (npc.getPlayerOptions().size() == 2) {
-                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
+                if (selectionAngle >= 0 && selectionAngle <= Math.PI) {  // Chat
                     if (npc.getSpeechStage() == NPC.GREETING) {
                         npc.setSpeechStage(NPC.CHAT);
                     }
                 }
-                else {
+                else {  // Goodbye
                     npc.setSpeechStage(NPC.GOODBYE);
                     npc.resetDialogue();
                 }
@@ -2203,7 +2286,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         }
 
         if (npc == tom_nook) {
-            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {
+            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {  // Sell item
                 player.setDialogueSelectionOpen(false);
                 player.setSellShopOpen(true);
                 player.setSellAmount(0);
@@ -2211,19 +2294,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 tom_nook.setSpeechStage(Tom_Nook.SELL_SHOP);
 
             }
-            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {
+            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {  // Buy item
                 player.setDialogueSelectionOpen(false);
                 player.setShopOpen(true);
                 tom_nook.setSpeechStage(Tom_Nook.SHOP);
                 player.setSelectedItemInShop(-1);
             }
-            else {
+            else {  // Goodbye
                 tom_nook.setSpeechStage(NPC.GOODBYE);
                 npc.resetDialogue();
             }
         }
 
-        else if (npc == boat_operator) {
+        else if (npc == boat_operator) {  // Go to island
             if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                 player.setDialogueSelectionOpen(false);
                 player.setTalkingToNPC(false);
@@ -2232,13 +2315,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 player.setGoingToNewRoom(true);
             }
-            else {
+            else {  // goodbye
                 npc.setSpeechStage(NPC.GOODBYE);
                 npc.resetDialogue();
             }
         }
 
-        else if (npc == boat_operator_on_island) {
+        else if (npc == boat_operator_on_island) {  // return to main island
             if (selectionAngle >= 0 && selectionAngle <= Math.PI) {
                 player.setDialogueSelectionOpen(false);
                 player.setTalkingToNPC(false);
@@ -2247,14 +2330,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
                 player.setExitingRoom(true);
             }
-            else {
+            else {  // goodbye
                 npc.setSpeechStage(NPC.GOODBYE);
                 npc.resetDialogue();
             }
         }
 
         else if (npc == celeste) {
-            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {
+            if (selectionAngle > (7.0/4.0)*Math.PI || selectionAngle <= Math.PI/4) {  // Donate item
                 player.setDialogueSelectionOpen(false);
                 player.setDonateMenuOpen(true);
                 npc.setSpeechStage(Celeste.DONATION);
@@ -2262,23 +2345,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 player.setCanBeDonatedItems(findCanBeDonatedItems());
 
             }
-            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {
+            else if (selectionAngle > Math.PI/4 && selectionAngle <= 3.0/4.0 * Math.PI) {  // View museum
                 player.setMuseumOpen(true);
                 player.setDialogueSelectionOpen(false);
                 npc.setSpeechStage(Celeste.MUSEUM);
             }
 
-            else if (selectionAngle > 5.0/4.0 * Math.PI && selectionAngle < 7.0/4.0 * Math.PI) {
+            else if (selectionAngle > 5.0/4.0 * Math.PI && selectionAngle < 7.0/4.0 * Math.PI) {  // Goodbye
                 npc.setSpeechStage(NPC.GOODBYE);
                 npc.resetDialogue();
             }
         }
     }
 
+    // Returns if a given tile is a valid fishing tale based on player position
+    // Tile must be in line with player (i.e. xTile == player xTile or yTile == player yTile) and 2 or less tiles away
     public boolean validFishingTile(int xTile, int yTile) {
-        //System.out.println(xTile + " " + yTile + " " + waterTiles[xTile][yTile]);
-
-        if (curRoom == outside) {
+        if (curRoom == outside) {  // Outside
             if (waterTiles[xTile][yTile] != 0) {
                 if (xTile == player.getxTile() && (Math.abs(yTile - player.getyTile()) <= 2 && Math.abs(yTile - player.getyTile()) > 0)) {
                     return true;
@@ -2288,7 +2371,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
         }
-        else if (curRoom == minigameIsland) {
+        else if (curRoom == minigameIsland) {  // Minigame island
             if (minigameIslandWater[xTile][yTile] != 0) {
                 if (xTile == player.getxTile() && (Math.abs(yTile - player.getyTile()) <= 2 && Math.abs(yTile - player.getyTile()) > 0)) {
                     return true;
@@ -2301,6 +2384,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
+    // Check if a tile is a valid place to place furniture based on the dimensions of the furniture
     public boolean validFurniturePlacement(int xTile, int yTile, int length, int width) {
         for (int i = 0; i < length; i++) {
             for (int j = 0; j < width; j++) {
@@ -2315,6 +2399,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return true;
     }
 
+    // Draw the placing furniture preview
     public void drawPlacingFurniture(Graphics g) {
         if (player.getSelectedItemR() != -1 && player.getSelectedItemC() != -1) {
             Item item = player.getItems()[player.getSelectedItemR()][player.getSelectedItemC()];
@@ -2329,6 +2414,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             for (int i = 0; i < length; i++) {
                 for (int j = 0; j < width; j++) {
                     if (xTile + i <= 31 && yTile + j <= 22) {
+                        // Draw green rect if placement is valid else red
                         if (validFurniturePlacement(xTile, yTile, length, width)) {
                             g.setColor(new Color(0, 255, 0, 100));
                         }
@@ -2342,10 +2428,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
 
             Furniture display = new Furniture(xTile, yTile, length, width, item.getId());
-            display.draw(g, player.getX(), player.getY());
+            display.draw(g, player.getX(), player.getY());  // Draw the preview
         }
     }
 
+    // Return the furniture at a tile or null if there is none
     public Furniture furnitureAtTile(int xTile, int yTile) {
         for (Furniture temp : player.getFurniture()) {
             for (int i = temp.getxTile(); i < temp.getxTile() + temp.getLength(); i++) {
@@ -2359,6 +2446,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return null;
     }
 
+    // Getters
     public Point getMouse() {
         return mouse;
     }
@@ -2375,7 +2463,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return NPCs;
     }
 
-    public static boolean contains(int n, int[] array) {
+    public static boolean contains(int n, int[] array) {  // Check if array contains an int n
         for (int i = 0; i < array.length; i++) {
             if (array[i] == n) {
                 return true;
@@ -2384,7 +2472,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
-    public static String capitalizeWord(String str) {
+    public static String capitalizeWord(String str) {  // Capitalize every word in a string
         String[] words = str.split("\\s");
         String capitalizeWord = "";
         for (String w:words) {
@@ -2410,6 +2498,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return rooms.get(new Point(30, 35));
     }
 
+    // Places furniture
     public void placeFurniture(int xTile, int yTile, int length, int width, Item item) {
         player.getFurniture().add(new Furniture(xTile, yTile, length, width, item.getId()));
 
@@ -2417,11 +2506,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
         for (int i = 0; i < length; i++) {
             for (int j = 0; j < width; j++) {
-                grid[xTile+i][yTile+j] = 0;
+                grid[xTile+i][yTile+j] = 0;  // Set the grid so player cannot go on the tiles where the furniture is
             }
         }
     }
 
+    // returns if the tile is a thin ice machine
     public boolean tileIsThinIce(int xTile, int yTile) {
         for (int i = 0; i < thinIceArcadeTiles.length; i++) {
             if (xTile == thinIceArcadeTiles[i][0] && yTile == thinIceArcadeTiles[i][1]) {
@@ -2431,6 +2521,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
+    // returns if the tile is an astro barrier machine
     public boolean tileIsAstroBarrier(int xTile, int yTile) {
         for (int i = 0; i < astroBarrierArcadeTiles.length; i++) {
             if (xTile == astroBarrierArcadeTiles[i][0] && yTile == astroBarrierArcadeTiles[i][1]) {
@@ -2440,6 +2531,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
+    // Saves the file in a text file
     public void save(int num) {
         PrintWriter outFile;
         try {  // Main stuff
@@ -2463,6 +2555,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
+            // Equipped item
             if (player.getEquippedItem() == null) {
                 outFile.println("null");
             }
@@ -2474,6 +2567,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             outFile.println(player.getSelectedWallpaper()); // wallpaper
             outFile.println(player.getSelectedFloor()); // floor
 
+            // museum bugs
             line = "";
             for (Item temp : celeste.getBugs()) {
                 line += temp.getId() + " ";
@@ -2485,6 +2579,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 
             outFile.println(line);
 
+            // Museum fish
             line = "";
             for (Item temp : celeste.getFish()) {
                 line += temp.getId() + " ";
@@ -2494,6 +2589,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
             outFile.println(line);
 
+            // Museum fossils
             line = "";
             for (Item temp : celeste.getFossils()) {
                 line += temp.getName() + ",";
@@ -2503,9 +2599,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             }
             outFile.println(line);
 
+            // timestamp of last on
             long unixTime = Instant.now().getEpochSecond();
             outFile.println(unixTime);
 
+            // Furniture
             for (Furniture furniture : player.getFurniture()) {
                 outFile.println(furniture.getxTile() + " " + furniture.getyTile() + " " + furniture.getLength() + " " + furniture.getWidth() + " " + furniture.getId());
             }
