@@ -36,7 +36,7 @@ public class LoadFile extends JFrame{
 			e.printStackTrace();
 		}
 
-		
+		//Creating buttons:
 		JButton backBtn = new JButton();	
 		backBtn.addActionListener(new ActionListener(){
     		@Override
@@ -54,7 +54,7 @@ public class LoadFile extends JFrame{
     		@Override
     		public void actionPerformed(ActionEvent e){
     			if (slotsUsed[0]) {
-					Main frame = new Main(1);
+					Main frame = new Main(1);	//opens Pokemon Crossing with corresponding save file
 					goToGame();
 				}
 
@@ -92,13 +92,13 @@ public class LoadFile extends JFrame{
 		layeredPane.add(slot3,3);
 		slot3.setOpaque(false);
 
-
+		//Displaying names:
 		for (int i = 0; i < 3; i++) {
 			if (slotsUsed[i]) {
 				JLabel text = new JLabel(names[i]);
                 text.setFont(new Font("Helvetica", Font.PLAIN, 30));
 				Dimension size = text.getPreferredSize();
-				System.out.println(size);
+			//	System.out.println(size);
 				text.setBounds(400, 258 + 60 * i, size.width, size.height);
 				layeredPane.add(text, 0);
 

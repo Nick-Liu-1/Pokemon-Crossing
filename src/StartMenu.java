@@ -7,7 +7,6 @@ import java.util.*;
 
 public class StartMenu extends JFrame{
 	private JLayeredPane layeredPane=new JLayeredPane();
-	private int num = 1;
 	private NewFile newFile;
 	private LoadFile loadFile;
 	private Main main;
@@ -22,6 +21,7 @@ public class StartMenu extends JFrame{
 		back.setBounds(0, 0, 1020, 695);
 		layeredPane.add(back,2);
 		
+		//Creating buttons:
 		JButton loadBtn = new JButton();	
 		loadBtn.addActionListener(new ActionListener(){
     		@Override
@@ -57,18 +57,6 @@ public class StartMenu extends JFrame{
 		optionsBtn.setBounds(653, 384, 219, 64);
 		layeredPane.add(optionsBtn,1);
 		optionsBtn.setOpaque(false);
-		
-		JButton tempBtn = new JButton();	
-		tempBtn.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e){
-    			Main PokemonCrossing = new Main(num);
-    			setVisible(false);
-    		}
-		});
-		tempBtn.setBounds(0, 470, 1020, 235);
-		layeredPane.add(tempBtn,1);
-		tempBtn.setOpaque(false);
 			
 		setContentPane(layeredPane);        
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
