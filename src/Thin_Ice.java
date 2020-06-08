@@ -131,13 +131,14 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Updates the game
     public void move() {
         Point mousePos = MouseInfo.getPointerInfo().getLocation();  // Get mouse position
         Point offset = getLocationOnScreen();  // Get window position
         mouse = new Point(mousePos.x - offset.x, mousePos.y - offset.y);
-        //System.out.println("(" + (mouse.x) + ", " + (mouse.y) + ")");
 
 
+        // Move player based on keypress
         if (keys[KeyEvent.VK_D] && KeyEvent.VK_D == mostRecentKeyPress) {
             movePlayer(RIGHT);
         }
@@ -154,20 +155,22 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             movePlayer(DOWN);
         }
 
-        //System.out.println(playerxTile + " " + playeryTile);
+
         movePlayer();
 
+        // Sinking gif
         if (sinking) {
             sinkingCounter++;
             if (sinkingCounter >= 108) {
                 sinking = false;
-                sinkingGif.flush();
+                sinkingGif.flush();  // Reset gif
                 resetLevel();
             }
         }
     }
 
     public void movePlayer(int dir) {
+        // Set most recent keypress
         switch (dir) {
             case (Player.RIGHT):
                 mostRecentKeyPress = KeyEvent.VK_D;
@@ -196,7 +199,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
     public void movePlayer() {
         int speed = 2;
 
-        // If moving. move in the correct direction
+        // If moving move in the correct direction
         if (moving) {
             if (grid[playerxTile][playeryTile] == 1 && !onTile) {
                 grid[playerxTile][playeryTile] = 4;
@@ -252,17 +255,19 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
     public void goToNextLevel() {
         if (level <= 9) {
-            if (allCleared()) {
+            if (allCleared()) {  // Bonus points for clearing all of the ice
                 score += level * 10;
             }
 
             level++;
+            // Set new position
             playerxTile = levelStarts.get(level - 1).x;
             playeryTile = levelStarts.get(level - 1).y;
 
             playerX = playerxTile * tileSize + offX;
             playerY = playeryTile * tileSize + offY;
 
+            // Set new grid
             for (int i = 0; i < grid.length; i++) {
                 for (int j = 0; j < grid[0].length; j++) {
                     grid[i][j] = levelGrids[level-1][i][j];
@@ -271,7 +276,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
             scoreAtStartOfLevel = score;
         }
-        else {
+        else {  // Game end
             if (allCleared()) {
                 score += level * 10;
             }
@@ -279,6 +284,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         }
     }
 
+    // Resets the level by setting player position and reseting the grid
     public void resetLevel() {
         playerxTile = levelStarts.get(level - 1).x;
         playeryTile = levelStarts.get(level - 1).y;
@@ -291,10 +297,11 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
                 grid[i][j] = levelGrids[level-1][i][j];
             }
         }
-
+        // Reset the score to the score at the start of the level
         score = scoreAtStartOfLevel;
     }
 
+    // Gets direction pressed
     public boolean dirIsPressed() {
         switch (direction) {
             case (Player.RIGHT):
@@ -309,6 +316,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         return false;
     }
 
+    // Converts keypress into direction
     private int keyPressToDir(int keyPress) {
         switch (keyPress) {
             case (KeyEvent.VK_D):
@@ -323,6 +331,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         return 0;
     }
 
+    // Gets tile in the direction specified
     public int inDir(int dir) {
         int ans = 0;
 
@@ -344,11 +353,13 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         return ans;
     }
 
+    // Checks if player has moves or not by seeing if they can move in any of the 4 directions
     public boolean playerHasNoMoreMoves() {
         return (inDir(RIGHT) != 1 && inDir(RIGHT) != 2 && inDir(RIGHT) != 3) && (inDir(LEFT) != 1 && inDir(LEFT) != 2 && inDir(LEFT) != 3) &&
             (inDir(DOWN) != 1 && inDir(DOWN) != 2 && inDir(DOWN) != 3) && (inDir(UP) != 1 && inDir(UP) != 2 && inDir(UP) != 3);
     }
 
+    // Iterates through the grid and checks if there is any unmelted ice (1 and 2)
     public boolean allCleared() {
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
@@ -361,6 +372,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         return true;
     }
 
+    // Switch back to main game
     public void endGame() {
         mainFrame.changeGame("game");
         mainFrame.setGameScore(score);
@@ -421,6 +433,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         g.setColor(Color.WHITE);
         g.fillRect(0, 0, 1020, 695);
 
+        // Draws level image and tiles
         if (level > 0) {
             g.drawImage(levelImages.get(level - 1), offX,  offY, null);
 
@@ -435,7 +448,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
                 }
             }
 
-
+            // Draw reset and exit buttons
             g.setColor(new Color(125, 255, 233));
             g.fillRect(resetRect.x, resetRect.y, resetRect.width, resetRect.height);
             g.fillRect(exitRect.x, exitRect.y, exitRect.width, exitRect.height);
@@ -444,10 +457,10 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
             g.drawRect(resetRect.x, resetRect.y, resetRect.width, resetRect.height);
             g.drawRect(exitRect.x, exitRect.y, exitRect.width, exitRect.height);
 
-            if (!sinking) {
+            if (!sinking) {  // Draw player
                 g.drawImage(playerGif, playerX - 21, playerY - 36, null);
             }
-            else {
+            else {  // Draw sinking gif
                 g.drawImage(sinkingGif, playerX - 12, playerY - 55, null);
             }
 
