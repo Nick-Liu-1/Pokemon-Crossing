@@ -1,3 +1,10 @@
+/*
+    Thin Ice.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    Contains all code for the minigame thin ice
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -31,7 +38,6 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
     private int playerX, playerY;
     private int playerxTile, playeryTile;
 
-    private Image titleScreen = new ImageIcon("Assets/Minigames/Thin Ice/Title Screen.png").getImage();
     private Image waterTile = new ImageIcon("Assets/Minigames/Thin Ice/water.png").getImage();
     private Image iceTile = new ImageIcon("Assets/Minigames/Thin Ice/ice.png").getImage();
 
@@ -42,8 +48,9 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
 
     private int direction;
 
+    // Flags
     private boolean moving;
-    private boolean onTile;
+    private boolean onTile;  // Indicates if player is on the most recent tile so that it only melts 1 layer of the double ice tiles
     private boolean sinking;
 
     private int sinkingCounter;
@@ -68,6 +75,7 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         init();
     }
 
+    // Initiates game by resetting the game
     public void init() {
         level = 0;
         mouse = new Point(0, 0);
@@ -90,17 +98,18 @@ public class Thin_Ice extends JPanel implements KeyListener, MouseListener {
         sinkingCounter = 0;
     }
 
+    // Loads the level grids and images
     public static void load() {
         File folder = new File("Assets/Minigames/Thin Ice/Levels");
         File[] listOfFiles = folder.listFiles();
 
-        for (File listOfFile : listOfFiles) {
+        for (File listOfFile : listOfFiles) {  // Images
             if (listOfFile.isFile()) {
                 levelImages.add(new ImageIcon("Assets/Minigames/Thin Ice/Levels/" + listOfFile.getName()).getImage());
             }
         }
 
-
+        // Grids
         try {
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/Minigames/Thin Ice/levels.txt")));
             int n = Integer.parseInt(stdin.nextLine());

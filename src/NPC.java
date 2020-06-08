@@ -198,18 +198,21 @@ public class NPC {
             if (GamePanel.randint(1, 10) == 1 || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1) {
                 int newDir = direction;
                 int count = 0;
+                // Generate a new direction until a valid one is found
                 while (newDir == direction || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1 && count < 5) {
                     newDir = GamePanel.randint(0, 3);
                     count++;
                 }
                 direction = newDir;
             }
+
+            // Move the npc
             if (inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) == 1) {
                 moving = true;
                 movementTick = 0;
                 frame = 0;
 
-                switch (direction) {
+                switch (direction) {  // Set destination
                     case (RIGHT):
                         goingToxTile = xTile + 1;
                         goingToyTile = yTile;
@@ -230,6 +233,7 @@ public class NPC {
             }
         }
 
+        // Change position
         if (moving) {
             int speed = 2;
             switch (direction) {
@@ -249,6 +253,7 @@ public class NPC {
             movementTick++;
         }
 
+        // NPC has reached new tile
         if (x % tileSize == 0 && y % tileSize == 0) {
             // Set tile pos
             xTile = x / tileSize;
@@ -257,6 +262,7 @@ public class NPC {
         }
     }
 
+    // Get tile in front of player. Also checks if a player or other npc is in front as well
     public int inDir(int[][] grid, int dir, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
         int ans = 0;
         playerX /= GamePanel.tileSize;
@@ -318,6 +324,7 @@ public class NPC {
         return ans;
     }
 
+    // Getters and setters
     public int getX() {
         return x;
     }
@@ -449,16 +456,17 @@ public class NPC {
     }
 }
 
-
+// Class for Tom Nook
 class Tom_Nook extends NPC {
     private final Image image = new ImageIcon("Assets/NPCs/tom nook.png").getImage();
 
-    private ArrayList<Item> storeItems = new ArrayList<>();
+    private ArrayList<Item> storeItems = new ArrayList<>();  // items in store
 
-    private final Image[] storeItemImages = new Image[GamePanel.getItems().size()];
+    private final Image[] storeItemImages = new Image[GamePanel.getItems().size()];  // item images in store
 
     private ArrayList<String> playerOptions;
 
+    // More speech stages
     public static final int SHOP = 4;
     public static final int HOUSING = 5;
     public static final int SELL_SHOP = 6;
@@ -467,17 +475,19 @@ class Tom_Nook extends NPC {
     private final Rectangle cancelRect = new Rectangle(533, 575,140, 40);
     private final ArrayList<Rectangle> itemRects = new ArrayList<>();
 
-
+    // Constructor
     public Tom_Nook(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         super(name, images, xTile, yTile, catchphrase, room, id);
 
         playerOptions = super.getPlayerOptions();
 
+        // Setting player options
         playerOptions.clear();
         playerOptions.add("Buy.");
         playerOptions.add("Sell.");
         playerOptions.add("Never mind.");
 
+        // Adding item rects
         for (int i = 0; i < 5; i++) {
             itemRects.add(new Rectangle(332, 64 + 109*i, 395, 56));
         }
@@ -488,12 +498,13 @@ class Tom_Nook extends NPC {
         g.drawImage(image, getxTile() * GamePanel.tileSize - playerX + 480, getyTile() * GamePanel.tileSize - playerY + 300, null);
     }
 
+    // Can't move so move is blank
     @Override
     public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
 
     }
 
-
+    // Randomly generates 5 items sold at store
     public void generateStoreItems() {
         storeItems.clear();
         for (int i = 0; i < 5; i++) {
@@ -508,7 +519,7 @@ class Tom_Nook extends NPC {
 
         }
 
-        for (int i : Item.soldAtStore) {
+        for (int i : Item.soldAtStore) {  // Getting images
             storeItemImages[i] = GamePanel.getItems().get(i).getImage().getScaledInstance(50, 50, Image.SCALE_SMOOTH);
         }
     }
@@ -543,6 +554,7 @@ class Tom_Nook extends NPC {
     }
 }
 
+
 class Boat_Operator extends NPC {
     private ArrayList<String> playerOptions;
 
@@ -576,25 +588,31 @@ class Celeste extends NPC {
     private ArrayList<String> playerOptions;
     private final Image image = new ImageIcon("Assets/NPCs/celeste.png").getImage();
 
+    // Speech stages
     public static final int MUSEUM = 4;
     public static final int DONATION = 5;
 
+    // Museum collection
     private ArrayList<Item> fish = new ArrayList<>();
     private ArrayList<Item> bugs = new ArrayList<>();
     private ArrayList<Item> fossils = new ArrayList<>();
 
+    // What index the museum page is starting
     private int fossilStart = 0;
     private int bugStart = 0;
     private int fishStart = 0;
 
+    // Page constants
     public static final int BUG_PAGE = 0;
     public static final int FISH_PAGE = 1;
     public static final int FOSSIL_PAGE = 2;
 
+    // Museum rects for clicking on different pages
     private Rectangle bugRect = new Rectangle(367, 120, 307, 95);
     private Rectangle fishRect = new Rectangle(50, 120, 307, 95);
     private Rectangle fossilRect = new Rectangle(614, 120, 307, 95);
 
+    // What page the museum is on
     private int page = 0;
 
     public Celeste(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
@@ -674,20 +692,20 @@ class Celeste extends NPC {
         return fossilRect;
     }
 
+    // Adds a new bug into the collection in the appropriate spot alphabetically
     public void addBug(Item item) {
-        if (bugs.contains(item)) {
-
+        if (bugs.contains(item)) {  // Don't add it if it is already there
             return;
         }
 
-        if (bugs.size() == 0) {
+        if (bugs.size() == 0) {  // Arraylist is empty add it
             bugs.add(item);
         }
-        else {
+        else {  // Iterate through and find the appropriate position in alphabetical order
             if (item.getName().compareTo(bugs.get(0).getName()) < 0) {
                 bugs.add(0, item);
             }
-            else if (item.getName().compareTo((bugs.get(bugs.size() - 1).getName())) > 0) {
+            else if (item.getName().compareTo((bugs.get(bugs.size() - 1).getName())) > 0) {  // Add to end if it is greater than the end
                 bugs.add(item);
             }
             else {
@@ -704,6 +722,7 @@ class Celeste extends NPC {
         }
     }
 
+    // Same as bugs but for fish
     public void addFish(Item item) {
         if (fish.contains(item)) {
             return;
@@ -733,6 +752,7 @@ class Celeste extends NPC {
         }
     }
 
+    // Same as bugs but for fossils
     public void addFossil(Item item) {
         if (fossils.contains(item)) {
             return;
@@ -764,7 +784,6 @@ class Celeste extends NPC {
 }
 
 class Isabelle extends NPC {
-    private ArrayList<String> playerOptions;
     private final Image image = new ImageIcon("Assets/NPCs/isabelle.png").getImage();
 
     public Isabelle(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
