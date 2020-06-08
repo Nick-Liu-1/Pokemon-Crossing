@@ -19,7 +19,7 @@
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
-/*
+
 import javazoom.jl.player.Player;
 
 
@@ -35,7 +35,6 @@ public class MP3 {
     
     public void play() {
     	new Thread() {	//plays in background
-<<<<<<< HEAD
 	    	public void run() {
 				try {
 		        	do {
@@ -50,7 +49,6 @@ public class MP3 {
 			        System.out.println(e);
 			    }
 	        }
-=======
             public void run() {
 		        try {
 		            do {
@@ -65,7 +63,6 @@ public class MP3 {
 		            System.out.println(e);
 		        }
             }
->>>>>>> 0d453daff2a99245cc444e45f556e498ddf34d59
 		}.start();
     }
 
@@ -74,4 +71,4 @@ public class MP3 {
         player.close();
     }
     
-}*/
+}

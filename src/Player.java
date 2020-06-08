@@ -1,3 +1,11 @@
+/*
+    Player.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    Player class deals with moving and drawing the player, as well as the player's inventory
+ */
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -711,20 +719,24 @@ public class Player {
 
         }
 
-        // Inventory
+        // Drawing inventory
         if (inventoryOpen) {
             g.drawImage(inventoryImage, 288, 20, null);
+
+            // Iterating through items and drawing them
             for (int i = 0; i < items.length; i++) {
                 for (int j = 0; j < items[0].length; j++) {
                     if (items[i][j] != null) {
                         if (!(i == selectedItemR && j == selectedItemC && mainFrame.isClicked())) {
-                            if (items[i][j].isFurniture()) {
+                            if (items[i][j].isFurniture()) {  // Funiture are represented by a leaf
                                 g.drawImage(Item.leafImage, 323 + i * 68, 54 + j * 68, null);
                             }
                             else {
                                 g.drawImage(items[i][j].getImage(), 323 + i * 68, 54 + j * 68, null);
                             }
                         }
+
+                        // Draw the selected item if it is outside of the spot when dragging
                         else if (i == selectedItemR && j == selectedItemC) {
                             if (items[i][j].isFurniture()) {
                                 g.drawImage(Item.leafImage, mainFrame.getMouse().x - offsetX - 19, mainFrame.getMouse().y - offsetY - 18, null);
@@ -736,15 +748,18 @@ public class Player {
                     }
                 }
             }
+
+            // Draw equipped item
             if (equippedItem != null) {
                 g.drawImage(equippedItem.getImage(), 663,262, null);
             }
 
 
-            //System.out.println(selectedItemR + " " + selectedItemC);
+            // An item is selected
             if ((selectedItemR != -1 && selectedItemC != -1) || selectedEquipped){
             	g.setColor(new Color(0,255,0));
 
+            	// Draw the oval around selected item
             	if (!selectedEquipped) {
                     g.drawOval(323 + selectedItemR * 68, 54 + selectedItemC * 68, 38, 38);
                 }
@@ -752,22 +767,28 @@ public class Player {
                     g.drawOval(663, 262, 38, 38);
                 }
 
+            	// Draw the right click menu
                	if (rightClickMenuOpen) {
                	    rightClickMenu.clear();
                	    if (!selectedEquipped) {
+               	        // Add drop box
                         rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 54 + selectedItemC * 68 + offsetY + 18, 140, 40));
+
+                        // Add equip box for items that can be equiped
                         if (items[selectedItemR][selectedItemC].canBeEquipped() || items[selectedItemR][selectedItemC].isWallpaper() || items[selectedItemR][selectedItemC].isFloor()) {
                             rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 94 + selectedItemC * 68 + offsetY + 18, 140, 40));
                         }
+                        // Add place box for furniture
                         else if (items[selectedItemR][selectedItemC].isFurniture()) {
                             rightClickMenu.add(new Rectangle(323 + selectedItemR * 68 + offsetX + 19, 94 + selectedItemC * 68 + offsetY + 18, 140, 40));
                         }
                     }
-               	    else {
+               	    else {  // Add boxes for equipped item if that is the one that was equipped
                	        rightClickMenu.add(new Rectangle(663 + offsetX, 262 + offsetY, 140, 40));
                	        rightClickMenu.add(new Rectangle(663 + offsetX, 262 + offsetY + 40, 140, 40));
                     }
 
+               	    // Draw the rects
 
                     for (Rectangle r : rightClickMenu) {
                         g.setColor(Color.WHITE);
@@ -786,11 +807,11 @@ public class Player {
                 g2.setFont(GamePanel.finkheavy30);
                 g2.setColor(new Color(0,0,0));
 
-                int x, y;  // x, y coordinates of text
                 int width;  // width of text
 
                 g2.drawString(String.valueOf(bells), 360 ,293);
 
+                // Drawing the text on the right click menu buttons
                 if (rightClickMenuOpen) {
                     if (selectedItemR != -1 && selectedItemC != -1) {
                         width = fontMetrics.stringWidth("Drop");
@@ -824,6 +845,8 @@ public class Player {
             updateSellAmount();
 
             g.drawImage(inventoryImage, 288, 20, null);
+
+            // Drawing the items in the inventory
             for (int i = 0; i < items.length; i++) {
                 for (int j = 0; j < items[0].length; j++) {
                     if (items[i][j] != null) {
@@ -836,7 +859,7 @@ public class Player {
                             }
                         }
 
-                        if (selectedItems[i][j]) {
+                        if (selectedItems[i][j]) {  // Drawing ovals around selected items
                             g.setColor(Color.GREEN);
                             g.drawOval(323 + i * 68, 54 + j * 68, 38, 38);
                         }
@@ -844,6 +867,7 @@ public class Player {
                 }
             }
 
+            // Draw sell and cancel rects
             g.setColor(Color.WHITE);
             g.fillRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
             g.fillRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
@@ -852,6 +876,7 @@ public class Player {
             g.drawRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
             g.drawRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
 
+            // Draw text on buttons
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
 
@@ -873,6 +898,8 @@ public class Player {
 
         else if (donateMenuOpen) {
             g.drawImage(inventoryImage, 288, 20, null);
+
+            // Draw items
             for (int i = 0; i < items.length; i++) {
                 for (int j = 0; j < items[0].length; j++) {
                     if (items[i][j] != null) {
@@ -897,6 +924,7 @@ public class Player {
                 }
             }
 
+            // Draw rects
             g.setColor(Color.WHITE);
             g.fillRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
             g.fillRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
@@ -905,6 +933,8 @@ public class Player {
             g.drawRect(sellRect.x, sellRect.y, sellRect.width, sellRect.height);
             g.drawRect(cancelRect.x, cancelRect.y, cancelRect.width, cancelRect.height);
 
+
+            // Draw text on buttons
             if (g instanceof Graphics2D) {
                 Graphics2D g2 = (Graphics2D) g;
 
@@ -924,6 +954,7 @@ public class Player {
             }
         }
 
+        // Found item prompt
         if (itemFoundPrompt) {
             g.setColor(new Color(251, 255, 164));
             g.fillRect(200, 50, 620, 500);
@@ -965,6 +996,7 @@ public class Player {
             }
         }
 
+        // Inventory full prompt
         if (inventoryFullPromptOpen) {
             g.setColor(new Color(251, 255, 164));
             g.fillRect(200, 50, 620, 500);
@@ -996,6 +1028,7 @@ public class Player {
 
     }
 
+    // Returns if the inventory has space or not by iterating through and seeing if there is an empty spot
     public boolean inventoryHasSpace() {
         for (int i = 0; i < 6; i++) {
             for (int j = 0; j < 3; j++) {
@@ -1006,7 +1039,8 @@ public class Player {
         }
         return false;
     }
-    
+
+    // Add an item into the player inventory by finding the first empty spot and putting in there
     public void addItem(Item item){
     	for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 6; i++) {
@@ -1017,7 +1051,8 @@ public class Player {
             }
         }
     }
-    
+
+    // Remove the specified item
     public void removeItem(Item item){
         for (int j = 0; j < 3; j++) {
             for (int i = 0; i < 6; i++) {
@@ -1028,11 +1063,13 @@ public class Player {
             }
         }
     }
-    
+
+    // Selects an item based on the mouse position
     public void selectItem(Point mouse){
     	int noCollision=0;
     	for (int i = 0; i < items.length; i++) {
             for (int j = 0; j < items[0].length; j++) {
+                // Select the item if the mouse is in the item circle
                	if((Math.hypot(mouse.getX() - (342 + i * 68),  mouse.getY() - (72 + j * 68))) < 19 && items[i][j]!=null){
                		selectedItemR = i;
                		selectedItemC = j;
@@ -1041,10 +1078,11 @@ public class Player {
                		offsetY = (int) (mouse.getY() - (72 + j * 68));
                		break;
                	}
-               	noCollision++;
+               	noCollision++;  // Increment the number of items not selected
             }    
 		}
 
+    	// Equipped item was selected
     	if (Math.hypot(mouse.getX() - equippedX,  mouse.getY() - equippedY) < 19 && equippedItem != null) {
     	    selectedItemR = -1;
     	    selectedItemC = -1;
@@ -1053,12 +1091,14 @@ public class Player {
             offsetY = (int) (mouse.getY() - 262);
         }
 
+    	// No item was selected
 		if (noCollision==18){
 			selectedItemR = -1;
         	selectedItemC = -1;
 		}
     }
 
+    // Select items to sell in the sell shop
     public void selectSellItem(Point mouse){
         for (int i = 0; i < items.length; i++) {
             for (int j = 0; j < items[0].length; j++) {
@@ -1070,6 +1110,7 @@ public class Player {
         }
     }
 
+    // Select items to donate in the donation menu
     public void selectDonateItem(Point mouse) {
         int x = -1;
         int y = -1;
@@ -1080,6 +1121,7 @@ public class Player {
                     selectedItems[i][j] = !selectedItems[i][j];
                     x = i;
                     y = j;
+                    // Getting index of item to select
                     break;
                 }
             }
@@ -1087,7 +1129,8 @@ public class Player {
 
         for (int i = 0; i < items.length; i++) {
             for (int j = 0; j < items[0].length; j++) {
-                if (x != -1 && y != -1) {
+                if (x != -1) {
+                    // Checking if another copy of the same item is already selected, and if so the new item is not selected
                     if (items[i][j] != null && items[i][j].getName().equals(items[x][y].getName())) {
                         canBeDonatedItems[i][j] = !selectedItems[x][y];
                     }
@@ -1095,16 +1138,18 @@ public class Player {
             }
         }
     }
-    
+
+    // Moves the selected item to a new spot
     public void moveItem(Point mouse){
-    	int shortestDist = Integer.MAX_VALUE;	//finding the closest slot for the item
-    	int swapR=0;	//row of new slot for item
-    	int swapC=0;	//column of new slot for item
-    	if(selectedItemR < 6 && selectedItemC < 3){ //if the selected item exists
+    	int shortestDist = Integer.MAX_VALUE;
+    	int swapR=0;
+    	int swapC=0;
+
+    	if(selectedItemR < 6 && selectedItemC < 3){
 	    	for (int i = 0; i < 6; i++) {
 	            for (int j = 0; j < 3; j++) {
-	                int dist = (int)(Math.hypot(mouse.x - (342 + i * 68),  mouse.y - (72 + j * 68)));	// finding the distance between each slot and the selected item
-	                if(dist<=shortestDist){	
+	                int dist = (int)(Math.hypot(mouse.x - (342 + i * 68),  mouse.y - (72 + j * 68)));
+	                if(dist<=shortestDist){
 	                	shortestDist = dist;
 	                	swapR = i;
 	                	swapC = j;
@@ -1112,22 +1157,23 @@ public class Player {
 	            }
 	        }
 
-	    	if (selectedItemC != -1 && selectedItemR != -1) {	//-1 is the default for when no item is selected
-                if (items[swapR][swapC] == null){								//if new slot is empty
-                    items[swapR][swapC] = items[selectedItemR][selectedItemC];	//selected item is given a new pos
+	    	if (selectedItemC != -1 && selectedItemR != -1) {
+                if (items[swapR][swapC] == null){
+                    items[swapR][swapC] = items[selectedItemR][selectedItemC];
                     items[selectedItemR][selectedItemC] = null;
                 }
-                else {															//if there was another item in the new slot
-                    Item temp = items[selectedItemR][selectedItemC];			
-                    items[selectedItemR][selectedItemC] = items[swapR][swapC];	//places previous item in selected item's old slot
-                    items[swapR][swapC] = temp;									//places selected item in new slot
+                else {
+                    Item temp = items[selectedItemR][selectedItemC];
+                    items[selectedItemR][selectedItemC] = items[swapR][swapC];
+                    items[swapR][swapC] = temp;
                 }
-                selectedItemR=swapR;//updates row and column of the item
+                selectedItemR=swapR;
                 selectedItemC=swapC;
             }
     	}
     }
 
+    // Drops the selected item by removing it
     public void dropSelectedItem() {
         if (!selectedEquipped) {
             items[selectedItemR][selectedItemC] = null;
@@ -1138,7 +1184,7 @@ public class Player {
         }
     }
 
-
+    // Checks which box in the right click menu was pressed
     public int clickedMenuBox(int x, int y) {
         for (int i = 0; i < rightClickMenu.size(); i++) {
             if (rightClickMenu.get(i).contains(x, y)) {
@@ -1148,6 +1194,7 @@ public class Player {
         return -1;
     }
 
+    // Equips the selected item
     public void equipItem() {
         Item temp = equippedItem;
         equippedItem = items[selectedItemR][selectedItemC];
@@ -1158,6 +1205,7 @@ public class Player {
        equippedItem = item;
     }
 
+    // Unequip the selected item and add it back into the inventory
     public void unequipItem() {
         if (inventoryHasSpace()) {
             addItem(equippedItem);
@@ -1165,6 +1213,7 @@ public class Player {
         }
     }
 
+    // Changes player's destination
     public void changeDest() {
         switch (direction) {
             case (Player.RIGHT):
@@ -1186,23 +1235,8 @@ public class Player {
         }
     }
 
-    public void castLine(int xTile, int yTile) {
-        if (xTile < this.xTile) {
-            direction = LEFT;
-        }
-        else if (xTile > this.xTile) {
-            direction = RIGHT;
-        }
-        else if (yTile < this.yTile) {
-            direction = UP;
-        }
-        else {
-            direction = DOWN;
-        }
 
-        fishing = true;
-    }
-
+    // Updates the value of the items being sold
     public void updateSellAmount() {
         sellAmount = 0;
         for (int i = 0; i < 6; i++) {
@@ -1214,6 +1248,7 @@ public class Player {
         }
     }
 
+    // Removes all selected items to be sold and adds the bells
     public void sellItems() {
         bells += sellAmount;
         for (int i = 0; i < 6; i++) {

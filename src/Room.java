@@ -1,10 +1,19 @@
+/*
+    Room.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    Room class allows room objects to be created and contain the necessary information ind dealing with rooms.
+ */
+
 import java.awt.*;
 import java.util.Hashtable;
 
 public class Room {
-    private int[][] grid;
-    private final int[][] originalGrid;
+    private int[][] grid;  // Tile information
+    private final int[][] originalGrid;  // Original version without furniture
     private final Image image;
+
+    // Entry and exit tiles
     private final int entryX;
     private final int entryY;
     private final int exitX;
@@ -13,8 +22,9 @@ public class Room {
     private final int exitY2;
     private String name;
 
-    private Hashtable<Point, DroppedItem> droppedItems = new Hashtable<>();
+    private Hashtable<Point, DroppedItem> droppedItems = new Hashtable<>();  // All dropped items in the room
 
+    // Constructor
     public Room(int[][] grid, Image image, int entryX, int entryY, int exitX, int exitY, int exitX2, int exitY2, String name) {
         this.grid = grid;
         this.image = image;
@@ -26,6 +36,7 @@ public class Room {
         this.exitY2 = exitY2;
         this.name = name;
 
+        // Copying the grid
         originalGrid = new int[grid.length][grid[0].length];
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
@@ -34,6 +45,7 @@ public class Room {
         }
     }
 
+    // Getters and setters
     public Image getImage() {
         return image;
     }

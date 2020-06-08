@@ -1,18 +1,28 @@
+/*
+    NPC.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    NPC class allows villagers to be created and also deals with the stationary npcs, such as tom nook and celeste.
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.io.*;
 
 public class NPC {
+    // Dialogue
     public static final ArrayList<String> greetings = new ArrayList<>();
     public static final ArrayList<String> chats = new ArrayList<>();
     public static final ArrayList<String> goodbyes = new ArrayList<>();
 
+    // Direction constants
     public static final int RIGHT = 0;
     public static final int UP = 1;
     public static final int LEFT = 2;
     public static final int DOWN = 3;
 
+    // Position
     private int x, y;
     private int xTile, yTile;
     private int goingToxTile, goingToyTile;
@@ -21,7 +31,6 @@ public class NPC {
     private boolean moving = false;
 
     private final int tileSize = GamePanel.tileSize;
-    private final int speed = 2;
 
     private Hashtable<String, Image> images;
 
@@ -37,12 +46,15 @@ public class NPC {
     private boolean talking = false;
     private boolean stopQueued = false;
 
+    // Speech
     private String currentGreeting = "";
     private String currentChat = "";
     private String currentGoodbye = "";
 
-    private ArrayList<String> playerOptions = new ArrayList<>();
+    private ArrayList<String> playerOptions = new ArrayList<>();  // Dialogue responses the player can choose
 
+
+    // Speech stage constants
     private int speechStage = 0;
     public static final int GREETING = 0;
     public static final int CHAT = 1;
@@ -51,7 +63,7 @@ public class NPC {
 
 
 
-
+    // Constructor
     public NPC(String name, Hashtable<String, Image> images, int xTile, int yTile, String catchphrase, Room room, int id) {
         this.name = name;
         this.images = images;
@@ -65,11 +77,14 @@ public class NPC {
         goingToyTile = yTile;
         this.id = id;
 
+
+        // Default options
         playerOptions.add("Let's chat!");
         playerOptions.add("Never mind.");
 
     }
 
+    // Loads the dialogue from the text files
     public static void loadDialogue() {
         try {
             Scanner stdin = new Scanner(new BufferedReader(new FileReader("Assets/NPCs/greetings.txt")));
@@ -96,8 +111,9 @@ public class NPC {
         }
     }
 
+    // Draws the npc in relation to the player's position and what frame and direction it is on
     public void draw(Graphics g, int playerX, int playerY) {
-        if (!moving) {
+        if (!moving) {  // Standing still
             switch (direction) {
                 case (RIGHT):
                     g.drawImage(images.get("right0"), x - playerX + 480, y - playerY + 300 - 12, null);
@@ -113,11 +129,10 @@ public class NPC {
                     break;
             }
         }
-        else {
+        else {  // Moving
             if (movementTick % 15 == 0) {
                 frame++;
             }
-            //System.out.println(movementTick + " " + frame);
 
             switch (direction) {
                 case (RIGHT):
@@ -170,13 +185,17 @@ public class NPC {
                     break;
             }
         }
-
-
     }
 
+
+    // Moves the villagers
     public void move(int[][] grid, int playerX, int playerY, int pgX, int pgY, ArrayList<NPC> npcs) {
-        if (!moving && GamePanel.randint(0, 200) == 0 && !talking) {
-            if (GamePanel.randint(0, 10) == 0 || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1) {
+        // 1/200 chance per frame that the npc will move
+        // Will not move while talking
+        if (!moving && GamePanel.randint(1, 200) == 1 && !talking) {
+            // 1/10 chance that the direction will be switched when moving
+            // If the tile in front cannot be accessed it will also change direction
+            if (GamePanel.randint(1, 10) == 1 || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1) {
                 int newDir = direction;
                 int count = 0;
                 while (newDir == direction || inDir(grid, direction, playerX, playerY, pgX, pgY, npcs) != 1 && count < 5) {
@@ -212,6 +231,7 @@ public class NPC {
         }
 
         if (moving) {
+            int speed = 2;
             switch (direction) {
                 case (RIGHT):
                     x += speed;
@@ -597,6 +617,7 @@ class Celeste extends NPC {
 
     }
 
+    // Getters and setters
     public ArrayList<Item> getFish() {
         return fish;
     }

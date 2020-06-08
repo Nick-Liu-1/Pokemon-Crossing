@@ -428,7 +428,7 @@ class Target{
 	private int starty;
 	private int nextPos;	//represents where the target is moving to
 	private int speed;
-	private int dir
+	private int dir;
     private int startDir;	//used to reset target
     
 	private ArrayList<Point> pos = new ArrayList<Point>();		//list of all turning points for the target

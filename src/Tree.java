@@ -1,14 +1,22 @@
+/*
+    Tree.java
+    Nick Liu + Annie Zhang
+    ICS4U
+    Tree class allows tree objects to be created and contain the necessary information ind dealing with trees.
+ */
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.*;
 
 public class Tree {
-    private int xTile, yTile;
-    private int size;
+    private int xTile, yTile;  // pos
+    private int size;  // size x size tiles are the dimensions of the tree
     private int fruit;
     private int numFruit;
 
+    // Types of fruit
     public static final int NO_FRUIT = 0;
     public static final int APPLE = 1;
     public static final int ORANGE = 2;
@@ -16,8 +24,9 @@ public class Tree {
     public static final int PEAR = 4;
 
     private static Hashtable<String, Image> fruitImages = new Hashtable<>();
-    private Room room;
+    private Room room;  // What room the tree is in
 
+    // Constructor
     public Tree(int xTile, int yTile, int size, int fruit, Room room, int numFruit) {
         this.xTile = xTile;
         this.yTile = yTile;
@@ -27,6 +36,7 @@ public class Tree {
         this.numFruit = numFruit;
     }
 
+    // Loads the fruit images
     public static void loadFruits() {
         File folder = new File("Assets/Fruits/");
         File[] listOfFiles = folder.listFiles();
@@ -39,6 +49,7 @@ public class Tree {
         }
     }
 
+    // Checks if the tree contains the specified tile
     public boolean isTileOnTree(int xTile, int yTile) {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
@@ -50,14 +61,18 @@ public class Tree {
         return false;
     }
 
+    // Checks if the specified tile is adjacent to the tree
     public boolean isTileAdjacent(int xTile, int yTile) {
         System.out.println(this.xTile + " " + this.yTile + " " + xTile + " " + yTile);
 
+        // Check top and bottom edges
         for (int i = this.xTile - 1; i < this.xTile + size + 1; i++) {
             if (xTile == i && (yTile == this.yTile - 1 || yTile == this.yTile + size)) {
                 return true;
             }
         }
+
+        // Check left and right edges
         for (int i = this.yTile; i < this.yTile + size + 1; i++) {
             if (yTile == i && (xTile == this.xTile - 1 || xTile == this.xTile + size)) {
                 return true;
@@ -66,8 +81,9 @@ public class Tree {
         return false;
     }
 
+    // Draws the fruit on the tree
     public void draw(Graphics g, int playerX, int playerY) {
-        if (numFruit > 0) {
+        if (numFruit > 0) {  // Draws the corresponding image based on fruit type and number of fruit
             switch (fruit) {
                 case (APPLE):
                     g.drawImage(fruitImages.get("apples" + numFruit), xTile * GamePanel.tileSize - playerX + 480, yTile * GamePanel.tileSize - playerY + 300, null);
@@ -83,7 +99,6 @@ public class Tree {
                     break;
             }
         }
-        //g.drawRect(xTile * GamePanel.tileSize - playerX + 480, yTile * GamePanel.tileSize - playerY + 300, 60 * size, 60* size);
     }
 
     public Room getRoom() {
@@ -98,7 +113,7 @@ public class Tree {
         return fruit;
     }
 
-    public void pickFruit() {
+    public void pickFruit() {  // decrease number of fruit by 1
         if (numFruit >= 1) {
             numFruit--;
         }

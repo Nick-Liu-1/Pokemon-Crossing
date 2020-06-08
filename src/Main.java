@@ -228,7 +228,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
 	private AudioClip fishingSFX;
 	private File animaleseWav = new File("Assets/Sounds/Animalese.wav");
 	private AudioClip animaleseSFX;
-	//private MP3 music = new MP3("Assets/Sounds/Background Music.mp3");
+	private MP3 music = new MP3("Assets/Sounds/Background Music.mp3");
 	
     public GamePanel(Main m) {
         keys = new boolean[KeyEvent.KEY_LAST + 1];  // Key presses
@@ -309,7 +309,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         generateShells();
         generateFossils();
         
-        //music.play();
+        music.play();
         
     }
 
