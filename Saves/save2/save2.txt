@@ -1,16 +1,6 @@
-z
+fwf
 1
-3250
-110
-115
-112
-null
-null
-null
-null
-null
-null
-115
+0
 null
 null
 null
@@ -19,11 +9,20 @@ null
 null
 null
 null
-1
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
+null
 orange
 yellow
 
-50 52
 
-1591495989
-18 12 2 2 143
+
+1591581636

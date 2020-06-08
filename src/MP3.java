@@ -49,20 +49,6 @@ public class MP3 {
 			        System.out.println(e);
 			    }
 	        }
-            public void run() {
-		        try {
-		            do {
-		                FileInputStream fis     = new FileInputStream(filename);
-		            	BufferedInputStream bis = new BufferedInputStream(fis);
-		            	player = new Player(bis);
-		                player.play();
-		            } while (loop);		//to loop music
-		        }
-		        catch (Exception e) {
-		        	System.out.println("Problem playing file " + filename);
-		            System.out.println(e);
-		        }
-            }
 		}.start();
     }
 
