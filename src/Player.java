@@ -55,7 +55,8 @@ public class Player {
 
     // Keys
     private boolean[] keys = new boolean[KeyEvent.KEY_LAST + 1];
-    private int mostRecentKeyPress = 0;
+    private int mostRecentKeyPress = 0;  // Indicates what direction was most recently pressed and makes player go in that direction
+                                         // For example AWD is pressed down in that order and held, the player would move right
 
     // Grid of current room
     private int[][] grid;
