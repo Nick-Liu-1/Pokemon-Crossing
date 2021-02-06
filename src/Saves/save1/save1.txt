@@ -1,23 +1,23 @@
 Sample
 1
-65936
-74
-144
-113
+64448
 131
-24
+6
 3
-102
+129
+113
+null
 113
 7
-125
-6
-107
-3
-64
 115
+144
+null
 5
+24
+74
 110
+125
+144
 1
 null
 orange
@@ -25,7 +25,6 @@ yellow
 12 14 16 17 18 19 20 21 25 27 29 33 34 35 36
 76 80 70 83 46 86 88 48 94 53 99 101 104 69
 Ankylo Tail,Apato Torso,Archelon Skull,Dimetrodon Skull,Diplo Hip,Diplo Tail,Fern Fossil,Megacero Tail,Pachy Skull,Pachy Torso,Raptor Torso,Spino Skull,Spino Tail,Stego Tail,Styraco Tail,Tricera Tail
-1612556434
+1612644519
 19 11 2 3 130
-17 11 2 3 129
 15 8 2 2 128

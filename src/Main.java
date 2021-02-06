@@ -33,6 +33,9 @@ public class Main extends JFrame implements ActionListener {
         super("Pokemon Crossing");
         setSize(1020,695);
 
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width/2-this.getSize().width/2, dim.height/2-this.getSize().height/2);
+
         this.num = num;
 
         // Cards

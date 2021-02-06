@@ -5,90 +5,13 @@ import java.io.*;
 import java.time.Instant;
 import java.util.Scanner;
 
-public class NewFile extends JFrame {
-	private JLayeredPane layeredPane=new JLayeredPane();
+public class NewFile extends JPanel {
 	private boolean[] slotsUsed = {false, false, false};
 	private String[] names = new String[3];
+	Image background = new ImageIcon("Assets/Misc/Game Files Screen.png").getImage();
 
-    public NewFile() {
-		super("Pokemon Crossing");
-		setSize(1020,695);
 
-		ImageIcon background = new ImageIcon("Assets/Misc/Game Files Screen.png");
-		JLabel back = new JLabel(background);		
-		back.setBounds(0, 0, 1020, 695);
-		layeredPane.add(back,2);
-		
-		JButton backBtn = new JButton();	
-		backBtn.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e){
-    			setVisible(false);
-    			StartMenu menu = new StartMenu();
-    		}
-		});
-		backBtn.setBounds(54, 566, 259, 77);
-		layeredPane.add(backBtn,1);
-		backBtn.setOpaque(false);
-		
-		JButton slot1 = new JButton();	
-		slot1.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e){
-				String name = JOptionPane.showInputDialog("Name:");
-				String gender = JOptionPane.showInputDialog("Gender: (male/female)");
-				int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
-				createNewFile(1, name, g);
-				setVisible(false);
-				Main main = new Main(1);
-
-    		}			
-		});
-		slot1.setBounds(326, 249, 400, 60);
-		layeredPane.add(slot1,1);
-		slot1.setOpaque(false);
-		
-		JButton slot2 = new JButton();	
-		slot2.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e){
-				String name = JOptionPane.showInputDialog("Name:");
-				String gender = JOptionPane.showInputDialog("Gender: (male/female)");
-				int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
-				createNewFile(2, name, g);
-				setVisible(false);
-				Main main = new Main(2);
-				
-
-    		}			
-		});
-		slot2.setBounds(326, 309, 400, 60);
-		layeredPane.add(slot2,1);
-		slot2.setOpaque(false);
-		
-		JButton slot3 = new JButton();	
-		slot3.addActionListener(new ActionListener(){
-    		@Override
-    		public void actionPerformed(ActionEvent e) {
-				String name = JOptionPane.showInputDialog("Name:");
-				String gender = null;
-
-				if (name != null) {
-					gender = JOptionPane.showInputDialog("Gender: (male/female)");
-				}
-
-				if (name != null && gender != null) {
-					int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
-					createNewFile(3, name, g);
-					setVisible(false);
-					Main main = new Main(3);
-				}
-
-    		}			
-		});
-		slot3.setBounds(326, 369, 400, 60);
-		layeredPane.add(slot3,3);
-		slot3.setOpaque(false);
+    public NewFile() {	
 
 		try {
 			Scanner stdin = new Scanner(new BufferedReader(new FileReader("Saves/Used Slots.txt")));
@@ -101,28 +24,49 @@ public class NewFile extends JFrame {
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-
-
-		for (int i = 0; i < 3; i++) {
-			JLabel text;
-			if (!slotsUsed[i]) {
-				text = new JLabel("New file");
-			}
-			else {
-				text = new JLabel("Overwrite \"" + names[i] + "\"");
-			}
-
-			text.setFont(new Font("Helvetica", Font.PLAIN, 30));
-			Dimension size = text.getPreferredSize();
-			text.setBounds(400, 258 + 60 * i, size.width, size.height);
-			layeredPane.add(text, 0);
-		}
-			
-		setContentPane(layeredPane);        
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setVisible(true);
-		setResizable(false);
+		
     }
+
+    @Override
+    public void addNotify() {
+        /*
+            Gets focus of panel
+         */
+        super.addNotify();
+        requestFocus();
+    }
+
+    @Override
+    public void paintComponent(Graphics g) {
+        /*
+            Paints the stuff to be drawn. Called automatically
+         */
+
+        g.drawImage(background, 0, 0, null);
+
+
+        if (g instanceof Graphics2D) {
+        	Graphics2D g2 = (Graphics2D) g;
+
+        	Font helvetica = new Font("Helvetica", Font.PLAIN, 30);
+	        FontMetrics fontMetrics = new JLabel().getFontMetrics(helvetica);
+	        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+	        g2.setFont(helvetica);
+	        g2.setColor(Color.BLACK);
+
+	        for (int i = 0; i < 3; i++) {
+        		if (!slotsUsed[i]) {
+					g2.drawString("New file", 400, 290 + 60 * i);
+				}
+				else {
+					g2.drawString("Overwrite \"" + names[i] + "\"", 400, 290 + 60 * i);
+				}
+			}
+        }
+
+        
+    }
+
 
 	public void createNewFile(int num, String name, int gender) {
     	slotsUsed[num-1] = true;
@@ -293,7 +237,4 @@ public class NewFile extends JFrame {
 		}
 	}
 
-	public static void main(String[] arguments) {
-		NewFile frame = new NewFile();
-    }
 }
