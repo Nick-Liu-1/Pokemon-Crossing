@@ -309,7 +309,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
         generateShells();
         generateFossils();
         
-        music.play();
+        //music.play();
         
     }
 
@@ -1253,6 +1253,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener {
             else if (exitMenuOpen) {
                 if (new Rectangle(250, 80, 520, 80).contains(mouse)) {  // Save and continue
                     save(mainFrame.getNum());
+                    exitMenuOpen = false;
                 }
 
                 else if (new Rectangle(250, 80 + 118, 520, 80).contains(mouse)) {  // Save and return to menu

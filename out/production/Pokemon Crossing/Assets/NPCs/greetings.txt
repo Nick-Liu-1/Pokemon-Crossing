@@ -1,0 +1,15 @@
+14
+Hi, [PLAYER]! Need to chat about something, [CATCHPHRASE]?
+Hello! How can I help ya, [CATCHPHRASE]?
+Heya, [PLAYER]! Good to see ya, [CATCHPHRASE].
+[PLAYER]! Heh... Made ya look, [CATCHPHRASE]!
+What's good, [PLAYER]? So... Is there something you need from me?
+[PLAYER]! Am I having deja vu, [CATCHPHRASE]? Didn't we just talk?
+Yo, [PLAYER]! Whatcha need, [CATCHPHRASE]?
+So we meet again. What can I do for you, [CATCHPHRASE]?
+I've always got time for you, [PLAYER]. What can I do for you, [CATCHPHRASE]?
+Hi, [PLAYER]! What's popping, [CATCHPHRASE]?
+Nothing like a chat with [PLAYER] to brighten your day, huh?
+You again, [PLAYER]? How goes it?
+Good to see you, [PLAYER]. Need something, [CATCHPHRASE]?
+If it isn;t [PLAYER]! What's shaking, [CATCHPHRASE]?

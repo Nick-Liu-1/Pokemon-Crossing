@@ -23,8 +23,8 @@ public class NewFile extends JFrame {
 		backBtn.addActionListener(new ActionListener(){
     		@Override
     		public void actionPerformed(ActionEvent e){
-    			StartMenu menu = new StartMenu();
     			setVisible(false);
+    			StartMenu menu = new StartMenu();
     		}
 		});
 		backBtn.setBounds(54, 566, 259, 77);
@@ -39,7 +39,9 @@ public class NewFile extends JFrame {
 				String gender = JOptionPane.showInputDialog("Gender: (male/female)");
 				int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
 				createNewFile(1, name, g);
+				setVisible(false);
 				Main main = new Main(1);
+
     		}			
 		});
 		slot1.setBounds(326, 249, 400, 60);
@@ -54,7 +56,10 @@ public class NewFile extends JFrame {
 				String gender = JOptionPane.showInputDialog("Gender: (male/female)");
 				int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
 				createNewFile(2, name, g);
+				setVisible(false);
 				Main main = new Main(2);
+				
+
     		}			
 		});
 		slot2.setBounds(326, 309, 400, 60);
@@ -75,6 +80,7 @@ public class NewFile extends JFrame {
 				if (name != null && gender != null) {
 					int g = gender.toLowerCase().equals("male") ? Player.MALE : Player.FEMALE;
 					createNewFile(3, name, g);
+					setVisible(false);
 					Main main = new Main(3);
 				}
 

@@ -54,8 +54,8 @@ public class LoadFile extends JFrame{
     		@Override
     		public void actionPerformed(ActionEvent e){
     			if (slotsUsed[0]) {
-					Main frame = new Main(1);	//opens Pokemon Crossing with corresponding save file
 					goToGame();
+					Main frame = new Main(1);	//opens Pokemon Crossing with corresponding save file
 				}
 
     		}			
@@ -69,8 +69,8 @@ public class LoadFile extends JFrame{
     		@Override
     		public void actionPerformed(ActionEvent e){
 				if (slotsUsed[1]) {
-					Main frame = new Main(2);
 					goToGame();
+					Main frame = new Main(2);
 				}
     		}			
 		});
@@ -83,8 +83,8 @@ public class LoadFile extends JFrame{
     		@Override
     		public void actionPerformed(ActionEvent e){
 				if (slotsUsed[2]) {
-					Main frame = new Main(3);
 					goToGame();
+					Main frame = new Main(3);
 				}
     		}			
 		});
